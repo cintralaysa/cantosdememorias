@@ -1,0 +1,82 @@
+# Cantos de Memórias - robots.txt
+# Otimizado para SEO tradicional e Generative Engine Optimization (GEO)
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Google
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+User-agent: msnbot
+Allow: /
+
+# Bots de IA - ChatGPT/OpenAI
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Bots de IA - Anthropic/Claude
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# Bots de IA - Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+# Bots de IA - Common Crawl (usado por muitos LLMs)
+User-agent: CCBot
+Allow: /
+
+# Bots de IA - Cohere
+User-agent: cohere-ai
+Allow: /
+
+# Bots de IA - Meta/Facebook
+User-agent: FacebookBot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+# Bots de IA - Apple
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Bots de IA - You.com
+User-agent: YouBot
+Allow: /
+
+# Yandex
+User-agent: Yandex
+Allow: /
+
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+
+# Sitemap
+Sitemap: https://cantosdememoria.com/sitemap.xml
