@@ -1,9 +1,8 @@
 import { stripe } from '@/lib/stripe';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-
-// E-mail para receber notificações de venda
-const NOTIFICATION_EMAIL = 'cantosdememorias@gmail.com';
+import { createOrder, Order } from '@/lib/db';
+import { sendOrderNotification } from '@/lib/email';
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -32,28 +31,45 @@ export async function POST(req: Request) {
     const session = event.data.object as any;
     const metadata = session.metadata || {};
 
-    // Formatar dados do pedido
-    const orderData = {
+    // Determinar método de pagamento
+    let paymentMethod: 'card' | 'pix' | 'unknown' = 'unknown';
+    if (session.payment_method_types?.includes('card')) {
+      paymentMethod = 'card';
+    }
+    if (session.payment_method_types?.includes('pix') || session.payment_method_types?.includes('boleto')) {
+      // Verificar se foi PIX
+      try {
+        const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
+        if (paymentIntent.payment_method_types?.includes('pix')) {
+          paymentMethod = 'pix';
+        }
+      } catch {
+        // Se não conseguir verificar, manter o método detectado
+      }
+    }
+
+    // Criar pedido no banco de dados
+    const orderData: Omit<Order, 'id' | 'createdAt'> = {
+      status: 'paid',
+      paymentMethod,
+
       // Dados do cliente
-      userName: metadata.userName || 'N/A',
-      whatsapp: metadata.whatsapp || 'N/A',
-      email: metadata.email || 'N/A',
+      customerEmail: session.customer_email || metadata.email || '',
+      customerName: metadata.userName || session.customer_details?.name || '',
 
-      // Dados do serviço
-      serviceTitle: metadata.serviceTitle || 'N/A',
-      serviceType: metadata.serviceType || 'N/A',
-
-      // Dados do homenageado
-      honoreeName: metadata.honoreeName || 'N/A',
-      relationship: metadata.relationship || 'N/A',
-      occasion: metadata.occasion || 'N/A',
-      musicStyle: metadata.musicStyle || 'N/A',
-      voicePreference: metadata.voicePreference || 'Sem preferência',
-
-      // História
-      qualities: metadata.qualities || 'Não informado',
-      memories: metadata.memories || 'Não informado',
-      heartMessage: metadata.heartMessage || 'Não informado',
+      // Dados do pedido
+      honoreeName: metadata.honoreeName || '',
+      relationship: metadata.relationship || '',
+      relationshipLabel: metadata.relationshipLabel || metadata.relationship || '',
+      occasion: metadata.occasion || '',
+      occasionLabel: metadata.occasionLabel || metadata.occasion || '',
+      musicStyle: metadata.musicStyle || '',
+      musicStyleLabel: metadata.musicStyleLabel || metadata.musicStyle || '',
+      voicePreference: metadata.voicePreference || '',
+      qualities: metadata.qualities || '',
+      memories: metadata.memories || '',
+      heartMessage: metadata.heartMessage || '',
+      familyNames: metadata.familyNames || '',
 
       // Chá revelação
       knowsBabySex: metadata.knowsBabySex || '',
@@ -61,120 +77,27 @@ export async function POST(req: Request) {
       babyNameBoy: metadata.babyNameBoy || '',
       babyNameGirl: metadata.babyNameGirl || '',
 
-      // Dados do pagamento
-      amount: session.amount_total ? (session.amount_total / 100).toFixed(2) : '0.00',
-      paymentStatus: session.payment_status,
-      sessionId: session.id,
+      // Letra aprovada
+      approvedLyrics: metadata.approvedLyrics || '',
+
+      // Pagamento
+      amount: session.amount_total ? session.amount_total / 100 : 0,
+      stripeSessionId: session.id,
+      stripePaymentIntentId: session.payment_intent || '',
     };
 
-    // Enviar notificação por e-mail
-    await sendEmailNotification(orderData);
+    try {
+      // Salvar pedido
+      const order = await createOrder(orderData);
+      console.log('Pedido salvo:', order.id);
 
-    console.log('Pedido processado:', orderData);
+      // Enviar e-mail de notificação
+      await sendOrderNotification(order);
+      console.log('E-mail de notificação enviado');
+    } catch (error) {
+      console.error('Erro ao processar pedido:', error);
+    }
   }
 
   return NextResponse.json({ received: true });
-}
-
-async function sendEmailNotification(orderData: any) {
-  // Construir informações do chá revelação se aplicável
-  let chaRevelacaoInfo = '';
-  if (orderData.occasion === 'Chá Revelação') {
-    if (orderData.knowsBabySex === 'sim') {
-      chaRevelacaoInfo = `
-
-🍼 DETALHES DO CHÁ REVELAÇÃO:
-- Já sabe o sexo: SIM
-- Sexo do bebê: ${orderData.babySex === 'menino' ? 'MENINO 💙' : 'MENINA 💖'}
-- Nome do bebê: ${orderData.babySex === 'menino' ? orderData.babyNameBoy : orderData.babyNameGirl}`;
-    } else if (orderData.knowsBabySex === 'nao') {
-      chaRevelacaoInfo = `
-
-🍼 DETALHES DO CHÁ REVELAÇÃO:
-- Já sabe o sexo: NÃO (criar 2 versões!)
-- Nome se for Menino: ${orderData.babyNameBoy} 💙
-- Nome se for Menina: ${orderData.babyNameGirl} 💖
-⚠️ ATENÇÃO: Criar DUAS músicas, uma para cada possibilidade!`;
-    }
-  }
-
-  const emailBody = `
-🎉 NOVA VENDA - CANTOS DE MEMÓRIAS! 🎉
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💰 VALOR: R$ ${orderData.amount}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📦 SERVIÇO: ${orderData.serviceTitle}
-${orderData.serviceType === 'music' ? '🎵 Tipo: Música Personalizada' : '🎙️ Tipo: Locução de Voz'}
-
-👤 DADOS DO CLIENTE:
-- Nome: ${orderData.userName}
-- WhatsApp: ${orderData.whatsapp}
-- E-mail: ${orderData.email || 'Não informado'}
-
-💕 PARA QUEM É:
-- Nome: ${orderData.honoreeName}
-- Relação: ${orderData.relationship}
-- Ocasião: ${orderData.occasion}
-${orderData.serviceType !== 'voiceover' ? `- Estilo Musical: ${orderData.musicStyle}` : ''}
-- Preferência de Voz: ${orderData.voicePreference}
-${chaRevelacaoInfo}
-
-📝 QUALIDADES/CARACTERÍSTICAS:
-${orderData.qualities}
-
-🎬 MEMÓRIAS ESPECIAIS:
-${orderData.memories}
-
-💌 MENSAGEM DO CORAÇÃO:
-${orderData.heartMessage}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🆔 ID da Sessão: ${orderData.sessionId}
-✅ Status: ${orderData.paymentStatus === 'paid' ? 'PAGO' : orderData.paymentStatus}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-⏰ Lembre-se: Entrega em até 24 horas!
-${orderData.serviceType === 'music' ? '🎵 Enviar 2 melodias diferentes para o cliente escolher!' : '🎙️ Enviar 2 tons de voz diferentes para o cliente escolher!'}
-`;
-
-  // Usar o serviço de e-mail configurado
-  // Por enquanto, vamos usar uma abordagem simples com a API Resend ou similar
-  // Você pode substituir por qualquer serviço de e-mail
-
-  try {
-    // Se tiver Resend configurado:
-    if (process.env.RESEND_API_KEY) {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Cantos de Memórias <vendas@cantosdememorias.com>',
-          to: [NOTIFICATION_EMAIL],
-          subject: `🎉 Nova Venda! ${orderData.serviceTitle} - R$ ${orderData.amount}`,
-          text: emailBody,
-        }),
-      });
-
-      if (!response.ok) {
-        console.error('Erro ao enviar e-mail via Resend:', await response.text());
-      } else {
-        console.log('E-mail de notificação enviado com sucesso!');
-      }
-    } else {
-      // Fallback: logar no console se não tiver serviço de e-mail configurado
-      console.log('='.repeat(60));
-      console.log('NOTIFICAÇÃO DE VENDA (sem serviço de e-mail configurado):');
-      console.log('='.repeat(60));
-      console.log(emailBody);
-      console.log('='.repeat(60));
-      console.log('Configure RESEND_API_KEY no .env para receber e-mails');
-    }
-  } catch (error) {
-    console.error('Erro ao enviar notificação:', error);
-  }
 }

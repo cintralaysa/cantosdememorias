@@ -51,3 +51,6 @@ coverage/
 *.pem
 *.key
 *.crt
+
+# Data files (pedidos salvos localmente)
+data/orders.json
