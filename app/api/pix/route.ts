@@ -11,7 +11,7 @@ import { createOrder, Order } from '@/lib/db';
 import { sendOrderNotification } from '@/lib/email';
 
 // Configuração do PIX
-const PIX_KEY = process.env.PIX_KEY || 'cantosdememorias@gmail.com';
+const PIX_KEY = process.env.PIX_KEY || '63388806000119';
 const PIX_NAME = process.env.PIX_NAME || 'CANTOS DE MEMORIAS';
 
 // Lista de preços válidos

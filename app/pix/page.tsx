@@ -139,7 +139,7 @@ export default function PixPage() {
 
             {/* Chave PIX */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Chave PIX (E-mail)</label>
+              <label className="text-sm font-medium text-gray-700">Chave PIX (CNPJ)</label>
               <div className="flex gap-2">
                 <div className="flex-1 bg-gray-100 rounded-lg px-4 py-3 font-mono text-sm text-gray-800 break-all">
                   {pixData.key}
