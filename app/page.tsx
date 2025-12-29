@@ -509,9 +509,9 @@ export default function Home() {
                     <div className="text-center sm:text-left">
                       <div className="text-gray-400 text-sm line-through">De R$ 159,98</div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-sm text-gray-500">R$</span>
-                        <span className="text-5xl font-black text-gradient-royal">79</span>
-                        <span className="text-xl font-bold text-gray-500">,99</span>
+                        <span className="text-sm text-black font-bold">R$</span>
+                        <span className="text-5xl font-black text-black">79</span>
+                        <span className="text-xl font-bold text-black">,99</span>
                       </div>
                     </div>
                     <Link
