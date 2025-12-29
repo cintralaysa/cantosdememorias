@@ -152,3 +152,169 @@ export async function sendOrderNotification(order: Order): Promise<boolean> {
     return false;
   }
 }
+
+// E-mail de confirmação para o cliente
+export async function sendCustomerConfirmation(order: Order): Promise<boolean> {
+  if (!RESEND_API_KEY) {
+    console.error('RESEND_API_KEY não configurada');
+    return false;
+  }
+
+  if (!order.customerEmail) {
+    console.error('E-mail do cliente não informado');
+    return false;
+  }
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f3f4f6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0 0 10px 0; font-size: 28px; }
+        .header p { margin: 0; opacity: 0.9; font-size: 16px; }
+        .check-icon { width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 40px; }
+        .content { padding: 30px; }
+        .greeting { font-size: 18px; margin-bottom: 20px; }
+        .order-box { background: #f9fafb; border-radius: 12px; padding: 20px; margin: 20px 0; }
+        .order-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+        .order-row:last-child { border-bottom: none; }
+        .order-label { color: #6b7280; }
+        .order-value { font-weight: 600; color: #111827; }
+        .highlight-box { background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; }
+        .highlight-box h3 { color: #92400e; margin: 0 0 10px 0; }
+        .highlight-box p { color: #78350f; margin: 0; }
+        .steps { margin: 30px 0; }
+        .step { display: flex; align-items: flex-start; margin-bottom: 15px; }
+        .step-number { width: 30px; height: 30px; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; flex-shrink: 0; }
+        .step-content h4 { margin: 0 0 5px 0; color: #111827; }
+        .step-content p { margin: 0; color: #6b7280; font-size: 14px; }
+        .footer { text-align: center; padding: 30px; background: #f9fafb; }
+        .footer p { margin: 5px 0; color: #6b7280; font-size: 14px; }
+        .social-links { margin-top: 15px; }
+        .social-links a { color: #7c3aed; text-decoration: none; margin: 0 10px; }
+        .button { display: inline-block; background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 14px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 20px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="card">
+          <div class="header">
+            <div class="check-icon">✓</div>
+            <h1>Pedido Confirmado!</h1>
+            <p>Sua música personalizada está a caminho</p>
+          </div>
+
+          <div class="content">
+            <p class="greeting">Olá, <strong>${order.customerName || 'Cliente'}</strong>!</p>
+
+            <p>Recebemos seu pedido e estamos muito felizes em criar essa música especial para você. Nossa equipe já está trabalhando com carinho para transformar sua história em uma canção emocionante.</p>
+
+            <div class="order-box">
+              <div class="order-row">
+                <span class="order-label">Pedido</span>
+                <span class="order-value">#${order.id}</span>
+              </div>
+              <div class="order-row">
+                <span class="order-label">Para quem</span>
+                <span class="order-value">${order.honoreeName}</span>
+              </div>
+              <div class="order-row">
+                <span class="order-label">Ocasião</span>
+                <span class="order-value">${order.occasionLabel}</span>
+              </div>
+              <div class="order-row">
+                <span class="order-label">Estilo Musical</span>
+                <span class="order-value">${order.musicStyleLabel}</span>
+              </div>
+              <div class="order-row">
+                <span class="order-label">Valor</span>
+                <span class="order-value" style="color: #059669;">R$ ${order.amount.toFixed(2).replace('.', ',')}</span>
+              </div>
+            </div>
+
+            <div class="highlight-box">
+              <h3>⏰ Prazo de Entrega</h3>
+              <p><strong>Até 24 horas</strong> você receberá suas músicas!</p>
+            </div>
+
+            <div class="steps">
+              <h3 style="margin-bottom: 20px;">Próximos Passos:</h3>
+
+              <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <h4>Criação da Música</h4>
+                  <p>Nossa equipe está criando sua música personalizada com base na letra que você aprovou.</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <h4>Você Recebe 2 Versões</h4>
+                  <p>Enviaremos 2 melodias diferentes para você escolher a que mais combina!</p>
+                </div>
+              </div>
+
+              <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <h4>Entrega por WhatsApp</h4>
+                  <p>Você receberá as músicas diretamente no seu WhatsApp em até 24 horas.</p>
+                </div>
+              </div>
+            </div>
+
+            <p style="text-align: center; color: #6b7280;">
+              Alguma dúvida? Responda este e-mail ou entre em contato pelo Instagram!
+            </p>
+          </div>
+
+          <div class="footer">
+            <p><strong>Cantos de Memórias</strong></p>
+            <p>Transformando sentimentos em música</p>
+            <div class="social-links">
+              <a href="https://instagram.com/cantosdememorias">@cantosdememorias</a>
+            </div>
+            <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">
+              Este é um e-mail automático. Por favor, não responda diretamente.
+            </p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'Cantos de Memórias <onboarding@resend.dev>',
+        to: [order.customerEmail],
+        subject: `✅ Pedido Confirmado! Sua música para ${order.honoreeName} está sendo criada`,
+        html: htmlContent,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('Erro ao enviar e-mail para cliente:', error);
+      return false;
+    }
+
+    console.log('E-mail de confirmação enviado para', order.customerEmail);
+    return true;
+  } catch (error) {
+    console.error('Erro ao enviar e-mail para cliente:', error);
+    return false;
+  }
+}

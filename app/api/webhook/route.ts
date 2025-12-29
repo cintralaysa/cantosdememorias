@@ -2,7 +2,7 @@ import { stripe } from '@/lib/stripe';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { createOrder, Order } from '@/lib/db';
-import { sendOrderNotification } from '@/lib/email';
+import { sendOrderNotification, sendCustomerConfirmation } from '@/lib/email';
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -91,9 +91,13 @@ export async function POST(req: Request) {
       const order = await createOrder(orderData);
       console.log('Pedido salvo:', order.id);
 
-      // Enviar e-mail de notificação
+      // Enviar e-mail de notificação para admin
       await sendOrderNotification(order);
-      console.log('E-mail de notificação enviado');
+      console.log('E-mail de notificação enviado para admin');
+
+      // Enviar e-mail de confirmação para o cliente
+      await sendCustomerConfirmation(order);
+      console.log('E-mail de confirmação enviado para cliente');
     } catch (error) {
       console.error('Erro ao processar pedido:', error);
     }
