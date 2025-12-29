@@ -134,7 +134,7 @@ export async function POST(req: Request) {
       : `Cantos de Memórias - ${sanitizeString(service.title, 30)} para ${sanitizeString(details.honoreeName, 30)}`;
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card', 'pix'],
+      payment_method_types: ['card'],
       line_items: [{
         price_data: {
           currency: 'brl',

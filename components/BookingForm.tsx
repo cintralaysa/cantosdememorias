@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
-import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Mic2, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Mic2, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, CreditCard } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -126,10 +127,12 @@ interface FormData {
 }
 
 export default function BookingForm({ service }: { service: Service }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [generatingLyrics, setGeneratingLyrics] = useState(false);
   const [lyricsError, setLyricsError] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'pix' | null>(null);
   const [formData, setFormData] = useState<FormData>({
     relationship: '',
     honoreeName: '',
@@ -190,8 +193,8 @@ export default function BookingForm({ service }: { service: Service }) {
           // Ver e aprovar texto
           return formData.scriptApproved && formData.generatedScript.trim().length > 0;
         case 5:
-          // Finalizar - dados de contato
-          return formData.userName.trim() && formData.whatsapp.trim().length >= 10;
+          // Finalizar - dados de contato + método de pagamento
+          return formData.userName.trim() && formData.whatsapp.trim().length >= 10 && paymentMethod !== null;
         default:
           return false;
       }
@@ -224,11 +227,12 @@ export default function BookingForm({ service }: { service: Service }) {
           // Para música: passo 5 é ver a letra
           return formData.lyricsApproved && formData.generatedLyrics.trim().length > 0;
         case 6:
-          // Finalizar - e-mail agora obrigatório
+          // Finalizar - e-mail agora obrigatório + método de pagamento
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           return formData.userName.trim().length >= 2 &&
                  formData.whatsapp.trim().length >= 10 &&
-                 emailRegex.test(formData.email.trim());
+                 emailRegex.test(formData.email.trim()) &&
+                 paymentMethod !== null;
         default:
           return false;
       }
@@ -337,7 +341,7 @@ export default function BookingForm({ service }: { service: Service }) {
   };
 
   const handleCheckout = async () => {
-    if (!canProceed()) return;
+    if (!canProceed() || !paymentMethod) return;
     setLoading(true);
 
     const details = {
@@ -354,16 +358,34 @@ export default function BookingForm({ service }: { service: Service }) {
     };
 
     try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ service, details }),
-      });
-      const { sessionId, error } = await response.json();
-      if (error) throw new Error(error);
-      const stripe = await stripePromise;
-      const { error: stripeError } = await stripe!.redirectToCheckout({ sessionId });
-      if (stripeError) throw new Error(stripeError.message);
+      if (paymentMethod === 'pix') {
+        // Processar pagamento via PIX manual
+        const response = await fetch('/api/pix', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ service, details }),
+        });
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+        // Redirecionar para página de PIX com os dados
+        const pixData = encodeURIComponent(JSON.stringify({
+          orderId: data.orderId,
+          pix: data.pix,
+        }));
+        router.push(`/pix?data=${pixData}`);
+      } else {
+        // Processar pagamento via Stripe (cartão)
+        const response = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ service, details }),
+        });
+        const { sessionId, error } = await response.json();
+        if (error) throw new Error(error);
+        const stripe = await stripePromise;
+        const { error: stripeError } = await stripe!.redirectToCheckout({ sessionId });
+        if (stripeError) throw new Error(stripeError.message);
+      }
     } catch (error: any) {
       console.error(error);
       alert(error.message || 'Erro ao processar pedido. Tente novamente.');
@@ -1365,6 +1387,45 @@ export default function BookingForm({ service }: { service: Service }) {
               <p className="text-xs text-gray-400">Usaremos para enviar confirmação e atualizações do pedido</p>
             </div>
 
+            {/* Escolha do método de pagamento */}
+            <div className="space-y-4 pt-4">
+              <label className="block text-sm font-bold text-gray-700">Como você prefere pagar? *</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('card')}
+                  className={`p-5 rounded-2xl border-2 text-center transition-all duration-300 hover:-translate-y-1 ${
+                    paymentMethod === 'card'
+                      ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-100'
+                      : 'border-gray-200 hover:border-violet-300 hover:bg-violet-50/50'
+                  }`}
+                >
+                  <CreditCard className={`w-10 h-10 mx-auto mb-3 ${paymentMethod === 'card' ? 'text-violet-600' : 'text-gray-400'}`} />
+                  <span className={`font-bold text-sm block ${paymentMethod === 'card' ? 'text-violet-600' : 'text-gray-700'}`}>
+                    Cartão de Crédito
+                  </span>
+                  <span className="text-xs text-gray-400 mt-1 block">Parcele em até 12x</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('pix')}
+                  className={`p-5 rounded-2xl border-2 text-center transition-all duration-300 hover:-translate-y-1 ${
+                    paymentMethod === 'pix'
+                      ? 'border-green-500 bg-green-50 shadow-lg shadow-green-100'
+                      : 'border-gray-200 hover:border-green-300 hover:bg-green-50/50'
+                  }`}
+                >
+                  <svg viewBox="0 0 512 512" className={`w-10 h-10 mx-auto mb-3 ${paymentMethod === 'pix' ? 'fill-green-600' : 'fill-gray-400'}`}>
+                    <path d="M242.4 292.5c-18.4-13.5-38.4-25.3-59.9-35.3-5.9-2.7-11.9-5.2-18-7.5 19.1-8.9 36.3-21.2 50.5-36.9 17.4-19.2 29.8-42.6 35.5-68.2 3.8-17.2 4.7-35.2 2.3-52.6-2.4-17.4-8-34.1-16.4-49.1-8.4-15-19.6-28.2-32.8-38.9-13.2-10.7-28.3-18.7-44.4-23.5-16.1-4.8-33-6.5-49.8-4.9-16.9 1.6-33.2 6.6-47.9 14.6l-2.4 1.3-2.4 1.3c-14.1 8.4-26.3 19.5-36 32.5-9.6 13-16.8 27.9-21.1 43.6-4.3 15.7-5.7 32.2-4 48.4 1.7 16.2 6.3 31.9 13.6 46.2 7.3 14.3 17.1 27 29 37.6 11.9 10.6 25.6 18.9 40.4 24.5 14.8 5.6 30.4 8.5 46.1 8.4h.2c6.5 0 13-.4 19.4-1.2-5.7 6.5-12.2 12.3-19.5 17.2-18.4 12.4-40.1 19.8-62.6 21.3-22.5 1.5-45.1-3-65.4-12.9-20.3-9.9-37.9-24.8-50.8-43.3-12.9-18.5-20.8-40.1-22.8-62.5-2-22.4 2-45.1 11.6-65.6 9.6-20.5 24.4-38.2 43-51.2 18.6-13 40.1-21.1 62.5-23.4 22.4-2.3 45.1 1.4 65.8 10.8 20.7 9.4 38.6 24 52 42.2 13.4 18.2 22.1 39.6 25 62 2.9 22.4-.1 45.2-8.9 66.1-8.8 20.9-22.9 39.3-41 53.2z"/>
+                  </svg>
+                  <span className={`font-bold text-sm block ${paymentMethod === 'pix' ? 'text-green-600' : 'text-gray-700'}`}>
+                    PIX
+                  </span>
+                  <span className="text-xs text-gray-400 mt-1 block">Aprovação instantânea</span>
+                </button>
+              </div>
+            </div>
+
             {/* Resumo do pedido */}
             <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
               <h4 className="font-bold text-gray-900 mb-4">Resumo do seu pedido</h4>
@@ -1511,7 +1572,9 @@ export default function BookingForm({ service }: { service: Service }) {
               disabled={!canProceed() || loading}
               className={`flex-1 flex items-center justify-center gap-3 px-8 py-5 rounded-xl font-bold transition-all duration-300 ${
                 canProceed() && !loading
-                  ? 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 shadow-lg shadow-violet-200 hover:-translate-y-0.5 text-white'
+                  ? paymentMethod === 'pix'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg shadow-green-200 hover:-translate-y-0.5 text-white'
+                    : 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 shadow-lg shadow-violet-200 hover:-translate-y-0.5 text-white'
                   : 'bg-gray-300 cursor-not-allowed text-gray-500'
               }`}
             >
@@ -1519,8 +1582,24 @@ export default function BookingForm({ service }: { service: Service }) {
                 <Loader2 className="animate-spin" size={24} />
               ) : (
                 <>
-                  <Lock size={18} />
-                  Finalizar Pedido
+                  {paymentMethod === 'pix' ? (
+                    <>
+                      <svg viewBox="0 0 512 512" className="w-5 h-5 fill-current">
+                        <path d="M242.4 292.5c-18.4-13.5-38.4-25.3-59.9-35.3-5.9-2.7-11.9-5.2-18-7.5 19.1-8.9 36.3-21.2 50.5-36.9 17.4-19.2 29.8-42.6 35.5-68.2 3.8-17.2 4.7-35.2 2.3-52.6-2.4-17.4-8-34.1-16.4-49.1-8.4-15-19.6-28.2-32.8-38.9-13.2-10.7-28.3-18.7-44.4-23.5-16.1-4.8-33-6.5-49.8-4.9-16.9 1.6-33.2 6.6-47.9 14.6l-2.4 1.3-2.4 1.3c-14.1 8.4-26.3 19.5-36 32.5-9.6 13-16.8 27.9-21.1 43.6-4.3 15.7-5.7 32.2-4 48.4 1.7 16.2 6.3 31.9 13.6 46.2 7.3 14.3 17.1 27 29 37.6 11.9 10.6 25.6 18.9 40.4 24.5 14.8 5.6 30.4 8.5 46.1 8.4h.2c6.5 0 13-.4 19.4-1.2-5.7 6.5-12.2 12.3-19.5 17.2-18.4 12.4-40.1 19.8-62.6 21.3-22.5 1.5-45.1-3-65.4-12.9-20.3-9.9-37.9-24.8-50.8-43.3-12.9-18.5-20.8-40.1-22.8-62.5-2-22.4 2-45.1 11.6-65.6 9.6-20.5 24.4-38.2 43-51.2 18.6-13 40.1-21.1 62.5-23.4 22.4-2.3 45.1 1.4 65.8 10.8 20.7 9.4 38.6 24 52 42.2 13.4 18.2 22.1 39.6 25 62 2.9 22.4-.1 45.2-8.9 66.1-8.8 20.9-22.9 39.3-41 53.2z"/>
+                      </svg>
+                      Pagar com PIX
+                    </>
+                  ) : paymentMethod === 'card' ? (
+                    <>
+                      <CreditCard size={18} />
+                      Pagar com Cartão
+                    </>
+                  ) : (
+                    <>
+                      <Lock size={18} />
+                      Escolha o pagamento
+                    </>
+                  )}
                   <ArrowRight size={18} />
                 </>
               )}

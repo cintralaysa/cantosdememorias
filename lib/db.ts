@@ -7,7 +7,7 @@ import path from 'path';
 export interface Order {
   id: string;
   createdAt: string;
-  status: 'pending' | 'paid' | 'completed' | 'cancelled';
+  status: 'pending' | 'pending_pix' | 'paid' | 'completed' | 'cancelled';
   paymentMethod: 'card' | 'pix' | 'unknown';
 
   // Dados do cliente
