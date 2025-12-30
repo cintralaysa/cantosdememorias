@@ -14,28 +14,30 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
   const isVoice = service.type === 'voiceover';
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-violet-50 via-white to-purple-50">
-      {/* Header simples */}
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Header simples - Mais compacto mobile */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-violet-500 transition-all">
-            <ChevronLeft size={18} />
-            Voltar para início
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-600 hover:text-violet-500">
+            <ChevronLeft size={16} />
+            Voltar
           </Link>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+      <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8 md:py-12">
         {/* Header do serviço - Mobile first */}
-        <div className="text-center mb-8 md:hidden">
-          <div className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-2 rounded-full mb-4">
-            <Sparkles size={16} />
-            <span className="text-sm font-bold">{service.highlight}</span>
+        <div className="text-center mb-4 md:hidden">
+          <div className="inline-flex items-center gap-1.5 bg-violet-100 text-violet-700 px-3 py-1.5 rounded-full mb-2">
+            <Sparkles size={14} />
+            <span className="text-xs font-bold">Compre 1, Ganhe Outra!</span>
           </div>
-          <h1 className="text-3xl font-black text-gray-900 mb-3">
-            {service.title}
+          <h1 className="text-xl font-black text-gray-900 mb-1">
+            Música Personalizada
           </h1>
-          <p className="text-gray-600">{service.description}</p>
+          <p className="text-gray-600 text-sm">
+            2 melodias diferentes por apenas <span className="font-bold text-violet-600">R$ 79,99</span>
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-start">
@@ -134,48 +136,36 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
             <BookingForm service={service} />
 
             {/* Info cards mobile */}
-            <div className="mt-8 space-y-4 md:hidden">
-              {/* Áudio demo mobile */}
-              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  {isVoice ? <Headphones size={18} className="text-violet-500" /> : <MusicIcon size={18} className="text-violet-500" />}
-                  <span className="font-bold text-gray-900 text-sm">Ouça um exemplo</span>
+            <div className="mt-4 space-y-3 md:hidden">
+              {/* Trust badges mobile - Grid 2x2 */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-2 bg-violet-50 rounded-xl p-3">
+                  <Clock size={18} className="text-violet-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-bold text-gray-800">Entrega 24h</p>
+                    <p className="text-[10px] text-gray-500">Dias úteis</p>
+                  </div>
                 </div>
-                <audio controls className="w-full">
-                  <source src={service.audioSample || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"} type="audio/mpeg" />
-                </audio>
-              </div>
-
-              {/* Features mobile */}
-              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <h3 className="font-bold text-gray-900 mb-3 text-sm">O que está incluso:</h3>
-                <ul className="space-y-2">
-                  {service.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                      <CheckCircle2 size={14} className="text-green-500 flex-shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Trust badges mobile */}
-              <div className="flex justify-center gap-6 py-4">
-                <div className="text-center">
-                  <Clock size={20} className="mx-auto text-violet-500 mb-1" />
-                  <p className="text-xs font-bold text-gray-700">24h</p>
+                <div className="flex items-center gap-2 bg-violet-50 rounded-xl p-3">
+                  <Shield size={18} className="text-violet-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-bold text-gray-800">100% Seguro</p>
+                    <p className="text-[10px] text-gray-500">Pagamento protegido</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <Shield size={20} className="mx-auto text-violet-500 mb-1" />
-                  <p className="text-xs font-bold text-gray-700">Seguro</p>
+                <div className="flex items-center gap-2 bg-violet-50 rounded-xl p-3">
+                  <Heart size={18} className="text-violet-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-bold text-gray-800">+2.000 Clientes</p>
+                    <p className="text-[10px] text-gray-500">Satisfeitos</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <Heart size={20} className="mx-auto text-violet-500 mb-1" />
-                  <p className="text-xs font-bold text-gray-700">+2.000</p>
-                </div>
-                <div className="text-center">
-                  <Star size={20} className="mx-auto text-violet-500 mb-1" />
-                  <p className="text-xs font-bold text-gray-700">5.0</p>
+                <div className="flex items-center gap-2 bg-violet-50 rounded-xl p-3">
+                  <Star size={18} className="text-violet-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-bold text-gray-800">5.0 Estrelas</p>
+                    <p className="text-[10px] text-gray-500">Avaliação</p>
+                  </div>
                 </div>
               </div>
             </div>

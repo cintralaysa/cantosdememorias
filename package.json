@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mercadopago/sdk-react": "^1.0.7",
     "@stripe/stripe-js": "^2.4.0",
     "@upstash/redis": "^1.36.0",
     "@vercel/kv": "^3.0.0",

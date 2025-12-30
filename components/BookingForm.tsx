@@ -224,12 +224,11 @@ export default function BookingForm({ service }: { service: Service }) {
           // Para música: passo 5 é ver a letra
           return formData.lyricsApproved && formData.generatedLyrics.trim().length > 0;
         case 6:
-          // Finalizar - e-mail agora obrigatório + método de pagamento
+          // Finalizar - e-mail agora obrigatório (método de pagamento será escolhido na próxima página)
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           return formData.userName.trim().length >= 2 &&
                  formData.whatsapp.trim().length >= 10 &&
-                 emailRegex.test(formData.email.trim()) &&
-                 paymentMethod !== null;
+                 emailRegex.test(formData.email.trim());
         default:
           return false;
       }
@@ -338,38 +337,44 @@ export default function BookingForm({ service }: { service: Service }) {
   };
 
   const handleCheckout = async () => {
-    if (!canProceed() || !paymentMethod) return;
+    if (!canProceed()) return;
     setLoading(true);
 
-    const details = {
-      ...formData,
-      // Labels para música
+    // Gerar ID único para o pedido
+    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Preparar dados para o checkout transparente
+    const checkoutData = {
+      orderId,
+      amount: service.price,
+      customerName: formData.userName,
+      customerEmail: formData.email,
+      customerWhatsapp: formData.whatsapp,
+      honoreeName: formData.honoreeName,
+      relationship: formData.relationship,
       relationshipLabel: RELATIONSHIPS.find(r => r.value === formData.relationship)?.label || formData.relationship,
+      occasion: formData.occasion,
       occasionLabel: OCCASIONS.find(o => o.value === formData.occasion)?.label || formData.occasion,
+      musicStyle: formData.musicStyle,
       musicStyleLabel: MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label || formData.musicStyle,
-      // Labels para locução
-      voiceoverPurposeLabel: VOICEOVER_PURPOSES.find(p => p.value === formData.voiceoverPurpose)?.label || formData.voiceoverPurpose,
-      voiceoverTypeLabel: VOICEOVER_TYPES.find(t => t.value === formData.voiceoverType)?.label || formData.voiceoverType,
-      voiceoverStyleLabel: VOICEOVER_STYLES.find(s => s.value === formData.voiceoverStyle)?.label || formData.voiceoverStyle,
-      voicePreferenceLabel: VOICE_OPTIONS.find(v => v.value === formData.voicePreference)?.label || formData.voicePreference,
+      voicePreference: formData.voicePreference,
+      qualities: formData.qualities,
+      memories: formData.memories,
+      heartMessage: formData.heartMessage,
+      familyNames: formData.familyNames,
+      approvedLyrics: formData.generatedLyrics,
+      knowsBabySex: formData.knowsBabySex,
+      babySex: formData.babySex,
+      babyNameBoy: formData.babyNameBoy,
+      babyNameGirl: formData.babyNameGirl,
     };
 
     try {
-      // Usar Mercado Pago para todos os pagamentos (cartão e PIX)
-      const response = await fetch('/api/mercadopago/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ service, details }),
-      });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
+      // Salvar dados no sessionStorage para recuperar na página de checkout
+      sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
 
-      // Redirecionar para checkout do Mercado Pago
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        throw new Error('URL de checkout não disponível');
-      }
+      // Redirecionar para página de checkout transparente
+      router.push('/checkout');
     } catch (error: any) {
       console.error(error);
       alert(error.message || 'Erro ao processar pedido. Tente novamente.');
@@ -386,34 +391,22 @@ export default function BookingForm({ service }: { service: Service }) {
   const finishStep = isVoice ? 5 : 6;
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-      {/* Header com progresso elegante */}
-      <div className="bg-gray-900 px-8 py-6">
-        {/* Step indicators */}
-        <div className="flex items-center justify-between mb-4">
-          {stepTitles.map((title, index) => (
-            <div key={index} className="flex items-center">
-              <div className={`flex items-center gap-2 ${index + 1 <= step ? 'text-white' : 'text-gray-500'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                  index + 1 < step ? 'bg-violet-500 text-white' :
-                  index + 1 === step ? 'bg-white text-gray-900' :
-                  'bg-gray-700 text-gray-400'
-                }`}>
-                  {index + 1 < step ? <Check size={16} /> : index + 1}
-                </div>
-                <span className="hidden md:block text-sm font-medium">{title}</span>
-              </div>
-              {index < stepTitles.length - 1 && (
-                <div className={`w-8 md:w-16 h-0.5 mx-2 ${
-                  index + 1 < step ? 'bg-violet-500' : 'bg-gray-700'
-                }`} />
-              )}
-            </div>
-          ))}
+    <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden">
+      {/* Header com progresso - Otimizado Mobile */}
+      <div className="bg-gray-900 px-4 sm:px-8 py-4 sm:py-6">
+        {/* Passo atual e título - Mobile friendly */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-white">
+            <span className="text-xs text-violet-300 font-medium">Passo {step} de {totalSteps}</span>
+            <h3 className="text-base sm:text-lg font-bold">{stepTitles[step - 1]}</h3>
+          </div>
+          <div className="text-right">
+            <span className="text-2xl sm:text-3xl font-black text-white">{Math.round(progress)}%</span>
+          </div>
         </div>
 
         {/* Progress bar */}
-        <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
@@ -421,44 +414,41 @@ export default function BookingForm({ service }: { service: Service }) {
         </div>
       </div>
 
-      {/* Conteúdo do formulário */}
-      <div className="p-8 md:p-10">
+      {/* Conteúdo do formulário - Menor padding mobile */}
+      <div className="p-4 sm:p-8 md:p-10">
         {/* PASSO 1 - Para Quem (Música) ou Objetivo (Locução) */}
         {step === 1 && !isVoice && (
-          <div className="space-y-8 animate-fadeInUp">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Heart className="text-violet-600" size={32} />
+          <div className="space-y-6 animate-fadeInUp">
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-violet-100 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Heart className="text-violet-600" size={24} />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Vamos começar!
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                Para quem é essa música?
               </h2>
-              <p className="text-gray-500">Para quem é essa música?</p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
               {RELATIONSHIPS.map((rel) => (
                 <button
                   key={rel.value}
                   type="button"
                   onClick={() => {
                     updateField('relationship', rel.value);
-                    // Se for chá revelação, definir a ocasião automaticamente
                     if (rel.value === 'cha-revelacao') {
                       updateField('occasion', 'cha-revelacao');
                     } else if (formData.occasion === 'cha-revelacao') {
-                      // Se estava em chá revelação e mudou, limpar a ocasião
                       updateField('occasion', '');
                     }
                   }}
-                  className={`p-4 rounded-2xl border-2 text-center transition-all duration-300 hover:-translate-y-1 ${
+                  className={`p-2 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-center transition-all ${
                     formData.relationship === rel.value
-                      ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-100'
-                      : 'border-gray-200 hover:border-violet-300 hover:bg-violet-50/50'
+                      ? 'border-violet-500 bg-violet-50 shadow-md'
+                      : 'border-gray-200'
                   }`}
                 >
-                  <span className="text-3xl mb-2 block">{rel.emoji}</span>
-                  <span className={`font-semibold text-sm ${formData.relationship === rel.value ? 'text-violet-600' : 'text-gray-700'}`}>
+                  <span className="text-xl sm:text-2xl block">{rel.emoji}</span>
+                  <span className={`font-medium text-[10px] sm:text-xs ${formData.relationship === rel.value ? 'text-violet-600' : 'text-gray-700'}`}>
                     {rel.label}
                   </span>
                 </button>
@@ -1371,43 +1361,11 @@ export default function BookingForm({ service }: { service: Service }) {
               <p className="text-xs text-gray-400">Usaremos para enviar confirmação e atualizações do pedido</p>
             </div>
 
-            {/* Escolha do método de pagamento */}
-            <div className="space-y-4 pt-4">
-              <label className="block text-sm font-bold text-gray-700">Como você prefere pagar? *</label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`p-5 rounded-2xl border-2 text-center transition-all duration-300 hover:-translate-y-1 ${
-                    paymentMethod === 'card'
-                      ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-100'
-                      : 'border-gray-200 hover:border-violet-300 hover:bg-violet-50/50'
-                  }`}
-                >
-                  <CreditCard className={`w-10 h-10 mx-auto mb-3 ${paymentMethod === 'card' ? 'text-violet-600' : 'text-gray-400'}`} />
-                  <span className={`font-bold text-sm block ${paymentMethod === 'card' ? 'text-violet-600' : 'text-gray-700'}`}>
-                    Cartão de Crédito
-                  </span>
-                  <span className="text-xs text-gray-400 mt-1 block">Parcele em até 12x</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('pix')}
-                  className={`p-5 rounded-2xl border-2 text-center transition-all duration-300 hover:-translate-y-1 ${
-                    paymentMethod === 'pix'
-                      ? 'border-green-500 bg-green-50 shadow-lg shadow-green-100'
-                      : 'border-gray-200 hover:border-green-300 hover:bg-green-50/50'
-                  }`}
-                >
-                  <svg viewBox="0 0 512 512" className={`w-10 h-10 mx-auto mb-3 ${paymentMethod === 'pix' ? 'fill-green-600' : 'fill-gray-400'}`}>
-                    <path d="M242.4 292.5c-18.4-13.5-38.4-25.3-59.9-35.3-5.9-2.7-11.9-5.2-18-7.5 19.1-8.9 36.3-21.2 50.5-36.9 17.4-19.2 29.8-42.6 35.5-68.2 3.8-17.2 4.7-35.2 2.3-52.6-2.4-17.4-8-34.1-16.4-49.1-8.4-15-19.6-28.2-32.8-38.9-13.2-10.7-28.3-18.7-44.4-23.5-16.1-4.8-33-6.5-49.8-4.9-16.9 1.6-33.2 6.6-47.9 14.6l-2.4 1.3-2.4 1.3c-14.1 8.4-26.3 19.5-36 32.5-9.6 13-16.8 27.9-21.1 43.6-4.3 15.7-5.7 32.2-4 48.4 1.7 16.2 6.3 31.9 13.6 46.2 7.3 14.3 17.1 27 29 37.6 11.9 10.6 25.6 18.9 40.4 24.5 14.8 5.6 30.4 8.5 46.1 8.4h.2c6.5 0 13-.4 19.4-1.2-5.7 6.5-12.2 12.3-19.5 17.2-18.4 12.4-40.1 19.8-62.6 21.3-22.5 1.5-45.1-3-65.4-12.9-20.3-9.9-37.9-24.8-50.8-43.3-12.9-18.5-20.8-40.1-22.8-62.5-2-22.4 2-45.1 11.6-65.6 9.6-20.5 24.4-38.2 43-51.2 18.6-13 40.1-21.1 62.5-23.4 22.4-2.3 45.1 1.4 65.8 10.8 20.7 9.4 38.6 24 52 42.2 13.4 18.2 22.1 39.6 25 62 2.9 22.4-.1 45.2-8.9 66.1-8.8 20.9-22.9 39.3-41 53.2z"/>
-                  </svg>
-                  <span className={`font-bold text-sm block ${paymentMethod === 'pix' ? 'text-green-600' : 'text-gray-700'}`}>
-                    PIX
-                  </span>
-                  <span className="text-xs text-gray-400 mt-1 block">Aprovação instantânea</span>
-                </button>
-              </div>
+            {/* Informação sobre o pagamento */}
+            <div className="bg-violet-50 rounded-2xl p-4 border border-violet-100">
+              <p className="text-sm text-violet-700">
+                <strong>💳 Na próxima etapa</strong> você escolherá o método de pagamento: <strong>Cartão de Crédito</strong> (até 12x) ou <strong>PIX</strong> (aprovação instantânea).
+              </p>
             </div>
 
             {/* Resumo do pedido */}
@@ -1556,9 +1514,7 @@ export default function BookingForm({ service }: { service: Service }) {
               disabled={!canProceed() || loading}
               className={`flex-1 flex items-center justify-center gap-3 px-8 py-5 rounded-xl font-bold transition-all duration-300 ${
                 canProceed() && !loading
-                  ? paymentMethod === 'pix'
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg shadow-green-200 hover:-translate-y-0.5 text-white'
-                    : 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 shadow-lg shadow-violet-200 hover:-translate-y-0.5 text-white'
+                  ? 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 shadow-lg shadow-violet-200 hover:-translate-y-0.5 text-white'
                   : 'bg-gray-300 cursor-not-allowed text-gray-500'
               }`}
             >
@@ -1566,24 +1522,8 @@ export default function BookingForm({ service }: { service: Service }) {
                 <Loader2 className="animate-spin" size={24} />
               ) : (
                 <>
-                  {paymentMethod === 'pix' ? (
-                    <>
-                      <svg viewBox="0 0 512 512" className="w-5 h-5 fill-current">
-                        <path d="M242.4 292.5c-18.4-13.5-38.4-25.3-59.9-35.3-5.9-2.7-11.9-5.2-18-7.5 19.1-8.9 36.3-21.2 50.5-36.9 17.4-19.2 29.8-42.6 35.5-68.2 3.8-17.2 4.7-35.2 2.3-52.6-2.4-17.4-8-34.1-16.4-49.1-8.4-15-19.6-28.2-32.8-38.9-13.2-10.7-28.3-18.7-44.4-23.5-16.1-4.8-33-6.5-49.8-4.9-16.9 1.6-33.2 6.6-47.9 14.6l-2.4 1.3-2.4 1.3c-14.1 8.4-26.3 19.5-36 32.5-9.6 13-16.8 27.9-21.1 43.6-4.3 15.7-5.7 32.2-4 48.4 1.7 16.2 6.3 31.9 13.6 46.2 7.3 14.3 17.1 27 29 37.6 11.9 10.6 25.6 18.9 40.4 24.5 14.8 5.6 30.4 8.5 46.1 8.4h.2c6.5 0 13-.4 19.4-1.2-5.7 6.5-12.2 12.3-19.5 17.2-18.4 12.4-40.1 19.8-62.6 21.3-22.5 1.5-45.1-3-65.4-12.9-20.3-9.9-37.9-24.8-50.8-43.3-12.9-18.5-20.8-40.1-22.8-62.5-2-22.4 2-45.1 11.6-65.6 9.6-20.5 24.4-38.2 43-51.2 18.6-13 40.1-21.1 62.5-23.4 22.4-2.3 45.1 1.4 65.8 10.8 20.7 9.4 38.6 24 52 42.2 13.4 18.2 22.1 39.6 25 62 2.9 22.4-.1 45.2-8.9 66.1-8.8 20.9-22.9 39.3-41 53.2z"/>
-                      </svg>
-                      Pagar com PIX
-                    </>
-                  ) : paymentMethod === 'card' ? (
-                    <>
-                      <CreditCard size={18} />
-                      Pagar com Cartão
-                    </>
-                  ) : (
-                    <>
-                      <Lock size={18} />
-                      Escolha o pagamento
-                    </>
-                  )}
+                  <Lock size={18} />
+                  Ir para Pagamento
                   <ArrowRight size={18} />
                 </>
               )}
