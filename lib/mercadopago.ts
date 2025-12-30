@@ -26,16 +26,25 @@ export interface CreatePreferenceData {
 }
 
 export async function createPreference(data: CreatePreferenceData) {
-  // Sempre usar HTTPS em produção
-  let baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cantosdememorias.com.br';
+  // Usar URL do Vercel ou domínio customizado
+  const vercelUrl = process.env.VERCEL_URL;
+  let baseUrl: string;
 
-  // Garantir que é HTTPS para o Mercado Pago
-  if (baseUrl.startsWith('http://localhost')) {
-    baseUrl = 'https://cantosdememorias.com.br';
+  if (process.env.NODE_ENV === 'production') {
+    // Em produção, usar o domínio do Vercel ou customizado
+    if (vercelUrl) {
+      baseUrl = `https://${vercelUrl}`;
+    } else {
+      baseUrl = 'https://cantosdememorias.vercel.app';
+    }
+  } else {
+    baseUrl = 'https://cantosdememorias.vercel.app';
   }
 
   console.log('Criando preferência com baseUrl:', baseUrl);
   console.log('Access Token configurado:', !!accessToken);
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('VERCEL_URL:', vercelUrl);
 
   const preference = await preferenceClient.create({
     body: {
