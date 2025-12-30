@@ -19,6 +19,15 @@ const VALID_PRICES: Record<string, number> = {
 
 export async function POST(req: Request) {
   try {
+    // Verificar se o token está configurado
+    if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+      console.error('MERCADOPAGO_ACCESS_TOKEN não está configurado!');
+      return NextResponse.json(
+        { error: 'Configuração de pagamento inválida. Contate o suporte.' },
+        { status: 500 }
+      );
+    }
+
     // Rate limiting por IP
     const clientIP = getClientIP(req);
     const rateLimit = checkRateLimit(`mp-checkout:${clientIP}`, 5, 60000);
