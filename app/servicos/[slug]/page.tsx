@@ -59,18 +59,11 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
 
             {/* Preço destacado */}
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Valor único</p>
-                  <p className="text-4xl font-black text-gray-900">
-                    R$ {service.price.toFixed(2).replace('.', ',')}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full">
-                    ✓ Sem taxas extras
-                  </p>
-                </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Valor único</p>
+                <p className="text-4xl font-black text-gray-900">
+                  R$ {service.price.toFixed(2).replace('.', ',')}
+                </p>
               </div>
             </div>
 
