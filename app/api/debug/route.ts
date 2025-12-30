@@ -2,11 +2,19 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   return NextResponse.json({
-    hasMercadoPagoToken: !!process.env.MERCADOPAGO_ACCESS_TOKEN,
-    tokenLength: process.env.MERCADOPAGO_ACCESS_TOKEN?.length || 0,
-    tokenPrefix: process.env.MERCADOPAGO_ACCESS_TOKEN?.substring(0, 10) || 'NOT SET',
-    hasAppUrl: !!process.env.NEXT_PUBLIC_APP_URL,
-    appUrl: process.env.NEXT_PUBLIC_APP_URL || 'NOT SET',
-    nodeEnv: process.env.NODE_ENV,
+    status: 'ok',
+    mercadoPago: {
+      tokenConfigured: true, // Agora está hardcoded
+      message: 'Token configurado diretamente no código'
+    },
+    environment: {
+      nodeEnv: process.env.NODE_ENV,
+      vercel: process.env.VERCEL === '1',
+    },
+    endpoints: {
+      checkout: '/api/mercadopago/checkout',
+      webhook: '/api/mercadopago/webhook',
+    },
+    timestamp: new Date().toISOString(),
   });
 }

@@ -1,8 +1,5 @@
-// Banco de dados simples usando arquivo JSON
-// Em produção, considere usar um banco de dados real como PostgreSQL ou MongoDB
-
-import { promises as fs } from 'fs';
-import path from 'path';
+// Banco de dados em memória para ambiente serverless (Vercel)
+// IMPORTANTE: Para produção real, use Vercel KV, Supabase, ou outro banco de dados
 
 export interface Order {
   id: string;
@@ -43,75 +40,54 @@ export interface Order {
   stripePaymentIntentId?: string;
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
-
-async function ensureDataDir() {
-  try {
-    await fs.access(DATA_DIR);
-  } catch {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  }
-}
-
-async function readOrders(): Promise<Order[]> {
-  try {
-    await ensureDataDir();
-    const data = await fs.readFile(ORDERS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function writeOrders(orders: Order[]): Promise<void> {
-  await ensureDataDir();
-  await fs.writeFile(ORDERS_FILE, JSON.stringify(orders, null, 2));
-}
+// Armazenamento em memória (funciona no Vercel, mas dados são perdidos entre cold starts)
+// Em produção, substitua por Vercel KV ou Supabase
+const ordersMap = new Map<string, Order>();
 
 export async function createOrder(order: Omit<Order, 'id' | 'createdAt'>): Promise<Order> {
-  const orders = await readOrders();
-
   const newOrder: Order = {
     ...order,
     id: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     createdAt: new Date().toISOString(),
   };
 
-  orders.push(newOrder);
-  await writeOrders(orders);
+  ordersMap.set(newOrder.id, newOrder);
+  console.log('[DB] Pedido criado:', newOrder.id);
 
   return newOrder;
 }
 
 export async function getOrders(): Promise<Order[]> {
-  return readOrders();
+  return Array.from(ordersMap.values());
 }
 
 export async function getOrderById(id: string): Promise<Order | null> {
-  const orders = await readOrders();
-  return orders.find(o => o.id === id) || null;
+  return ordersMap.get(id) || null;
 }
 
 export async function updateOrder(id: string, updates: Partial<Order>): Promise<Order | null> {
-  const orders = await readOrders();
-  const index = orders.findIndex(o => o.id === id);
+  const order = ordersMap.get(id);
+  if (!order) return null;
 
-  if (index === -1) return null;
+  const updatedOrder = { ...order, ...updates };
+  ordersMap.set(id, updatedOrder);
+  console.log('[DB] Pedido atualizado:', id);
 
-  orders[index] = { ...orders[index], ...updates };
-  await writeOrders(orders);
-
-  return orders[index];
+  return updatedOrder;
 }
 
 export async function getOrderByStripeSession(sessionId: string): Promise<Order | null> {
-  const orders = await readOrders();
-  return orders.find(o => o.stripeSessionId === sessionId) || null;
+  const orders = Array.from(ordersMap.values());
+  for (let i = 0; i < orders.length; i++) {
+    if (orders[i].stripeSessionId === sessionId) {
+      return orders[i];
+    }
+  }
+  return null;
 }
 
 export async function getOrderStats() {
-  const orders = await readOrders();
+  const orders = Array.from(ordersMap.values());
   const paidOrders = orders.filter(o => o.status === 'paid' || o.status === 'completed');
 
   const totalRevenue = paidOrders.reduce((sum, o) => sum + o.amount, 0);

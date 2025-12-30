@@ -1,42 +1,47 @@
 import { NextResponse } from 'next/server';
-import { getPayment } from '@/lib/mercadopago';
+import { getMercadoPagoPayment } from '@/lib/mercadopago';
 import { getOrderById, updateOrder } from '@/lib/db';
-import { sendOrderNotification } from '@/lib/email';
 
 export async function POST(req: Request) {
+  console.log('[WEBHOOK] Recebendo notificação do Mercado Pago');
+
   try {
     const body = await req.json();
-
-    console.log('Mercado Pago Webhook received:', JSON.stringify(body, null, 2));
+    console.log('[WEBHOOK] Body:', JSON.stringify(body, null, 2));
 
     // Verificar tipo de notificação
     if (body.type === 'payment') {
       const paymentId = body.data?.id;
 
       if (!paymentId) {
-        console.log('No payment ID in webhook');
+        console.log('[WEBHOOK] Sem payment ID');
         return NextResponse.json({ received: true });
       }
 
-      // Buscar detalhes do pagamento
-      const payment = await getPayment(Number(paymentId));
+      console.log('[WEBHOOK] Payment ID:', paymentId);
 
-      console.log('Payment details:', JSON.stringify(payment, null, 2));
+      // Buscar detalhes do pagamento
+      const payment = await getMercadoPagoPayment(Number(paymentId));
+      console.log('[WEBHOOK] Detalhes do pagamento:', JSON.stringify(payment, null, 2));
 
       const orderId = payment.external_reference;
       const status = payment.status;
       const paymentMethodId = payment.payment_method_id;
 
       if (!orderId) {
-        console.log('No external_reference (orderId) in payment');
+        console.log('[WEBHOOK] Sem external_reference (orderId)');
         return NextResponse.json({ received: true });
       }
+
+      console.log('[WEBHOOK] Order ID:', orderId);
+      console.log('[WEBHOOK] Status:', status);
+      console.log('[WEBHOOK] Método:', paymentMethodId);
 
       // Buscar pedido
       const order = await getOrderById(orderId);
 
       if (!order) {
-        console.log('Order not found:', orderId);
+        console.log('[WEBHOOK] Pedido não encontrado:', orderId);
         return NextResponse.json({ received: true });
       }
 
@@ -69,24 +74,19 @@ export async function POST(req: Request) {
 
       // Atualizar pedido se status mudou
       if (newStatus !== order.status || order.paymentMethod === 'unknown') {
-        const updatedOrder = await updateOrder(orderId, {
+        await updateOrder(orderId, {
           status: newStatus,
           paymentMethod,
-          stripePaymentIntentId: paymentId.toString(), // Reutilizando campo para MP payment ID
+          stripePaymentIntentId: paymentId.toString(),
         });
 
-        // Enviar notificação se pagamento aprovado
-        if (newStatus === 'paid' && updatedOrder) {
-          await sendOrderNotification(updatedOrder);
-        }
-
-        console.log('Order updated:', orderId, 'Status:', newStatus);
+        console.log('[WEBHOOK] Pedido atualizado:', orderId, 'Status:', newStatus);
       }
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Webhook Error:', error);
+    console.error('[WEBHOOK] Erro:', error);
     // Sempre retornar 200 para evitar reenvios
     return NextResponse.json({ received: true });
   }
@@ -94,5 +94,5 @@ export async function POST(req: Request) {
 
 // Mercado Pago também pode enviar GET para verificar endpoint
 export async function GET() {
-  return NextResponse.json({ status: 'ok' });
+  return NextResponse.json({ status: 'ok', message: 'Webhook Mercado Pago ativo' });
 }
