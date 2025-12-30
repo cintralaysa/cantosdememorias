@@ -23,7 +23,150 @@ interface OrderMetadata {
   baby_name_girl?: string;
 }
 
-// Função para enviar email completo com todos os dados do pedido
+// Função para enviar email de confirmação para o CLIENTE
+async function sendCustomerConfirmationEmail(paymentData: {
+  amount: number;
+  customerName: string;
+  customerEmail: string;
+  honoreeName: string;
+  occasion: string;
+}) {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_YZgURojb_2mv7v4jQgGBkev292bfTXS9M';
+
+  if (!RESEND_API_KEY || !paymentData.customerEmail) {
+    console.log('[WEBHOOK] Sem API key ou email do cliente, pulando email de confirmação');
+    return;
+  }
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; }
+        .header { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 800; }
+        .header p { margin: 15px 0 0 0; opacity: 0.9; font-size: 16px; }
+        .emoji-big { font-size: 60px; margin-bottom: 20px; }
+        .content { padding: 40px 30px; }
+        .success-badge { background: #10b981; color: white; display: inline-block; padding: 10px 25px; border-radius: 30px; font-weight: bold; font-size: 14px; margin-bottom: 25px; }
+        .info-card { background: #f8f5ff; padding: 25px; border-radius: 15px; margin: 25px 0; border-left: 4px solid #8b5cf6; }
+        .info-card h3 { margin: 0 0 15px 0; color: #7c3aed; font-size: 16px; }
+        .info-card p { margin: 8px 0; color: #555; }
+        .timeline { margin: 30px 0; }
+        .timeline-item { display: flex; align-items: flex-start; margin: 20px 0; }
+        .timeline-icon { width: 40px; height: 40px; background: #8b5cf6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px; flex-shrink: 0; }
+        .timeline-content h4 { margin: 0 0 5px 0; color: #333; font-size: 15px; }
+        .timeline-content p { margin: 0; color: #666; font-size: 14px; }
+        .cta-section { background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 25px; border-radius: 15px; text-align: center; margin: 25px 0; }
+        .cta-section p { margin: 0; color: #92400e; font-weight: 600; }
+        .footer { background: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb; }
+        .footer p { margin: 5px 0; color: #6b7280; font-size: 13px; }
+        .footer a { color: #8b5cf6; text-decoration: none; }
+        .amount { font-size: 32px; font-weight: 800; color: #10b981; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="emoji-big">🎵</div>
+          <h1>Pagamento Confirmado!</h1>
+          <p>Obrigado por escolher a Cantos de Memórias</p>
+        </div>
+
+        <div class="content">
+          <div style="text-align: center;">
+            <span class="success-badge">✓ PAGAMENTO APROVADO</span>
+            <p class="amount">R$ ${paymentData.amount.toFixed(2).replace('.', ',')}</p>
+          </div>
+
+          <p style="font-size: 18px; text-align: center; margin: 25px 0;">
+            Olá, <strong>${paymentData.customerName || 'Cliente'}</strong>! 🎉
+          </p>
+
+          <p style="text-align: center; color: #555;">
+            Recebemos seu pedido e já estamos trabalhando na sua música personalizada para <strong>${paymentData.honoreeName}</strong>.
+          </p>
+
+          <div class="info-card">
+            <h3>📋 Resumo do seu pedido</h3>
+            <p><strong>Música para:</strong> ${paymentData.honoreeName}</p>
+            <p><strong>Ocasião:</strong> ${paymentData.occasion}</p>
+            <p><strong>Valor pago:</strong> R$ ${paymentData.amount.toFixed(2).replace('.', ',')}</p>
+          </div>
+
+          <h3 style="color: #7c3aed; margin-top: 35px;">📅 Próximos passos:</h3>
+
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-icon">1</div>
+              <div class="timeline-content">
+                <h4>Produção da sua música</h4>
+                <p>Nossa equipe já está criando sua música exclusiva com todo carinho.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-icon">2</div>
+              <div class="timeline-content">
+                <h4>Contato via WhatsApp</h4>
+                <p>Você receberá uma mensagem confirmando os detalhes.</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-icon">3</div>
+              <div class="timeline-content">
+                <h4>Entrega em até 24 horas</h4>
+                <p>Você receberá 2 melodias exclusivas no seu email e WhatsApp!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cta-section">
+            <p>🎁 Você receberá: 1 letra exclusiva + 2 melodias diferentes!</p>
+          </div>
+
+        </div>
+
+        <div class="footer">
+          <p><strong>Cantos de Memórias</strong></p>
+          <p>Eternizando momentos especiais em música</p>
+          <p style="margin-top: 15px;">
+            Dúvidas? Entre em contato: <a href="mailto:cantosdememorias@gmail.com">cantosdememorias@gmail.com</a>
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'Cantos de Memórias <onboarding@resend.dev>',
+        to: [paymentData.customerEmail],
+        subject: `🎵 Pedido Confirmado! Sua música para ${paymentData.honoreeName} está sendo criada`,
+        html: htmlContent,
+      }),
+    });
+
+    if (response.ok) {
+      console.log('[WEBHOOK] ✅ Email de confirmação enviado para cliente:', paymentData.customerEmail);
+    } else {
+      const error = await response.json();
+      console.error('[WEBHOOK] Erro ao enviar email para cliente:', error);
+    }
+  } catch (error) {
+    console.error('[WEBHOOK] Erro ao enviar email para cliente:', error);
+  }
+}
+
+// Função para enviar email completo com todos os dados do pedido (para ADMIN)
 async function sendCompleteOrderEmail(paymentData: {
   paymentId: string;
   amount: number;
@@ -263,19 +406,31 @@ export async function POST(req: Request) {
         paymentMethod = 'card';
       }
 
-      // Se o pagamento foi APROVADO, enviar email completo com todos os dados
+      // Se o pagamento foi APROVADO, enviar emails
       if (status === 'approved') {
-        console.log('[WEBHOOK] ✅ PAGAMENTO APROVADO! Enviando email com dados completos...');
+        console.log('[WEBHOOK] ✅ PAGAMENTO APROVADO! Enviando emails...');
 
         // Pegar metadata do pagamento (contém todos os dados do pedido)
         const metadata = payment.metadata as OrderMetadata || {};
 
+        // 1. Enviar email para o ADMIN com todos os dados
         await sendCompleteOrderEmail({
           paymentId: paymentId.toString(),
           amount: payment.transaction_amount || 0,
           paymentMethod,
           metadata,
         });
+
+        // 2. Enviar email de confirmação para o CLIENTE
+        if (metadata.customer_email) {
+          await sendCustomerConfirmationEmail({
+            amount: payment.transaction_amount || 0,
+            customerName: metadata.customer_name || '',
+            customerEmail: metadata.customer_email,
+            honoreeName: metadata.honoree_name || '',
+            occasion: metadata.occasion || 'Música Personalizada',
+          });
+        }
       }
     }
 
