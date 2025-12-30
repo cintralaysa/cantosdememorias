@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@stripe/stripe-js": "^2.4.0",
+    "@vercel/kv": "^3.0.0",
     "clsx": "^2.1.0",
     "framer-motion": "^11.0.3",
     "lucide-react": "^0.312.0",
