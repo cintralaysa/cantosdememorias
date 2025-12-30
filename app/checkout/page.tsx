@@ -1,13 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
-import { Shield, Clock, Heart, Loader2, CheckCircle, AlertCircle, ArrowLeft, Music } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Shield, Clock, Heart, Loader2, CheckCircle, ArrowLeft, Music, CreditCard } from 'lucide-react';
 import Link from 'next/link';
-
-// Public Key do Mercado Pago
-const MP_PUBLIC_KEY = 'APP_USR-f463b764-a87e-4da0-b0ab-4e1ed1c49436';
 
 interface OrderData {
   orderId: string;
@@ -36,12 +32,9 @@ interface OrderData {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
-  const [isReady, setIsReady] = useState(false);
-  const [processing, setProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [loading, setLoading] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<'card' | 'pix' | null>(null);
 
   useEffect(() => {
     // Recuperar dados do pedido do sessionStorage
@@ -54,66 +47,51 @@ export default function CheckoutPage() {
         console.error('Erro ao recuperar dados do pedido:', e);
       }
     }
-
-    // Inicializar o SDK do Mercado Pago
-    initMercadoPago(MP_PUBLIC_KEY, {
-      locale: 'pt-BR',
-    });
-    setIsReady(true);
   }, []);
 
-  const onSubmit = useCallback(async ({ selectedPaymentMethod, formData }: any) => {
-    if (!orderData) return;
+  const handlePayment = async () => {
+    if (!orderData || !selectedMethod) return;
 
-    setProcessing(true);
-    setPaymentStatus('processing');
-    setError(null);
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/mercadopago/process-payment', {
+      // Criar preferência no Mercado Pago
+      const response = await fetch('/api/mercadopago/checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          paymentData: formData,
-          orderData: orderData,
+          service: { price: orderData.amount, title: 'Música Personalizada' },
+          details: {
+            ...orderData,
+            userName: orderData.customerName,
+            whatsapp: orderData.customerWhatsapp,
+            email: orderData.customerEmail,
+            generatedLyrics: orderData.approvedLyrics,
+          },
         }),
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
-      if (result.error) {
-        throw new Error(result.error);
+      if (data.error) {
+        throw new Error(data.error);
       }
 
-      if (result.status === 'approved') {
-        setPaymentStatus('success');
-        sessionStorage.removeItem('checkoutData');
-      } else if (result.status === 'pending' || result.status === 'in_process') {
-        // PIX ou boleto pendente
-        setPaymentStatus('success');
-        sessionStorage.removeItem('checkoutData');
+      // Limpar sessionStorage antes de redirecionar
+      sessionStorage.removeItem('checkoutData');
+
+      // Redirecionar para checkout do Mercado Pago
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
       } else {
-        throw new Error(result.statusDetail || 'Pagamento não aprovado');
+        throw new Error('URL de checkout não disponível');
       }
-    } catch (err: any) {
-      console.error('Erro no pagamento:', err);
-      setError(err.message || 'Erro ao processar pagamento. Tente novamente.');
-      setPaymentStatus('error');
-    } finally {
-      setProcessing(false);
+    } catch (error: any) {
+      console.error('Erro:', error);
+      alert(error.message || 'Erro ao processar. Tente novamente.');
+      setLoading(false);
     }
-  }, [orderData]);
-
-  const onError = useCallback((error: any) => {
-    console.error('Erro no brick:', error);
-    setError('Erro ao carregar formulário de pagamento. Recarregue a página.');
-  }, []);
-
-  const onReady = useCallback(() => {
-    console.log('Payment Brick pronto');
-  }, []);
+  };
 
   // Se não tiver dados do pedido
   if (!orderData) {
@@ -136,72 +114,6 @@ export default function CheckoutPage() {
       </div>
     );
   }
-
-  // Tela de sucesso
-  if (paymentStatus === 'success') {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-12 h-12 text-green-500" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Pagamento Confirmado!</h1>
-          <p className="text-gray-600 mb-6">
-            Sua música para <strong>{orderData.honoreeName}</strong> está sendo criada com todo carinho.
-          </p>
-
-          <div className="bg-violet-50 rounded-xl p-4 mb-6">
-            <p className="text-violet-700 text-sm">
-              📱 Você receberá <strong>2 melodias diferentes</strong> no seu WhatsApp em até <strong>24 horas</strong>.
-            </p>
-          </div>
-
-          <div className="space-y-3 text-left bg-gray-50 rounded-xl p-4 mb-6">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Para:</span>
-              <span className="font-semibold text-gray-900">{orderData.honoreeName}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Ocasião:</span>
-              <span className="font-semibold text-gray-900">{orderData.occasionLabel}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Valor:</span>
-              <span className="font-semibold text-green-600">R$ {orderData.amount.toFixed(2).replace('.', ',')}</span>
-            </div>
-          </div>
-
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 bg-violet-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-violet-700 transition"
-          >
-            Voltar ao Início
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const initialization = {
-    amount: orderData.amount,
-    payer: {
-      email: orderData.customerEmail,
-    },
-  };
-
-  const customization = {
-    paymentMethods: {
-      creditCard: 'all' as const,
-      debitCard: 'all' as const,
-      bankTransfer: 'all' as const,
-      maxInstallments: 12,
-    },
-    visual: {
-      style: {
-        theme: 'default' as const,
-      },
-    },
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
@@ -243,39 +155,92 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Payment Brick */}
+          {/* Métodos de pagamento */}
           <div className="p-5">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Meios de pagamento</h2>
 
-            {error && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-red-700 font-medium">Erro no pagamento</p>
-                  <p className="text-red-600 text-sm">{error}</p>
-                  <button
-                    onClick={() => setError(null)}
-                    className="text-red-700 underline text-sm mt-1"
-                  >
-                    Tentar novamente
-                  </button>
+            <div className="space-y-3">
+              {/* Cartão de Crédito */}
+              <button
+                onClick={() => setSelectedMethod('card')}
+                className={`w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all ${
+                  selectedMethod === 'card'
+                    ? 'border-violet-500 bg-violet-50'
+                    : 'border-gray-200 hover:border-violet-300'
+                }`}
+              >
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  selectedMethod === 'card' ? 'bg-violet-500 text-white' : 'bg-gray-100 text-gray-500'
+                }`}>
+                  <CreditCard size={24} />
                 </div>
-              </div>
-            )}
+                <div className="flex-1 text-left">
+                  <p className={`font-semibold ${selectedMethod === 'card' ? 'text-violet-700' : 'text-gray-900'}`}>
+                    Cartão de crédito
+                  </p>
+                  <p className="text-sm text-green-600 font-medium">Parcelamento disponível</p>
+                </div>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  selectedMethod === 'card' ? 'border-violet-500 bg-violet-500' : 'border-gray-300'
+                }`}>
+                  {selectedMethod === 'card' && <CheckCircle size={14} className="text-white" />}
+                </div>
+              </button>
 
-            {isReady ? (
-              <Payment
-                initialization={initialization}
-                customization={customization}
-                onSubmit={onSubmit}
-                onReady={onReady}
-                onError={onError}
-              />
-            ) : (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 text-violet-500 animate-spin" />
-              </div>
-            )}
+              {/* PIX */}
+              <button
+                onClick={() => setSelectedMethod('pix')}
+                className={`w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all ${
+                  selectedMethod === 'pix'
+                    ? 'border-green-500 bg-green-50'
+                    : 'border-gray-200 hover:border-green-300'
+                }`}
+              >
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  selectedMethod === 'pix' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-500'
+                }`}>
+                  <svg viewBox="0 0 512 512" className="w-6 h-6 fill-current">
+                    <path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/>
+                  </svg>
+                </div>
+                <div className="flex-1 text-left">
+                  <p className={`font-semibold ${selectedMethod === 'pix' ? 'text-green-700' : 'text-gray-900'}`}>
+                    Pix
+                  </p>
+                  <p className="text-sm text-gray-500">Aprovação instantânea</p>
+                </div>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  selectedMethod === 'pix' ? 'border-green-500 bg-green-500' : 'border-gray-300'
+                }`}>
+                  {selectedMethod === 'pix' && <CheckCircle size={14} className="text-white" />}
+                </div>
+              </button>
+            </div>
+
+            {/* Botão Pagar */}
+            <button
+              onClick={handlePayment}
+              disabled={!selectedMethod || loading}
+              className={`w-full mt-6 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${
+                selectedMethod && !loading
+                  ? selectedMethod === 'pix'
+                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                    : 'bg-violet-600 hover:bg-violet-700 text-white'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processando...
+                </>
+              ) : (
+                <>
+                  <Shield size={20} />
+                  Pagar
+                </>
+              )}
+            </button>
           </div>
         </div>
 
@@ -299,17 +264,6 @@ export default function CheckoutPage() {
           Fornecido pelo <span className="font-semibold text-blue-500">mercado pago</span>
         </p>
       </div>
-
-      {/* Loading overlay */}
-      {processing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 text-center max-w-sm mx-4">
-            <Loader2 className="w-12 h-12 text-violet-500 animate-spin mx-auto mb-4" />
-            <p className="text-gray-900 font-semibold">Processando pagamento...</p>
-            <p className="text-gray-500 text-sm mt-1">Aguarde um momento</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
