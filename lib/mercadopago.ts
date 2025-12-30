@@ -1,11 +1,15 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 
 // Configuração do Mercado Pago
-const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN!;
+const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+
+if (!accessToken) {
+  console.error('MERCADOPAGO_ACCESS_TOKEN não configurado!');
+}
 
 export const mercadopago = new MercadoPagoConfig({
-  accessToken,
-  options: { timeout: 5000 }
+  accessToken: accessToken || '',
+  options: { timeout: 10000 }
 });
 
 export const preferenceClient = new Preference(mercadopago);
@@ -23,6 +27,9 @@ export interface CreatePreferenceData {
 
 export async function createPreference(data: CreatePreferenceData) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cantosdememorias.com.br';
+
+  console.log('Criando preferência com baseUrl:', baseUrl);
+  console.log('Access Token configurado:', !!accessToken);
 
   const preference = await preferenceClient.create({
     body: {
@@ -56,10 +63,11 @@ export async function createPreference(data: CreatePreferenceData) {
     }
   });
 
+  console.log('Preferência criada:', preference.id);
   return preference;
 }
 
-export async function getPayment(paymentId: string) {
+export async function getPayment(paymentId: number) {
   const payment = await paymentClient.get({ id: paymentId });
   return payment;
 }

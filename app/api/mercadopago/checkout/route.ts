@@ -120,6 +120,11 @@ export async function POST(req: Request) {
     });
   } catch (error: unknown) {
     console.error('Mercado Pago Checkout Error:', error);
+    // Log detalhado do erro
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return NextResponse.json(
       { error: 'Erro ao processar pedido. Tente novamente.' },
       { status: 500 }

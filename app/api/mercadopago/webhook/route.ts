@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       }
 
       // Buscar detalhes do pagamento
-      const payment = await getPayment(paymentId);
+      const payment = await getPayment(Number(paymentId));
 
       console.log('Payment details:', JSON.stringify(payment, null, 2));
 
