@@ -9,7 +9,7 @@ const mercadopagoConfig = new MercadoPagoConfig({
   options: { timeout: 30000 }
 });
 
-// Tipos para criar preferência
+// Tipos para criar preferência com dados completos do pedido
 export interface CreatePreferenceData {
   orderId: string;
   title: string;
@@ -17,6 +17,23 @@ export interface CreatePreferenceData {
   amount: number;
   customerEmail: string;
   customerName: string;
+  customerWhatsapp: string;
+  // Dados do pedido
+  honoreeName: string;
+  relationship: string;
+  occasion: string;
+  musicStyle: string;
+  voicePreference: string;
+  qualities: string;
+  memories: string;
+  heartMessage: string;
+  familyNames?: string;
+  approvedLyrics: string;
+  // Chá revelação
+  knowsBabySex?: string;
+  babySex?: string;
+  babyNameBoy?: string;
+  babyNameGirl?: string;
 }
 
 export async function createMercadoPagoPreference(data: CreatePreferenceData) {
@@ -30,13 +47,16 @@ export async function createMercadoPagoPreference(data: CreatePreferenceData) {
   console.log('[MP] Email:', data.customerEmail);
 
   try {
+    // Criar descrição completa para o item (limite de 256 caracteres)
+    const itemDescription = `Para: ${data.honoreeName} | ${data.occasion} | ${data.musicStyle}`.substring(0, 250);
+
     const preferenceData = {
       body: {
         items: [
           {
             id: data.orderId,
             title: data.title,
-            description: data.description,
+            description: itemDescription,
             quantity: 1,
             unit_price: data.amount,
             currency_id: 'BRL',
@@ -45,6 +65,9 @@ export async function createMercadoPagoPreference(data: CreatePreferenceData) {
         payer: {
           email: data.customerEmail,
           name: data.customerName,
+          phone: {
+            number: data.customerWhatsapp,
+          }
         },
         payment_methods: {
           installments: 12,
@@ -58,6 +81,27 @@ export async function createMercadoPagoPreference(data: CreatePreferenceData) {
         external_reference: data.orderId,
         notification_url: `${baseUrl}/api/mercadopago/webhook`,
         statement_descriptor: 'CANTOS MEMORIAS',
+        // Metadata com todos os dados do pedido
+        metadata: {
+          order_id: data.orderId,
+          customer_name: data.customerName,
+          customer_email: data.customerEmail,
+          customer_whatsapp: data.customerWhatsapp,
+          honoree_name: data.honoreeName,
+          relationship: data.relationship,
+          occasion: data.occasion,
+          music_style: data.musicStyle,
+          voice_preference: data.voicePreference,
+          qualities: data.qualities.substring(0, 500),
+          memories: data.memories.substring(0, 500),
+          heart_message: data.heartMessage.substring(0, 500),
+          family_names: data.familyNames || '',
+          approved_lyrics: data.approvedLyrics.substring(0, 2000),
+          knows_baby_sex: data.knowsBabySex || '',
+          baby_sex: data.babySex || '',
+          baby_name_boy: data.babyNameBoy || '',
+          baby_name_girl: data.babyNameGirl || '',
+        },
       }
     };
 
@@ -79,4 +123,11 @@ export async function getMercadoPagoPayment(paymentId: number) {
   const paymentClient = new Payment(mercadopagoConfig);
   const payment = await paymentClient.get({ id: paymentId });
   return payment;
+}
+
+// Função para buscar preferência pelo ID
+export async function getMercadoPagoPreference(preferenceId: string) {
+  const preferenceClient = new Preference(mercadopagoConfig);
+  const preference = await preferenceClient.get({ preferenceId });
+  return preference;
 }

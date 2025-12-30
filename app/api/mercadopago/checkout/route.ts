@@ -109,7 +109,7 @@ export async function POST(req: Request) {
     const order = await createOrder(orderData);
     console.log('[CHECKOUT] Pedido criado:', order.id);
 
-    // Criar preferência no Mercado Pago
+    // Criar preferência no Mercado Pago com TODOS os dados do pedido
     console.log('[CHECKOUT] Criando preferência no Mercado Pago...');
     const preference = await createMercadoPagoPreference({
       orderId: order.id,
@@ -118,6 +118,23 @@ export async function POST(req: Request) {
       amount: expectedPrice,
       customerEmail: orderData.customerEmail,
       customerName: orderData.customerName,
+      customerWhatsapp: sanitizeString(details.whatsapp, 20),
+      // Dados completos do pedido
+      honoreeName: orderData.honoreeName,
+      relationship: orderData.relationshipLabel,
+      occasion: orderData.occasionLabel,
+      musicStyle: orderData.musicStyleLabel,
+      voicePreference: orderData.voicePreference,
+      qualities: orderData.qualities,
+      memories: orderData.memories,
+      heartMessage: orderData.heartMessage,
+      familyNames: orderData.familyNames,
+      approvedLyrics: orderData.approvedLyrics,
+      // Chá revelação
+      knowsBabySex: orderData.knowsBabySex,
+      babySex: orderData.babySex,
+      babyNameBoy: orderData.babyNameBoy,
+      babyNameGirl: orderData.babyNameGirl,
     });
 
     console.log('[CHECKOUT] Preferência criada, ID:', preference.id);
