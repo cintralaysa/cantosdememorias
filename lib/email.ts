@@ -2,8 +2,8 @@
 
 import { Order } from './db';
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'laysaarthur3209@gmail.com';
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_YZgURojb_2mv7v4jQgGBkev292bfTXS9M';
+const ADMIN_EMAIL = 'cantosdememorias@gmail.com';
 
 export async function sendOrderNotification(order: Order): Promise<boolean> {
   if (!RESEND_API_KEY) {
