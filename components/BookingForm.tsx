@@ -4,9 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
 import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Mic2, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, CreditCard } from 'lucide-react';
-import { loadStripe } from '@stripe/stripe-js';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 // Opções de relacionamento (para música) - Inclui Chá Revelação
 const RELATIONSHIPS = [
@@ -358,33 +355,20 @@ export default function BookingForm({ service }: { service: Service }) {
     };
 
     try {
-      if (paymentMethod === 'pix') {
-        // Processar pagamento via PIX manual
-        const response = await fetch('/api/pix', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ service, details }),
-        });
-        const data = await response.json();
-        if (data.error) throw new Error(data.error);
-        // Redirecionar para página de PIX com os dados
-        const pixData = encodeURIComponent(JSON.stringify({
-          orderId: data.orderId,
-          pix: data.pix,
-        }));
-        router.push(`/pix?data=${pixData}`);
+      // Usar Mercado Pago para todos os pagamentos (cartão e PIX)
+      const response = await fetch('/api/mercadopago/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service, details }),
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+
+      // Redirecionar para checkout do Mercado Pago
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
       } else {
-        // Processar pagamento via Stripe (cartão)
-        const response = await fetch('/api/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ service, details }),
-        });
-        const { sessionId, error } = await response.json();
-        if (error) throw new Error(error);
-        const stripe = await stripePromise;
-        const { error: stripeError } = await stripe!.redirectToCheckout({ sessionId });
-        if (stripeError) throw new Error(stripeError.message);
+        throw new Error('URL de checkout não disponível');
       }
     } catch (error: any) {
       console.error(error);
