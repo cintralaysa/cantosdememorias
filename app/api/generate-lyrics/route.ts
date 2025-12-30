@@ -88,28 +88,30 @@ export async function POST(request: NextRequest) {
         messages: [
           {
             role: 'system',
-            content: `Você é um compositor musical brasileiro talentoso e sensível. Sua especialidade é criar letras de músicas personalizadas e emocionantes para momentos especiais.
+            content: `Você é um compositor musical brasileiro EXCEPCIONAL. Você cria letras que EMOCIONAM PROFUNDAMENTE, fazem as pessoas CHORAREM de alegria e guardam para sempre no coração.
 
-REGRAS IMPORTANTES:
-1. Escreva letras em português brasileiro
-2. Use o nome da pessoa homenageada naturalmente na letra
-3. Incorpore as qualidades, memórias e mensagens fornecidas
-4. Adapte o tom ao estilo musical escolhido
-5. Crie uma estrutura com: Verso 1, Refrão, Verso 2, Refrão, Ponte (opcional), Refrão Final
-6. A letra deve ter entre 150-250 palavras (exceto chá revelação com dois finais)
-7. Seja emotivo mas autêntico, evite clichês excessivos
-8. Use rimas quando natural, mas priorize o sentimento
+🎯 SUA MISSÃO:
+Criar a letra mais BONITA, EMOCIONANTE e TOCANTE que essa família já ouviu. Cada palavra deve ser escolhida com carinho. A música deve fazer quem ouvir sentir um aperto no peito de tanta emoção.
 
-REGRA ESPECIAL PARA CHÁ REVELAÇÃO/CHÁ DE BEBÊ (quando os pais NÃO sabem o sexo):
-- Siga OBRIGATORIAMENTE a estrutura especial com contagem de suspense e dois finais
-- A letra terá: Parte Comum + Contagem de Suspense + Final Menino + Final Menina
-- A contagem deve criar tensão: "3... 2... 1..." ou similar
-- Os dois finais devem ter mesma estrutura rítmica para funcionar com a mesma melodia
+📝 REGRAS DE COMPOSIÇÃO:
+1. Escreva em português brasileiro, com linguagem poética mas acessível
+2. Use o nome da pessoa homenageada de forma natural e carinhosa
+3. Transforme as memórias e qualidades em versos que toquem a alma
+4. Adapte o vocabulário e ritmo ao estilo musical escolhido
+5. Estrutura: Verso 1, Refrão, Verso 2, Refrão, Ponte (opcional), Refrão Final
+6. Entre 150-250 palavras (exceto chá revelação com dois finais)
+7. Seja GENUINAMENTE emotivo - faça quem ouvir chorar de emoção
+8. Use metáforas bonitas, imagens poéticas, expressões que tocam o coração
+9. Evite clichês vazios - cada verso deve ter significado profundo
+
+🍼 REGRA ESPECIAL PARA CHÁ REVELAÇÃO:
+- Se os pais JÁ SABEM o sexo: Crie UMA letra única celebrando o bebê com seu nome
+- Se os pais NÃO SABEM o sexo: Crie com dois finais (menino/menina) após contagem de suspense
 
 FORMATO DE SAÍDA:
-Retorne APENAS a letra da música, sem explicações ou comentários.
+Retorne APENAS a letra da música, sem explicações.
 Use quebras de linha para separar as seções.
-Coloque o nome da seção em colchetes: [Verso 1], [Refrão], [Contagem do Suspense], [Final Versão Menino 💙], [Final Versão Menina 💖], etc.`
+Coloque o nome da seção em colchetes: [Verso 1], [Refrão], etc.`
           },
           {
             role: 'user',
@@ -166,44 +168,60 @@ function buildPrompt(data: LyricsRequest): string {
 
   // Adicionar informações de chá revelação se aplicável
   if (data.occasion === 'cha-revelacao' || data.occasion === 'cha-bebe') {
-    prompt += `\n🎀 INFORMAÇÕES DO CHÁ REVELAÇÃO:`;
+    prompt += `\n\n🍼 INFORMAÇÕES DO CHÁ REVELAÇÃO:`;
+
     if (data.knowsBabySex === 'sim' && data.babySex) {
+      // CLIENTE JÁ SABE O SEXO - LETRA ÚNICA
       const babyName = data.babySex === 'menino' ? data.babyNameBoy : data.babyNameGirl;
-      prompt += `\n- Sexo do bebê: ${data.babySex === 'menino' ? 'Menino 💙' : 'Menina 💖'}`;
-      prompt += `\n- Nome do bebê: ${babyName}`;
-      prompt += `\n- A letra deve celebrar a revelação do sexo e incluir o nome ${babyName}`;
-    } else if (data.knowsBabySex === 'nao') {
-      prompt += `\n- OS PAIS NÃO SABEM O SEXO DO BEBÊ - FORMATO ESPECIAL OBRIGATÓRIO!`;
-      prompt += `\n- Nome se for menino: ${data.babyNameBoy || '[Nome do menino]'}`;
-      prompt += `\n- Nome se for menina: ${data.babyNameGirl || '[Nome da menina]'}`;
+      const emoji = data.babySex === 'menino' ? '💙' : '💖';
+      const genero = data.babySex === 'menino' ? 'menino' : 'menina';
+
       prompt += `\n
-⚠️ INSTRUÇÕES ESPECIAIS PARA CHÁ REVELAÇÃO (SEXO DESCONHECIDO):
-A letra DEVE seguir esta estrutura obrigatória:
+✅ OS PAIS JÁ SABEM O SEXO DO BEBÊ!
+- É ${genero === 'menino' ? 'um MENINO' : 'uma MENINA'}! ${emoji}
+- Nome do bebê: ${babyName}
+
+📝 INSTRUÇÕES (LETRA ÚNICA):
+Crie UMA letra completa e emocionante que:
+- Celebre a chegada de ${babyName}
+- Use o nome "${babyName}" de forma carinhosa ao longo da letra
+- Fale sobre a expectativa, o amor, os sonhos para ${genero === 'menino' ? 'ele' : 'ela'}
+- Inclua a revelação de forma emocionante: "É ${genero === 'menino' ? 'um menino' : 'uma menina'}!"
+- Faça os pais chorarem de emoção
+- NÃO faça dois finais - apenas UMA letra completa`;
+
+    } else if (data.knowsBabySex === 'nao') {
+      // CLIENTE NÃO SABE O SEXO - DOIS FINAIS
+      prompt += `\n
+⚠️ OS PAIS NÃO SABEM O SEXO DO BEBÊ - DOIS FINAIS OBRIGATÓRIOS!
+- Nome se for menino: ${data.babyNameBoy || '[Nome do menino]'}
+- Nome se for menina: ${data.babyNameGirl || '[Nome da menina]'}
+
+📝 INSTRUÇÕES (ESTRUTURA ESPECIAL COM DOIS FINAIS):
 
 1. PARTE COMUM (Versos iniciais):
    - Fale sobre a expectativa, a alegria da família, a ansiedade do momento
-   - Não mencione o sexo ainda
+   - Crie emoção e suspense - "Quem será que vem aí?"
+   - NÃO mencione o sexo ainda
 
-2. CONTAGEM DE SUSPENSE (Obrigatório):
-   - Inclua uma seção [Contagem do Suspense] antes da revelação
-   - Use algo como: "Três... Dois... Um... É hora de saber!"
-   - Ou: "O coração acelera, a hora chegou... 3, 2, 1!"
-   - Crie tensão e emoção para o momento da revelação
+2. [Contagem do Suspense] (OBRIGATÓRIO):
+   - Crie tensão máxima para o momento da revelação
+   - Exemplo: "O coração dispara, a hora chegou... Três... Dois... Um..."
+   - Faça todo mundo prender a respiração!
 
-3. DOIS FINAIS DIFERENTES (Obrigatório):
-   Após a contagem, escreva:
+3. DOIS FINAIS DIFERENTES (OBRIGATÓRIO):
 
    [Final Versão Menino 💙]
-   - Celebre a chegada do menino
-   - Use o nome ${data.babyNameBoy || 'do bebê'}
-   - Frases como "É um menino!", "Um príncipe chegou!"
+   - "É um menino!" de forma emocionante
+   - Use o nome ${data.babyNameBoy}
+   - Celebre a chegada do príncipe
 
    [Final Versão Menina 💖]
-   - Celebre a chegada da menina
-   - Use o nome ${data.babyNameGirl || 'da bebê'}
-   - Frases como "É uma menina!", "Uma princesa chegou!"
+   - "É uma menina!" de forma emocionante
+   - Use o nome ${data.babyNameGirl}
+   - Celebre a chegada da princesa
 
-IMPORTANTE: Os dois finais devem ter a mesma melodia/ritmo para funcionar com a mesma música!`;
+⚠️ IMPORTANTE: Os dois finais devem ter a mesma estrutura rítmica para funcionar com a mesma melodia!`;
     }
   }
 
@@ -228,11 +246,16 @@ ${data.familyNames}
 (Use esses nomes naturalmente na letra quando fizer sentido, até 10 nomes)`;
   }
 
-  prompt += `\n\n🎼 INSTRUÇÕES ADICIONAIS:
+  prompt += `\n\n🎼 INSTRUÇÕES FINAIS - FAÇA UMA OBRA-PRIMA:
 - Estilo: ${data.musicStyleLabel} - adapte o vocabulário e ritmo ao estilo
-- Ocasião: ${data.occasionLabel} - capture o espírito desse momento
-- Faça uma letra emocionante que vai tocar o coração de ${data.honoreeName}
-- Inclua detalhes pessoais fornecidos para tornar a música única`;
+- Ocasião: ${data.occasionLabel} - capture toda a emoção desse momento
+- Use as memórias e qualidades fornecidas para criar versos ÚNICOS e PESSOAIS
+- Cada verso deve ter significado profundo - nada genérico!
+- Faça ${data.honoreeName} e toda a família CHORAREM de emoção
+- Use metáforas poéticas, imagens bonitas, expressões que tocam a alma
+- Esta música será guardada para sempre - faça valer a pena!
+
+🌟 LEMBRE-SE: Você está criando uma memória eterna. Dê o seu melhor!`;
 
   return prompt;
 }
