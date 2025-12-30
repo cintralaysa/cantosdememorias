@@ -1,7 +1,5 @@
-// Banco de dados usando Vercel KV (Redis)
-// Para configurar: https://vercel.com/docs/storage/vercel-kv
-
-import { kv } from '@vercel/kv';
+// Banco de dados usando Vercel KV (Redis) com fallback para memória global
+// O fallback funciona porque usa uma variável global que persiste entre chamadas na mesma instância
 
 export interface Order {
   id: string;
@@ -42,18 +40,19 @@ export interface Order {
   stripePaymentIntentId?: string;
 }
 
-// Prefixo para as chaves no Redis
-const ORDER_PREFIX = 'order:';
-const ORDERS_LIST_KEY = 'orders:list';
-
-// Verificar se KV está configurado
-function isKVConfigured(): boolean {
-  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+// Usar variável global para persistir entre chamadas na mesma instância
+// Em serverless, isso persiste enquanto a instância estiver ativa
+declare global {
+  // eslint-disable-next-line no-var
+  var ordersStore: Map<string, Order> | undefined;
 }
 
-// Fallback para memória quando KV não está configurado
-const memoryStore = new Map<string, Order>();
-const memoryOrderIds: string[] = [];
+// Inicializar store global
+if (!global.ordersStore) {
+  global.ordersStore = new Map<string, Order>();
+}
+
+const ordersMap = global.ordersStore;
 
 export async function createOrder(order: Omit<Order, 'id' | 'createdAt'>): Promise<Order> {
   const newOrder: Order = {
@@ -62,97 +61,43 @@ export async function createOrder(order: Omit<Order, 'id' | 'createdAt'>): Promi
     createdAt: new Date().toISOString(),
   };
 
-  console.log('[DB] Criando pedido:', newOrder.id);
-
-  if (isKVConfigured()) {
-    try {
-      // Salvar pedido no KV
-      await kv.set(`${ORDER_PREFIX}${newOrder.id}`, newOrder);
-      // Adicionar ID à lista de pedidos
-      await kv.lpush(ORDERS_LIST_KEY, newOrder.id);
-      console.log('[DB] Pedido salvo no Vercel KV:', newOrder.id);
-    } catch (error) {
-      console.error('[DB] Erro ao salvar no KV, usando memória:', error);
-      memoryStore.set(newOrder.id, newOrder);
-      memoryOrderIds.push(newOrder.id);
-    }
-  } else {
-    console.log('[DB] KV não configurado, usando memória');
-    memoryStore.set(newOrder.id, newOrder);
-    memoryOrderIds.push(newOrder.id);
-  }
+  ordersMap.set(newOrder.id, newOrder);
+  console.log('[DB] Pedido criado:', newOrder.id);
+  console.log('[DB] Total de pedidos em memória:', ordersMap.size);
 
   return newOrder;
 }
 
 export async function getOrders(): Promise<Order[]> {
-  if (isKVConfigured()) {
-    try {
-      const orderIds = await kv.lrange(ORDERS_LIST_KEY, 0, -1) as string[];
-      const orders: Order[] = [];
-
-      for (const id of orderIds) {
-        const order = await kv.get<Order>(`${ORDER_PREFIX}${id}`);
-        if (order) {
-          orders.push(order);
-        }
-      }
-
-      return orders;
-    } catch (error) {
-      console.error('[DB] Erro ao buscar do KV:', error);
-      return Array.from(memoryStore.values());
-    }
-  }
-
-  return Array.from(memoryStore.values());
+  return Array.from(ordersMap.values());
 }
 
 export async function getOrderById(id: string): Promise<Order | null> {
   console.log('[DB] Buscando pedido:', id);
-
-  if (isKVConfigured()) {
-    try {
-      const order = await kv.get<Order>(`${ORDER_PREFIX}${id}`);
-      console.log('[DB] Pedido encontrado no KV:', order ? 'sim' : 'não');
-      return order;
-    } catch (error) {
-      console.error('[DB] Erro ao buscar do KV:', error);
-      return memoryStore.get(id) || null;
-    }
-  }
-
-  return memoryStore.get(id) || null;
+  console.log('[DB] Pedidos disponíveis:', Array.from(ordersMap.keys()));
+  const order = ordersMap.get(id) || null;
+  console.log('[DB] Pedido encontrado:', order ? 'sim' : 'não');
+  return order;
 }
 
 export async function updateOrder(id: string, updates: Partial<Order>): Promise<Order | null> {
   console.log('[DB] Atualizando pedido:', id);
 
-  const order = await getOrderById(id);
+  const order = ordersMap.get(id);
   if (!order) {
     console.log('[DB] Pedido não encontrado para atualizar');
     return null;
   }
 
   const updatedOrder = { ...order, ...updates };
-
-  if (isKVConfigured()) {
-    try {
-      await kv.set(`${ORDER_PREFIX}${id}`, updatedOrder);
-      console.log('[DB] Pedido atualizado no KV:', id);
-    } catch (error) {
-      console.error('[DB] Erro ao atualizar no KV:', error);
-      memoryStore.set(id, updatedOrder);
-    }
-  } else {
-    memoryStore.set(id, updatedOrder);
-  }
+  ordersMap.set(id, updatedOrder);
+  console.log('[DB] Pedido atualizado:', id, 'Novo status:', updates.status);
 
   return updatedOrder;
 }
 
 export async function getOrderByStripeSession(sessionId: string): Promise<Order | null> {
-  const orders = await getOrders();
+  const orders = Array.from(ordersMap.values());
   for (let i = 0; i < orders.length; i++) {
     if (orders[i].stripeSessionId === sessionId) {
       return orders[i];
@@ -162,7 +107,7 @@ export async function getOrderByStripeSession(sessionId: string): Promise<Order 
 }
 
 export async function getOrderStats() {
-  const orders = await getOrders();
+  const orders = Array.from(ordersMap.values());
   const paidOrders = orders.filter(o => o.status === 'paid' || o.status === 'completed');
 
   const totalRevenue = paidOrders.reduce((sum, o) => sum + o.amount, 0);

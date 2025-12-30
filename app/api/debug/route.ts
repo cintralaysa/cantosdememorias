@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const kvConfigured = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  const hasResendKey = !!process.env.RESEND_API_KEY;
 
   return NextResponse.json({
     status: 'ok',
@@ -9,10 +9,10 @@ export async function GET() {
       tokenConfigured: true,
       message: 'Token configurado diretamente no código'
     },
-    database: {
-      type: kvConfigured ? 'Vercel KV (Redis)' : 'Memória (temporário)',
-      kvConfigured,
-      warning: !kvConfigured ? 'Configure Vercel KV para persistência dos dados!' : null,
+    email: {
+      configured: hasResendKey,
+      adminEmail: process.env.ADMIN_EMAIL || 'laysaarthur3209@gmail.com',
+      message: hasResendKey ? 'Notificações por email ativas' : 'Configure RESEND_API_KEY para receber emails',
     },
     environment: {
       nodeEnv: process.env.NODE_ENV,
