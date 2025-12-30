@@ -1,14 +1,13 @@
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 
-// Configuração do Mercado Pago
-const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+// Token do Mercado Pago - Produção
+const MERCADOPAGO_TOKEN = 'APP_USR-4063235147276146-122919-dd71f6ad2dc03550ecfc7e57767900a9-3101728620';
 
-if (!accessToken) {
-  console.error('MERCADOPAGO_ACCESS_TOKEN não configurado!');
-}
+// Usar variável de ambiente se disponível, senão usar o token hardcoded
+const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN || MERCADOPAGO_TOKEN;
 
 export const mercadopago = new MercadoPagoConfig({
-  accessToken: accessToken || '',
+  accessToken,
   options: { timeout: 10000 }
 });
 
@@ -26,25 +25,8 @@ export interface CreatePreferenceData {
 }
 
 export async function createPreference(data: CreatePreferenceData) {
-  // Usar URL do Vercel ou domínio customizado
-  const vercelUrl = process.env.VERCEL_URL;
-  let baseUrl: string;
-
-  if (process.env.NODE_ENV === 'production') {
-    // Em produção, usar o domínio do Vercel ou customizado
-    if (vercelUrl) {
-      baseUrl = `https://${vercelUrl}`;
-    } else {
-      baseUrl = 'https://cantosdememorias.vercel.app';
-    }
-  } else {
-    baseUrl = 'https://cantosdememorias.vercel.app';
-  }
-
-  console.log('Criando preferência com baseUrl:', baseUrl);
-  console.log('Access Token configurado:', !!accessToken);
-  console.log('NODE_ENV:', process.env.NODE_ENV);
-  console.log('VERCEL_URL:', vercelUrl);
+  // URL fixa do Vercel
+  const baseUrl = 'https://cantosdememorias.vercel.app';
 
   const preference = await preferenceClient.create({
     body: {
