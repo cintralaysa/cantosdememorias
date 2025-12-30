@@ -60,7 +60,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          service: { price: orderData.amount, title: 'Música Personalizada' },
+          service: { id: '1', type: 'music' },
           details: {
             ...orderData,
             userName: orderData.customerName,
