@@ -71,6 +71,9 @@ export async function createMercadoPagoPreference(data: CreatePreferenceData) {
         },
         payment_methods: {
           installments: 12,
+          default_installments: 1,
+          excluded_payment_types: [],
+          excluded_payment_methods: [],
         },
         back_urls: {
           success: `${baseUrl}/success?order=${data.orderId}`,
