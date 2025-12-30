@@ -26,7 +26,13 @@ export interface CreatePreferenceData {
 }
 
 export async function createPreference(data: CreatePreferenceData) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cantosdememorias.com.br';
+  // Sempre usar HTTPS em produção
+  let baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cantosdememorias.com.br';
+
+  // Garantir que é HTTPS para o Mercado Pago
+  if (baseUrl.startsWith('http://localhost')) {
+    baseUrl = 'https://cantosdememorias.com.br';
+  }
 
   console.log('Criando preferência com baseUrl:', baseUrl);
   console.log('Access Token configurado:', !!accessToken);
