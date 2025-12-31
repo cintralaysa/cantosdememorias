@@ -132,7 +132,7 @@ export async function sendOrderNotification(order: Order): Promise<boolean> {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
+        from: 'Cantos de Memórias <onboarding@resend.dev>',
         to: [ADMIN_EMAIL],
         subject: `🎵 Novo Pedido #${order.id} - R$ ${order.amount.toFixed(2).replace('.', ',')} (${paymentMethodLabel})`,
         html: htmlContent,
@@ -298,7 +298,7 @@ export async function sendCustomerConfirmation(order: Order): Promise<boolean> {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
+        from: 'Cantos de Memórias <onboarding@resend.dev>',
         to: [order.customerEmail],
         subject: `✅ Pedido Confirmado! Sua música para ${order.honoreeName} está sendo criada`,
         html: htmlContent,

@@ -187,7 +187,7 @@ async function sendOrderEmail(orderData: any, paymentId: string, paymentMethod: 
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
+        from: 'Cantos de Memórias <onboarding@resend.dev>',
         to: [ADMIN_EMAIL],
         subject: `🎵 NOVO PEDIDO! ${orderData.honoreeName} - R$ ${(orderData.amount || 0).toFixed(2).replace('.', ',')} - ${orderData.occasionLabel || orderData.occasion || 'Música'}`,
         html: htmlContent,
@@ -277,7 +277,7 @@ async function sendCustomerEmail(orderData: any) {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
+        from: 'Cantos de Memórias <onboarding@resend.dev>',
         to: [customerEmail],
         subject: `✅ Pedido Confirmado! Sua música para ${orderData.honoreeName} está sendo criada`,
         html: htmlContent,
