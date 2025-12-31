@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 
 // Token do Mercado Pago - Produção
-const ACCESS_TOKEN = 'APP_USR-4063235147276146-122919-dd71f6ad2dc03550ecfc7e57767900a9-3101728620';
+const ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || 'APP_USR-4063235147276146-122919-dd71f6ad2dc03550ecfc7e57767900a9-3101728620';
 
 const mercadopagoConfig = new MercadoPagoConfig({
   accessToken: ACCESS_TOKEN,
@@ -75,7 +75,7 @@ async function sendOrderEmail(orderData: any, paymentId: string, paymentMethod: 
           <!-- Pagamento -->
           <div class="section">
             <div class="section-title">💰 Pagamento Confirmado</div>
-            <p class="amount">R$ ${orderData.amount.toFixed(2).replace('.', ',')}</p>
+            <p class="amount">R$ ${(orderData.amount || 0).toFixed(2).replace('.', ',')}</p>
             <p><span class="badge">${paymentMethod === 'pix' ? '✓ PIX' : '✓ Cartão'}</span></p>
             <div class="info-row">
               <span class="info-label">ID do Pagamento:</span>
@@ -83,7 +83,7 @@ async function sendOrderEmail(orderData: any, paymentId: string, paymentMethod: 
             </div>
             <div class="info-row">
               <span class="info-label">ID do Pedido:</span>
-              <span class="info-value">${orderData.orderId}</span>
+              <span class="info-value">${orderData.orderId || 'N/A'}</span>
             </div>
           </div>
 
@@ -92,17 +92,17 @@ async function sendOrderEmail(orderData: any, paymentId: string, paymentMethod: 
             <div class="section-title">👤 Dados do Cliente</div>
             <div class="info-row">
               <span class="info-label">Nome:</span>
-              <span class="info-value">${orderData.customerName}</span>
+              <span class="info-value">${orderData.customerName || orderData.userName || 'N/A'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Email:</span>
-              <span class="info-value">${orderData.customerEmail}</span>
+              <span class="info-value">${orderData.customerEmail || orderData.email || 'N/A'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">WhatsApp:</span>
-              <span class="info-value">${orderData.customerWhatsapp}</span>
+              <span class="info-value">${orderData.customerWhatsapp || orderData.whatsapp || 'N/A'}</span>
             </div>
-            ${orderData.customerWhatsapp ? `<a href="https://wa.me/55${orderData.customerWhatsapp.replace(/\D/g, '')}" class="whatsapp-btn">💬 Abrir WhatsApp</a>` : ''}
+            ${(orderData.customerWhatsapp || orderData.whatsapp) ? `<a href="https://wa.me/55${(orderData.customerWhatsapp || orderData.whatsapp).replace(/\D/g, '')}" class="whatsapp-btn">💬 Abrir WhatsApp</a>` : ''}
           </div>
 
           <!-- Detalhes do Pedido -->
@@ -110,19 +110,19 @@ async function sendOrderEmail(orderData: any, paymentId: string, paymentMethod: 
             <div class="section-title">🎁 Detalhes do Pedido</div>
             <div class="info-row">
               <span class="info-label">Música para:</span>
-              <span class="info-value">${orderData.honoreeName}</span>
+              <span class="info-value">${orderData.honoreeName || 'N/A'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Relacionamento:</span>
-              <span class="info-value">${orderData.relationshipLabel || orderData.relationship}</span>
+              <span class="info-value">${orderData.relationshipLabel || orderData.relationship || 'N/A'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Ocasião:</span>
-              <span class="info-value">${orderData.occasionLabel || orderData.occasion}</span>
+              <span class="info-value">${orderData.occasionLabel || orderData.occasion || 'N/A'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Estilo Musical:</span>
-              <span class="info-value">${orderData.musicStyleLabel || orderData.musicStyle}</span>
+              <span class="info-value">${orderData.musicStyleLabel || orderData.musicStyle || 'N/A'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Preferência de Voz:</span>
@@ -160,10 +160,10 @@ async function sendOrderEmail(orderData: any, paymentId: string, paymentMethod: 
 
           ${babySection}
 
-          ${orderData.approvedLyrics ? `
+          ${(orderData.approvedLyrics || orderData.generatedLyrics) ? `
           <div class="section" style="border-left-color: #8b5cf6;">
             <div class="section-title">📝 LETRA APROVADA PELO CLIENTE</div>
-            <div class="lyrics-box">${orderData.approvedLyrics}</div>
+            <div class="lyrics-box">${orderData.approvedLyrics || orderData.generatedLyrics}</div>
           </div>
           ` : ''}
 
@@ -187,9 +187,9 @@ async function sendOrderEmail(orderData: any, paymentId: string, paymentMethod: 
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Cantos de Memórias <onboarding@resend.dev>',
+        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
         to: [ADMIN_EMAIL],
-        subject: `🎵 NOVO PEDIDO! ${orderData.honoreeName} - R$ ${orderData.amount.toFixed(2).replace('.', ',')} - ${orderData.occasionLabel || orderData.occasion}`,
+        subject: `🎵 NOVO PEDIDO! ${orderData.honoreeName} - R$ ${(orderData.amount || 0).toFixed(2).replace('.', ',')} - ${orderData.occasionLabel || orderData.occasion || 'Música'}`,
         html: htmlContent,
       }),
     });
@@ -208,10 +208,13 @@ async function sendOrderEmail(orderData: any, paymentId: string, paymentMethod: 
 // Função para enviar email de confirmação para o cliente
 async function sendCustomerEmail(orderData: any) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_YZgURojb_2mv7v4jQgGBkev292bfTXS9M';
+  const customerEmail = orderData.customerEmail || orderData.email;
 
-  if (!RESEND_API_KEY || !orderData.customerEmail) {
+  if (!RESEND_API_KEY || !customerEmail) {
     return;
   }
+
+  const customerName = orderData.customerName || orderData.userName || 'Cliente';
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -239,7 +242,7 @@ async function sendCustomerEmail(orderData: any) {
           </div>
 
           <div class="content">
-            <p>Olá, <strong>${orderData.customerName}</strong>!</p>
+            <p>Olá, <strong>${customerName}</strong>!</p>
             <p>Recebemos seu pedido e estamos muito felizes em criar essa música especial para <strong>${orderData.honoreeName}</strong>.</p>
 
             <div class="highlight-box">
@@ -274,8 +277,8 @@ async function sendCustomerEmail(orderData: any) {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Cantos de Memórias <onboarding@resend.dev>',
-        to: [orderData.customerEmail],
+        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
+        to: [customerEmail],
         subject: `✅ Pedido Confirmado! Sua música para ${orderData.honoreeName} está sendo criada`,
         html: htmlContent,
       }),
@@ -292,71 +295,98 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { paymentData, orderData } = body;
 
-    console.log('[PROCESS] Dados do pagamento recebidos');
-    console.log('[PROCESS] Método:', paymentData.payment_method_id);
-    console.log('[PROCESS] Valor:', orderData.amount);
+    // Suporta tanto o formato antigo quanto o novo
+    const paymentMethod = body.paymentMethod || body.paymentData?.payment_method_id;
+    const amount = body.amount || body.orderData?.amount;
+    const description = body.description || `Música Personalizada`;
+    const payer = body.payer || {};
+    const orderData = body.orderData || body;
+    const token = body.token || body.paymentData?.token;
+    const installments = body.installments || body.paymentData?.installments || 1;
+
+    console.log('[PROCESS] Método de pagamento:', paymentMethod);
+    console.log('[PROCESS] Valor:', amount);
+
+    if (!amount || amount <= 0) {
+      return NextResponse.json({ error: 'Valor inválido' }, { status: 400 });
+    }
 
     const paymentClient = new Payment(mercadopagoConfig);
 
-    // Criar o pagamento
+    // Criar o corpo do pagamento
     const paymentBody: any = {
-      transaction_amount: orderData.amount,
-      description: `Música Personalizada para ${orderData.honoreeName}`,
-      payment_method_id: paymentData.payment_method_id,
+      transaction_amount: amount,
+      description: description,
       payer: {
-        email: orderData.customerEmail,
-        first_name: orderData.customerName.split(' ')[0],
-        last_name: orderData.customerName.split(' ').slice(1).join(' ') || orderData.customerName,
+        email: payer.email || orderData.customerEmail || orderData.email,
+        first_name: payer.first_name || (orderData.customerName || orderData.userName || '').split(' ')[0],
+        last_name: payer.last_name || (orderData.customerName || orderData.userName || '').split(' ').slice(1).join(' ') || 'Cliente',
       },
       metadata: {
         order_id: orderData.orderId,
-        customer_name: orderData.customerName,
-        customer_email: orderData.customerEmail,
-        customer_whatsapp: orderData.customerWhatsapp,
+        customer_name: orderData.customerName || orderData.userName,
+        customer_email: orderData.customerEmail || orderData.email,
+        customer_whatsapp: orderData.customerWhatsapp || orderData.whatsapp,
         honoree_name: orderData.honoreeName,
       },
     };
 
-    // Para cartão de crédito
-    if (paymentData.token) {
-      paymentBody.token = paymentData.token;
-      paymentBody.installments = paymentData.installments || 1;
-      paymentBody.issuer_id = paymentData.issuer_id;
+    // Configurar pagamento PIX
+    if (paymentMethod === 'pix') {
+      paymentBody.payment_method_id = 'pix';
+    }
+    // Configurar pagamento com cartão
+    else if (paymentMethod === 'card' && token) {
+      paymentBody.token = token;
+      paymentBody.installments = installments;
+
+      // Adicionar identificação do pagador se disponível
+      if (payer.identification) {
+        paymentBody.payer.identification = payer.identification;
+      }
+    }
+    // Formato legado
+    else if (body.paymentData?.payment_method_id) {
+      paymentBody.payment_method_id = body.paymentData.payment_method_id;
+      if (body.paymentData.token) {
+        paymentBody.token = body.paymentData.token;
+        paymentBody.installments = body.paymentData.installments || 1;
+        paymentBody.issuer_id = body.paymentData.issuer_id;
+      }
     }
 
     console.log('[PROCESS] Enviando pagamento para Mercado Pago...');
+    console.log('[PROCESS] Payment body:', JSON.stringify(paymentBody, null, 2));
 
     const payment = await paymentClient.create({ body: paymentBody });
 
     console.log('[PROCESS] Resposta do pagamento:', payment.status);
     console.log('[PROCESS] Payment ID:', payment.id);
+    console.log('[PROCESS] Status Detail:', payment.status_detail);
 
-    // Se pagamento aprovado ou pendente (PIX), enviar emails
-    if (payment.status === 'approved' || payment.status === 'pending' || payment.status === 'in_process') {
-      // Determinar método de pagamento
-      let paymentMethod = 'unknown';
-      if (paymentData.payment_method_id === 'pix') {
-        paymentMethod = 'pix';
-      } else if (['credit_card', 'debit_card', 'visa', 'master', 'amex', 'elo', 'hipercard'].includes(paymentData.payment_method_id)) {
-        paymentMethod = 'card';
-      }
+    // Determinar método de pagamento para o email
+    let emailPaymentMethod = 'unknown';
+    if (paymentMethod === 'pix' || paymentBody.payment_method_id === 'pix') {
+      emailPaymentMethod = 'pix';
+    } else if (token || paymentBody.token) {
+      emailPaymentMethod = 'card';
+    }
 
-      // Enviar email para admin
-      await sendOrderEmail(orderData, String(payment.id), paymentMethod);
-
-      // Enviar email de confirmação para cliente
+    // Se pagamento aprovado, enviar emails imediatamente
+    if (payment.status === 'approved') {
+      console.log('[PROCESS] ✅ Pagamento aprovado! Enviando emails...');
+      await sendOrderEmail(orderData, String(payment.id), emailPaymentMethod);
       await sendCustomerEmail(orderData);
     }
 
     // Resposta para PIX (inclui QR code)
-    if (payment.status === 'pending' && paymentData.payment_method_id === 'pix') {
+    if (payment.status === 'pending' && (paymentMethod === 'pix' || paymentBody.payment_method_id === 'pix')) {
+      console.log('[PROCESS] PIX gerado, aguardando pagamento');
       return NextResponse.json({
         status: payment.status,
         statusDetail: payment.status_detail,
         paymentId: String(payment.id),
-        // Dados do PIX
         pixQrCode: payment.point_of_interaction?.transaction_data?.qr_code,
         pixQrCodeBase64: payment.point_of_interaction?.transaction_data?.qr_code_base64,
         pixExpirationDate: payment.date_of_expiration,
@@ -371,13 +401,15 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error('[PROCESS] Erro:', error);
+    console.error('[PROCESS] Erro detalhes:', JSON.stringify(error, null, 2));
 
     // Erros específicos do Mercado Pago
-    if (error.cause) {
+    if (error.cause && Array.isArray(error.cause)) {
       const mpError = error.cause[0];
       return NextResponse.json({
         error: mpError?.description || 'Erro ao processar pagamento',
         code: mpError?.code,
+        statusDetail: mpError?.code,
       }, { status: 400 });
     }
 

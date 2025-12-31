@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 
-const ACCESS_TOKEN = 'APP_USR-4063235147276146-122919-dd71f6ad2dc03550ecfc7e57767900a9-3101728620';
+const ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || 'APP_USR-4063235147276146-122919-dd71f6ad2dc03550ecfc7e57767900a9-3101728620';
 
 const mercadopagoConfig = new MercadoPagoConfig({
   accessToken: ACCESS_TOKEN,
@@ -155,7 +155,7 @@ async function sendCustomerConfirmationEmail(data: {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Cantos de Memórias <onboarding@resend.dev>',
+        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
         to: [data.customerEmail],
         subject: `🎵 Pedido Confirmado! Sua música para ${data.honoreeName} está sendo criada`,
         html: htmlContent,
@@ -318,7 +318,7 @@ async function sendAdminEmail(paymentData: {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Cantos de Memórias <onboarding@resend.dev>',
+        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
         to: [ADMIN_EMAIL],
         subject: `🎵 NOVO PEDIDO! ${meta.honoree_name || 'Cliente'} - R$ ${paymentData.amount.toFixed(2).replace('.', ',')}`,
         html: htmlContent,
