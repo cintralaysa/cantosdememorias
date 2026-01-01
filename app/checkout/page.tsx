@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { Shield, Clock, Heart, Loader2, CheckCircle, ArrowLeft, Music, CreditCard, Copy, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { MetaPixelEvents } from '@/components/MetaPixel';
 
 interface OrderData {
   orderId: string;
@@ -88,6 +89,12 @@ export default function CheckoutPage() {
       try {
         const data = JSON.parse(storedData);
         setOrderData(data);
+
+        // Meta Pixel: Evento InitiateCheckout
+        MetaPixelEvents.initiateCheckout({
+          value: data.amount,
+          content_name: `Música para ${data.honoreeName}`,
+        });
       } catch (e) {
         console.error('Erro ao recuperar dados do pedido:', e);
       }
@@ -118,6 +125,15 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (data.status === 'approved') {
+        // Meta Pixel: Evento Purchase (PIX)
+        if (orderData) {
+          MetaPixelEvents.purchase({
+            value: orderData.amount,
+            content_name: `Música para ${orderData.honoreeName}`,
+            content_ids: [orderData.orderId],
+          });
+        }
+
         setPaymentSuccess(true);
         sessionStorage.removeItem('checkoutData');
         // Redirecionar para página de sucesso após 2 segundos
@@ -252,6 +268,13 @@ export default function CheckoutPage() {
       }
 
       if (data.status === 'approved') {
+        // Meta Pixel: Evento Purchase (Cartão)
+        MetaPixelEvents.purchase({
+          value: orderData.amount,
+          content_name: `Música para ${orderData.honoreeName}`,
+          content_ids: [orderData.orderId],
+        });
+
         setPaymentSuccess(true);
         sessionStorage.removeItem('checkoutData');
         setTimeout(() => {
@@ -473,7 +496,10 @@ export default function CheckoutPage() {
                 <div className="space-y-3 mb-6">
                   {/* PIX */}
                   <button
-                    onClick={() => setSelectedMethod('pix')}
+                    onClick={() => {
+                      setSelectedMethod('pix');
+                      MetaPixelEvents.addPaymentInfo({ value: orderData.amount });
+                    }}
                     className={`w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all ${
                       selectedMethod === 'pix'
                         ? 'border-green-500 bg-green-50'
@@ -502,7 +528,10 @@ export default function CheckoutPage() {
 
                   {/* Cartão */}
                   <button
-                    onClick={() => setSelectedMethod('card')}
+                    onClick={() => {
+                      setSelectedMethod('card');
+                      MetaPixelEvents.addPaymentInfo({ value: orderData.amount });
+                    }}
                     className={`w-full p-4 rounded-xl border-2 flex items-center gap-4 transition-all ${
                       selectedMethod === 'card'
                         ? 'border-violet-500 bg-violet-50'

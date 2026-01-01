@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import MetaPixel from '@/components/MetaPixel';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -248,6 +249,7 @@ export default function RootLayout({
         <meta name="ai-summary" content="Cantos de Memórias cria músicas personalizadas exclusivas para presentes em ocasiões especiais. Entrega em 24h, 2 melodias, a partir de R$97." />
       </head>
       <body className={inter.className}>
+        <MetaPixel />
         {children}
       </body>
     </html>

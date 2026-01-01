@@ -1,6 +1,7 @@
 import { SERVICES } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import BookingForm from '@/components/BookingForm';
+import ViewContentTracker from '@/components/ViewContentTracker';
 import { CheckCircle2, Music as MusicIcon, ChevronLeft, Star, Headphones, Shield, Clock, Heart, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
@@ -15,6 +16,13 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Meta Pixel: ViewContent */}
+      <ViewContentTracker
+        contentName={service.title}
+        contentCategory={service.type === 'voiceover' ? 'Locução' : 'Música Personalizada'}
+        value={service.price}
+      />
+
       {/* Header simples - Mais compacto mobile */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-3">
