@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
+import { saveOrder } from '@/lib/orderStore';
 
 // Token do Mercado Pago - Produção
 const ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || 'APP_USR-4063235147276146-122919-dd71f6ad2dc03550ecfc7e57767900a9-3101728620';
@@ -377,6 +378,35 @@ export async function POST(req: Request) {
     console.log('[PROCESS] Resposta do pagamento:', payment.status);
     console.log('[PROCESS] Payment ID:', payment.id);
     console.log('[PROCESS] Status Detail:', payment.status_detail);
+
+    // Salvar pedido completo para recuperar depois (PIX)
+    if (payment.id) {
+      saveOrder(String(payment.id), {
+        orderId: orderData.orderId,
+        amount: orderData.amount,
+        customerName: orderData.customerName || orderData.userName,
+        customerEmail: orderData.customerEmail || orderData.email,
+        customerWhatsapp: orderData.customerWhatsapp || orderData.whatsapp,
+        honoreeName: orderData.honoreeName,
+        relationship: orderData.relationship,
+        relationshipLabel: orderData.relationshipLabel,
+        occasion: orderData.occasion,
+        occasionLabel: orderData.occasionLabel,
+        musicStyle: orderData.musicStyle,
+        musicStyleLabel: orderData.musicStyleLabel,
+        voicePreference: orderData.voicePreference,
+        qualities: orderData.qualities,
+        memories: orderData.memories,
+        heartMessage: orderData.heartMessage,
+        familyNames: orderData.familyNames,
+        approvedLyrics: orderData.approvedLyrics || orderData.generatedLyrics,
+        knowsBabySex: orderData.knowsBabySex,
+        babySex: orderData.babySex,
+        babyNameBoy: orderData.babyNameBoy,
+        babyNameGirl: orderData.babyNameGirl,
+      });
+      console.log('[PROCESS] Pedido salvo no store para payment:', payment.id);
+    }
 
     // Determinar método de pagamento para o email
     let emailPaymentMethod = 'unknown';
