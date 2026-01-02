@@ -23,6 +23,43 @@ interface OrderMetadata {
   baby_name_girl?: string;
 }
 
+// Armazenar IDs de pagamentos já processados para evitar duplicatas (em memória)
+// Em produção, isso deveria ser um Redis ou banco de dados
+const processedPayments = new Set<string>();
+
+// Função auxiliar para enviar email com retry
+async function sendEmailWithRetry(
+  emailFn: () => Promise<Response>,
+  maxRetries: number = 3
+): Promise<{ success: boolean; error?: string }> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await emailFn();
+      if (response.ok) {
+        const result = await response.json();
+        return { success: true };
+      }
+      const error = await response.json();
+      console.error(`[WEBHOOK] Tentativa ${attempt}/${maxRetries} falhou:`, error);
+
+      // Esperar antes de tentar novamente (backoff exponencial)
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      } else {
+        return { success: false, error: JSON.stringify(error) };
+      }
+    } catch (error) {
+      console.error(`[WEBHOOK] Tentativa ${attempt}/${maxRetries} erro:`, error);
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      } else {
+        return { success: false, error: String(error) };
+      }
+    }
+  }
+  return { success: false, error: 'Max retries exceeded' };
+}
+
 // Função para enviar email de confirmação para o CLIENTE
 async function sendCustomerConfirmationEmail(paymentData: {
   amount: number;
@@ -30,12 +67,12 @@ async function sendCustomerConfirmationEmail(paymentData: {
   customerEmail: string;
   honoreeName: string;
   occasion: string;
-}) {
+}): Promise<boolean> {
   const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_YZgURojb_2mv7v4jQgGBkev292bfTXS9M';
 
   if (!RESEND_API_KEY || !paymentData.customerEmail) {
     console.log('[WEBHOOK] Sem API key ou email do cliente, pulando email de confirmação');
-    return;
+    return false;
   }
 
   const htmlContent = `
@@ -140,8 +177,8 @@ async function sendCustomerConfirmationEmail(paymentData: {
     </html>
   `;
 
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
+  const result = await sendEmailWithRetry(() =>
+    fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -153,17 +190,16 @@ async function sendCustomerConfirmationEmail(paymentData: {
         subject: `🎵 Pedido Confirmado! Sua música para ${paymentData.honoreeName} está sendo criada`,
         html: htmlContent,
       }),
-    });
+    })
+  );
 
-    if (response.ok) {
-      console.log('[WEBHOOK] ✅ Email de confirmação enviado para cliente:', paymentData.customerEmail);
-    } else {
-      const error = await response.json();
-      console.error('[WEBHOOK] Erro ao enviar email para cliente:', error);
-    }
-  } catch (error) {
-    console.error('[WEBHOOK] Erro ao enviar email para cliente:', error);
+  if (result.success) {
+    console.log('[WEBHOOK] ✅ Email de confirmação enviado para cliente:', paymentData.customerEmail);
+  } else {
+    console.error('[WEBHOOK] ❌ Falha ao enviar email para cliente após 3 tentativas:', result.error);
   }
+
+  return result.success;
 }
 
 // Função para enviar email completo com todos os dados do pedido (para ADMIN)
@@ -172,13 +208,13 @@ async function sendCompleteOrderEmail(paymentData: {
   amount: number;
   paymentMethod: string;
   metadata: OrderMetadata;
-}) {
+}): Promise<boolean> {
   const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_YZgURojb_2mv7v4jQgGBkev292bfTXS9M';
   const ADMIN_EMAIL = 'cantosdememorias@gmail.com';
 
   if (!RESEND_API_KEY) {
     console.log('[WEBHOOK] RESEND_API_KEY não configurada, pulando email');
-    return;
+    return false;
   }
 
   const meta = paymentData.metadata;
@@ -342,8 +378,8 @@ async function sendCompleteOrderEmail(paymentData: {
     </html>
   `;
 
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
+  const result = await sendEmailWithRetry(() =>
+    fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -355,17 +391,16 @@ async function sendCompleteOrderEmail(paymentData: {
         subject: `🎵 NOVO PEDIDO! ${meta.honoree_name || 'Cliente'} - R$ ${paymentData.amount.toFixed(2).replace('.', ',')} - ${meta.occasion || 'Música'}`,
         html: htmlContent,
       }),
-    });
+    })
+  );
 
-    if (response.ok) {
-      console.log('[WEBHOOK] ✅ Email completo enviado para', ADMIN_EMAIL);
-    } else {
-      const error = await response.json();
-      console.error('[WEBHOOK] Erro ao enviar email:', error);
-    }
-  } catch (error) {
-    console.error('[WEBHOOK] Erro ao enviar email:', error);
+  if (result.success) {
+    console.log('[WEBHOOK] ✅ Email completo enviado para', ADMIN_EMAIL);
+  } else {
+    console.error('[WEBHOOK] ❌ Falha ao enviar email para admin após 3 tentativas:', result.error);
   }
+
+  return result.success;
 }
 
 export async function POST(req: Request) {
@@ -384,6 +419,13 @@ export async function POST(req: Request) {
       if (!paymentId) {
         console.log('[WEBHOOK] Sem payment ID');
         return NextResponse.json({ received: true });
+      }
+
+      // Verificar se já processamos este pagamento (evita duplicatas)
+      const paymentKey = `payment_${paymentId}`;
+      if (processedPayments.has(paymentKey)) {
+        console.log('[WEBHOOK] Pagamento já processado, ignorando:', paymentId);
+        return NextResponse.json({ received: true, already_processed: true });
       }
 
       console.log('[WEBHOOK] Payment ID:', paymentId);
@@ -410,11 +452,14 @@ export async function POST(req: Request) {
       if (status === 'approved') {
         console.log('[WEBHOOK] ✅ PAGAMENTO APROVADO! Enviando emails...');
 
+        // Marcar como processado ANTES de enviar emails
+        processedPayments.add(paymentKey);
+
         // Pegar metadata do pagamento (contém todos os dados do pedido)
         const metadata = payment.metadata as OrderMetadata || {};
 
         // 1. Enviar email para o ADMIN com todos os dados
-        await sendCompleteOrderEmail({
+        const adminEmailSent = await sendCompleteOrderEmail({
           paymentId: paymentId.toString(),
           amount: payment.transaction_amount || 0,
           paymentMethod,
@@ -422,8 +467,9 @@ export async function POST(req: Request) {
         });
 
         // 2. Enviar email de confirmação para o CLIENTE
+        let customerEmailSent = false;
         if (metadata.customer_email) {
-          await sendCustomerConfirmationEmail({
+          customerEmailSent = await sendCustomerConfirmationEmail({
             amount: payment.transaction_amount || 0,
             customerName: metadata.customer_name || '',
             customerEmail: metadata.customer_email,
@@ -431,6 +477,8 @@ export async function POST(req: Request) {
             occasion: metadata.occasion || 'Música Personalizada',
           });
         }
+
+        console.log('[WEBHOOK] Resultado: Admin email:', adminEmailSent ? '✅' : '❌', '| Cliente email:', customerEmailSent ? '✅' : '❌');
       }
     }
 
@@ -438,7 +486,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('[WEBHOOK] Erro:', error);
-    return NextResponse.json({ received: true });
+    // Mesmo com erro, retornamos 200 para o Mercado Pago não ficar tentando novamente
+    return NextResponse.json({ received: true, error: String(error) });
   }
 }
 
