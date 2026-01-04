@@ -450,7 +450,7 @@ export default function Home() {
                 {/* Imagem - Menor no mobile */}
                 <div className="relative h-48 sm:h-64 md:h-auto">
                   <img
-                    src="/portfolio/fotos/musica-celular-player.png"
+                    src="/portfolio/fotos/estudio-cantos-memorias.png"
                     alt="Música Personalizada"
                     className="w-full h-full object-cover"
                   />
