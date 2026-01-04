@@ -450,7 +450,7 @@ export default function Home() {
                 {/* Imagem - Menor no mobile */}
                 <div className="relative h-48 sm:h-64 md:h-auto">
                   <img
-                    src="/portfolio/fotos/Gemini_Generated_Image_ct6qvxct6qvxct6q.png"
+                    src="/portfolio/fotos/musica-celular-player.png"
                     alt="Música Personalizada"
                     className="w-full h-full object-cover"
                   />
@@ -481,9 +481,9 @@ export default function Home() {
                   </p>
 
                   {/* Features - Compacto no mobile */}
-                  <ul className="space-y-2 sm:space-y-3 mb-5 sm:mb-8">
+                  <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                     {[
-                      'Letra exclusiva para você',
+                      'Crie e edite a letra aqui no site',
                       '2 Melodias incluídas',
                       'Entrega em 24 horas',
                       'Aprove antes de pagar'
@@ -496,6 +496,19 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
+
+                  {/* Destaque - Criação da letra no site */}
+                  <div className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-3 sm:p-4 mb-5 sm:mb-8">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="text-white" size={16} />
+                      </div>
+                      <div>
+                        <p className="text-violet-900 font-bold text-sm sm:text-base">Você cria a letra aqui!</p>
+                        <p className="text-violet-700 text-xs sm:text-sm">Gere, visualize e edite a letra diretamente no site antes de pagar.</p>
+                      </div>
+                    </div>
+                  </div>
 
                   {/* Preço e CTA - Otimizado mobile */}
                   <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-100">
