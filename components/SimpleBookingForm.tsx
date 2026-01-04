@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
-import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, MessageCircle, User, Phone, Mail, Users, Mic2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2 } from 'lucide-react';
 
 // Opções de relacionamento - Chá Revelação primeiro!
 const RELATIONSHIPS = [
@@ -237,18 +237,6 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
       alert(error.message || 'Erro ao processar pedido. Tente novamente.');
       setLoading(false);
     }
-  };
-
-  const handleWhatsAppCheckout = () => {
-    const message = `Olá! Quero encomendar uma música personalizada:\n\n` +
-      `Para: ${formData.honoreeName}\n` +
-      `Ocasião: ${OCCASIONS.find(o => o.value === formData.occasion)?.label || formData.occasion}\n` +
-      `Estilo: ${MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label || formData.musicStyle}\n\n` +
-      `História: ${formData.storyAndMessage.substring(0, 200)}...\n\n` +
-      `Meu nome: ${formData.userName}\n` +
-      `WhatsApp: ${formData.whatsapp}`;
-
-    window.open(`https://wa.me/5585996811925?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const stepInfo = [
@@ -868,34 +856,25 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
               )}
             </button>
           ) : (
-            <div className="flex-1 flex flex-col gap-2">
+            <div className="flex-1">
               <button
                 type="button"
                 onClick={handleCheckout}
                 disabled={!canProceed() || loading}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-bold text-sm transition-all ${
+                className={`w-full flex items-center justify-center gap-2 px-4 py-4 rounded-xl font-bold text-base transition-all ${
                   canProceed() && !loading
-                    ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white hover:from-violet-600 hover:to-purple-600 shadow-lg shadow-violet-200'
+                    ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white hover:from-violet-600 hover:to-purple-600 shadow-lg shadow-violet-300'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >
                 {loading ? (
-                  <Loader2 className="animate-spin" size={18} />
+                  <Loader2 className="animate-spin" size={20} />
                 ) : (
                   <>
-                    <Lock size={16} />
-                    Ir para Pagamento
+                    <Lock size={18} />
+                    Finalizar e Pagar R$ 79,99
                   </>
                 )}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleWhatsAppCheckout}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-green-500 text-green-600 font-bold text-sm hover:bg-green-50 transition-colors"
-              >
-                <MessageCircle size={16} />
-                Prefere pelo WhatsApp?
               </button>
             </div>
           )}
