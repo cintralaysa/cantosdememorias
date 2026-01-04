@@ -4,6 +4,7 @@ import { SERVICES, TESTIMONIALS } from '@/lib/data';
 import { Music, PlayCircle, Star, Heart, Clock, ArrowRight, Mic2, Volume2, Headphones, Award, Users, Sparkles, ChevronRight, ChevronDown, Phone, Mail, Instagram, Shield, Gift, Zap, Check } from 'lucide-react';
 import Link from 'next/link';
 import PortfolioSection from '@/components/PortfolioSection';
+import CheckoutModal from '@/components/CheckoutModal';
 import { useState, useEffect, useRef } from 'react';
 
 // Componente de Logo Premium
@@ -99,7 +100,11 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Pegar o serviço de música personalizada
+  const musicService = SERVICES.find(s => s.slug === 'musica-personalizada') || SERVICES[0];
 
   // Música de exemplo do Hero
   const heroAudioSrc = "https://cdn1.suno.ai/eb315faa-63eb-4fa3-885f-9dd2421027d0.mp3";
@@ -262,14 +267,14 @@ export default function Home() {
 
               {/* CTA Principal */}
               <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
-                <Link
-                  href="#servicos"
+                <button
+                  onClick={() => setIsModalOpen(true)}
                   className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-base sm:text-lg font-bold px-6 py-4 sm:px-10 sm:py-5 rounded-full shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
                 >
                   <Music size={20} />
                   <span>Criar Minha Música</span>
                   <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-                </Link>
+                </button>
                 <Link
                   href="#portfolio"
                   className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-6 py-3 sm:py-4 rounded-full font-bold transition-all duration-300 hover:bg-white/20"
@@ -502,13 +507,13 @@ export default function Home() {
                         <span className="text-base sm:text-xl font-bold text-black">,99</span>
                       </div>
                     </div>
-                    <Link
-                      href="/servicos/musica-personalizada"
+                    <button
+                      onClick={() => setIsModalOpen(true)}
                       className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-5 py-3 sm:px-8 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 transition-all duration-300"
                     >
                       <span>Criar Música</span>
                       <ArrowRight size={18} />
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -582,13 +587,13 @@ export default function Home() {
 
           {/* CTA - Menor no mobile */}
           <div className="text-center mt-8 sm:mt-12">
-            <Link
-              href="#servicos"
+            <button
+              onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center gap-2 btn-premium text-sm sm:text-base px-6 py-3 sm:px-8 sm:py-4"
             >
               <Music size={18} />
               <span>Começar Agora</span>
-            </Link>
+            </button>
           </div>
         </div>
       </section>
@@ -721,13 +726,13 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="#servicos"
+            <button
+              onClick={() => setIsModalOpen(true)}
               className="w-full sm:w-auto flex items-center justify-center gap-2 btn-premium text-sm sm:text-base px-6 py-3 sm:px-8 sm:py-4"
             >
               <Music size={18} />
               <span>Criar Música</span>
-            </Link>
+            </button>
             <a
               href="https://wa.me/5585996811925"
               target="_blank"
@@ -828,6 +833,13 @@ export default function Home() {
           </svg>
         </div>
       </a>
+
+      {/* Modal de Checkout */}
+      <CheckoutModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        service={musicService}
+      />
     </main>
   );
 }
