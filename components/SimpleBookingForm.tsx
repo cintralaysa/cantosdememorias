@@ -617,13 +617,41 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
           <div className="space-y-4 animate-fadeInUp">
 
             {generatingLyrics ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                  <Music className="text-violet-500" size={32} />
+              <div className="text-center py-8">
+                {/* Animação de notas musicais */}
+                <div className="relative w-20 h-20 mx-auto mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full animate-pulse"></div>
+                  <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                    <Music className="text-violet-500 animate-bounce" size={28} />
+                  </div>
+                  {/* Notas flutuantes */}
+                  <span className="absolute -top-2 -right-2 text-2xl animate-bounce" style={{ animationDelay: '0.1s' }}>🎵</span>
+                  <span className="absolute -bottom-1 -left-3 text-xl animate-bounce" style={{ animationDelay: '0.3s' }}>🎶</span>
+                  <span className="absolute top-0 -left-4 text-lg animate-bounce" style={{ animationDelay: '0.5s' }}>✨</span>
                 </div>
-                <Loader2 className="animate-spin text-violet-500 mx-auto mb-3" size={32} />
-                <p className="text-gray-700 font-bold">Criando sua letra personalizada...</p>
-                <p className="text-gray-400 text-sm mt-1">Isso pode levar alguns segundos</p>
+
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  Criando a letra para {formData.honoreeName}...
+                </h3>
+
+                <p className="text-violet-600 font-medium mb-4">
+                  Estamos gerando sua letra para sua aprovação
+                </p>
+
+                <div className="bg-violet-50 rounded-xl p-4 max-w-sm mx-auto mb-4">
+                  <div className="flex items-center gap-3 text-left">
+                    <Loader2 className="animate-spin text-violet-500 flex-shrink-0" size={24} />
+                    <div>
+                      <p className="text-sm text-gray-700">
+                        Nossa IA está compondo versos únicos e emocionantes baseados na sua história...
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-gray-400 text-xs">
+                  Aguarde alguns segundos ⏳
+                </p>
               </div>
             ) : lyricsError ? (
               <div className="text-center py-6">
