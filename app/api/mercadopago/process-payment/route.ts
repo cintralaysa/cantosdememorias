@@ -383,7 +383,7 @@ export async function POST(req: Request) {
     if (payment.id) {
       saveOrder(String(payment.id), {
         orderId: orderData.orderId,
-        amount: orderData.amount,
+        amount: orderData.amount || amount,
         customerName: orderData.customerName || orderData.userName,
         customerEmail: orderData.customerEmail || orderData.email,
         customerWhatsapp: orderData.customerWhatsapp || orderData.whatsapp,
@@ -419,8 +419,13 @@ export async function POST(req: Request) {
     // Se pagamento aprovado, enviar emails imediatamente
     if (payment.status === 'approved') {
       console.log('[PROCESS] ✅ Pagamento aprovado! Enviando emails...');
-      await sendOrderEmail(orderData, String(payment.id), emailPaymentMethod);
-      await sendCustomerEmail(orderData);
+      // Garantir que o amount está no orderData
+      const orderDataWithAmount = {
+        ...orderData,
+        amount: orderData.amount || amount,
+      };
+      await sendOrderEmail(orderDataWithAmount, String(payment.id), emailPaymentMethod);
+      await sendCustomerEmail(orderDataWithAmount);
     }
 
     // Resposta para PIX (inclui QR code)

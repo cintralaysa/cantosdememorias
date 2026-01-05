@@ -315,6 +315,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
           },
           orderData: {
             orderId,
+            amount: service.price,
             customerName: formData.userName,
             customerEmail: formData.email,
             customerWhatsapp: formData.whatsapp,
@@ -396,6 +397,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
           },
           orderData: {
             orderId,
+            amount: service.price,
             customerName: formData.userName,
             customerEmail: formData.email,
             customerWhatsapp: formData.whatsapp,

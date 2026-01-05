@@ -195,7 +195,8 @@ async function sendFullOrderEmail(data: {
 
   let babySection = '';
   if (order.occasion?.toLowerCase().includes('chá') || order.occasion?.toLowerCase().includes('cha') ||
-      order.occasion?.toLowerCase().includes('revelação') || order.occasion?.toLowerCase().includes('bebe')) {
+      order.occasion?.toLowerCase().includes('revelação') || order.occasion?.toLowerCase().includes('bebe') ||
+      order.relationship === 'cha-revelacao' || order.relationshipLabel?.toLowerCase().includes('revelação')) {
     babySection = `
       <div class="section" style="border-left-color: #ec4899;">
         <div class="section-title">👶 Informações do Bebê</div>
