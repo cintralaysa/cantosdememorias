@@ -292,6 +292,60 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
     }
   };
 
+  // Redirecionar para checkout Cakto
+  const handleCaktoCheckout = async () => {
+    if (!canProceed()) return;
+    setLoading(true);
+    setPaymentError(null);
+
+    try {
+      // Preparar dados do pedido
+      const orderData = {
+        customerName: formData.userName,
+        customerEmail: formData.email,
+        customerWhatsapp: formData.whatsapp,
+        honoreeName: formData.honoreeName,
+        relationship: formData.relationship,
+        relationshipLabel: RELATIONSHIPS.find(r => r.value === formData.relationship)?.label,
+        occasion: formData.occasion,
+        occasionLabel: OCCASIONS.find(o => o.value === formData.occasion)?.label,
+        musicStyle: formData.musicStyle,
+        musicStyleLabel: MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label,
+        voicePreference: formData.voicePreference,
+        storyAndMessage: formData.storyAndMessage,
+        familyNames: formData.familyNames,
+        generatedLyrics: formData.generatedLyrics,
+        knowsBabySex: formData.knowsBabySex,
+        babySex: formData.babySex,
+        babyNameBoy: formData.babyNameBoy,
+        babyNameGirl: formData.babyNameGirl,
+      };
+
+      // Salvar pedido e obter URL do checkout
+      const response = await fetch('/api/cakto/save-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.checkoutUrl) {
+        // Redirecionar para o checkout da Cakto
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error('Erro ao gerar link de pagamento');
+      }
+    } catch (error: any) {
+      setPaymentError(error.message || 'Erro ao processar. Tente novamente.');
+      setLoading(false);
+    }
+  };
+
   // Processar pagamento PIX
   const handlePixPayment = async () => {
     if (!canProceed()) return;
@@ -696,70 +750,43 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
                 </div>
               </div>
 
-              {/* Seleção de método de pagamento */}
-              {canProceed() && !pixData && (
-                <div className="space-y-3">
-                  <h4 className="font-bold text-gray-900 flex items-center gap-2"><Lock size={16} className="text-violet-500" />Escolha como pagar</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button type="button" onClick={() => setPaymentMethod('pix')} className={`p-4 rounded-xl border-2 text-center transition-all ${paymentMethod === 'pix' ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
-                      <svg viewBox="0 0 512 512" className={`w-8 h-8 mx-auto mb-2 ${paymentMethod === 'pix' ? 'fill-green-500' : 'fill-gray-400'}`}><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
-                      <span className={`font-bold text-sm ${paymentMethod === 'pix' ? 'text-green-700' : 'text-gray-700'}`}>PIX</span>
-                      <span className="text-xs text-gray-500 block">Aprovação instantânea</span>
-                    </button>
-                    <button type="button" onClick={() => setPaymentMethod('card')} className={`p-4 rounded-xl border-2 text-center transition-all ${paymentMethod === 'card' ? 'border-violet-500 bg-violet-50' : 'border-gray-200'}`}>
-                      <CreditCard className={`w-8 h-8 mx-auto mb-2 ${paymentMethod === 'card' ? 'text-violet-500' : 'text-gray-400'}`} />
-                      <span className={`font-bold text-sm ${paymentMethod === 'card' ? 'text-violet-700' : 'text-gray-700'}`}>Cartão</span>
-                      <span className="text-xs text-green-600 block">Até 12x</span>
-                    </button>
-                  </div>
-
-                  {/* Formulário de cartão */}
-                  {paymentMethod === 'card' && (
-                    <div className="space-y-3 border-t pt-4 mt-4">
-                      <div><label className="block text-xs font-medium text-gray-700 mb-1">Número do Cartão</label><input type="text" value={cardForm.cardNumber} onChange={(e) => setCardForm({ ...cardForm, cardNumber: formatCardNumber(e.target.value) })} placeholder="0000 0000 0000 0000" maxLength={19} className="w-full px-4 py-3 border rounded-xl" /></div>
-                      <div><label className="block text-xs font-medium text-gray-700 mb-1">Nome no Cartão</label><input type="text" value={cardForm.cardholderName} onChange={(e) => setCardForm({ ...cardForm, cardholderName: e.target.value.toUpperCase() })} className="w-full px-4 py-3 border rounded-xl" /></div>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div><label className="block text-xs font-medium text-gray-700 mb-1">Mês</label><select value={cardForm.expirationMonth} onChange={(e) => setCardForm({ ...cardForm, expirationMonth: e.target.value })} className="w-full px-3 py-3 border rounded-xl"><option value="">MM</option>{Array.from({ length: 12 }, (_, i) => { const m = (i + 1).toString().padStart(2, '0'); return <option key={m} value={m}>{m}</option>; })}</select></div>
-                        <div><label className="block text-xs font-medium text-gray-700 mb-1">Ano</label><select value={cardForm.expirationYear} onChange={(e) => setCardForm({ ...cardForm, expirationYear: e.target.value })} className="w-full px-3 py-3 border rounded-xl"><option value="">AA</option>{Array.from({ length: 15 }, (_, i) => { const y = (new Date().getFullYear() + i).toString().slice(-2); return <option key={y} value={y}>{y}</option>; })}</select></div>
-                        <div><label className="block text-xs font-medium text-gray-700 mb-1">CVV</label><input type="text" value={cardForm.securityCode} onChange={(e) => setCardForm({ ...cardForm, securityCode: e.target.value.replace(/\D/g, '').slice(0, 4) })} placeholder="123" maxLength={4} className="w-full px-3 py-3 border rounded-xl" /></div>
+              {/* Botão de Finalizar - Redireciona para Cakto */}
+              {canProceed() && !paymentSuccess && (
+                <div className="space-y-4">
+                  {/* Métodos de pagamento disponíveis */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2"><Lock size={16} className="text-violet-500" />Formas de pagamento</h4>
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <svg viewBox="0 0 512 512" className="w-6 h-6 fill-green-500"><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
+                        <span className="font-semibold text-green-600">PIX</span>
                       </div>
-                      <div><label className="block text-xs font-medium text-gray-700 mb-1">CPF do Titular</label><input type="text" value={cardForm.identificationNumber} onChange={(e) => { const v = e.target.value.replace(/\D/g, ''); setCardForm({ ...cardForm, identificationNumber: formatCPF(v), identificationType: v.length > 11 ? 'CNPJ' : 'CPF' }); }} placeholder="000.000.000-00" maxLength={18} className="w-full px-4 py-3 border rounded-xl" /></div>
-                      <div><label className="block text-xs font-medium text-gray-700 mb-1">Parcelas</label><select value={cardForm.installments} onChange={(e) => setCardForm({ ...cardForm, installments: parseInt(e.target.value) })} className="w-full px-4 py-3 border rounded-xl"><option value={1}>1x de R$ {service.price.toFixed(2).replace('.', ',')} (sem juros)</option>{[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(n => <option key={n} value={n}>{n}x de R$ {(service.price / n).toFixed(2).replace('.', ',')}</option>)}</select></div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <CreditCard className="w-6 h-6 text-violet-500" />
+                        <span className="font-semibold">Cartão até 12x</span>
+                      </div>
                     </div>
-                  )}
+                  </div>
 
                   {paymentError && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">{paymentError}</div>}
 
-                  {/* Botões de pagamento */}
-                  {paymentMethod === 'pix' && (
-                    <button type="button" onClick={handlePixPayment} disabled={loading} className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50">
-                      {loading ? <><Loader2 className="w-5 h-5 animate-spin" />Gerando PIX...</> : <><Shield size={20} />Pagar com PIX</>}
-                    </button>
-                  )}
-                  {paymentMethod === 'card' && (
-                    <button type="button" onClick={handleCardPayment} disabled={loading || !mpReady} className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50">
-                      {loading ? <><Loader2 className="w-5 h-5 animate-spin" />Processando...</> : !mpReady ? <><Loader2 className="w-5 h-5 animate-spin" />Carregando...</> : <><Shield size={20} />Pagar R$ {service.price.toFixed(2).replace('.', ',')}</>}
-                    </button>
-                  )}
-                </div>
-              )}
+                  {/* Botão Finalizar */}
+                  <button
+                    type="button"
+                    onClick={handleCaktoCheckout}
+                    disabled={loading}
+                    className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg"
+                  >
+                    {loading ? (
+                      <><Loader2 className="w-5 h-5 animate-spin" />Processando...</>
+                    ) : (
+                      <><Shield size={20} />Finalizar Pedido - R$ {service.price.toFixed(2).replace('.', ',')}</>
+                    )}
+                  </button>
 
-              {/* QR Code PIX */}
-              {pixData && (
-                <div className="space-y-4 border-t pt-4">
-                  <h4 className="font-bold text-gray-900 text-center">Pague com PIX</h4>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <div className="flex justify-center mb-4"><img src={`data:image/png;base64,${pixData.qrCodeBase64}`} alt="QR Code PIX" className="w-48 h-48" /></div>
-                    <p className="text-center text-sm text-gray-600 mb-4">Escaneie o QR Code ou copie o código</p>
-                    <button onClick={copyPixCode} className="w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold flex items-center justify-center gap-2">
-                      {pixCopied ? <><CheckCircle size={20} />Copiado!</> : <><Copy size={20} />Copiar Código PIX</>}
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                    {checkingPayment ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-                    <span>Aguardando pagamento...</span>
-                  </div>
-                  <button onClick={checkPixPayment} disabled={checkingPayment} className="w-full py-2 text-violet-600 font-medium text-sm">Verificar pagamento</button>
+                  <p className="text-center text-xs text-gray-500">
+                    Você será redirecionado para a página de pagamento seguro
+                  </p>
                 </div>
               )}
             </div>
