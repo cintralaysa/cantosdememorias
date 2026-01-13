@@ -11,8 +11,15 @@ try {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Definir remetente - usar domínio verificado ou fallback para teste
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Cantos de Memórias <onboarding@resend.dev>';
+
 // Webhook da Cakto - recebe notificações de pagamento
 export async function POST(request: NextRequest) {
+  console.log('=== WEBHOOK CAKTO - INÍCIO ===');
+  console.log('RESEND_API_KEY presente:', !!process.env.RESEND_API_KEY);
+  console.log('FROM_EMAIL:', FROM_EMAIL);
+
   try {
     const body = await request.json();
 
@@ -284,7 +291,7 @@ async function handlePaymentApproved(body: any) {
   // Enviar email para admin
   try {
     await resend.emails.send({
-      from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
+      from: FROM_EMAIL,
       to: ['cantosdememorias@gmail.com'],
       subject: `🎵 NOVO PEDIDO CAKTO: ${finalCustomerName} → ${honoree_name} - ${formattedAmount}`,
       html: emailHtml,
@@ -347,7 +354,7 @@ async function handlePaymentApproved(body: any) {
 
     try {
       await resend.emails.send({
-        from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
+        from: FROM_EMAIL,
         to: [finalCustomerEmail],
         subject: `🎵 Pedido Confirmado - Sua música está sendo criada!`,
         html: clientEmailHtml,
