@@ -129,7 +129,7 @@ export default function SuccessPage() {
                   <Clock className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Entrega em até 24 horas</p>
+                  <p className="font-semibold text-gray-900">Entrega em até 48 horas</p>
                   <p className="text-sm text-gray-500">No seu email e WhatsApp</p>
                 </div>
               </div>

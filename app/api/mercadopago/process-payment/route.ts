@@ -248,7 +248,7 @@ async function sendCustomerEmail(orderData: any) {
 
             <div class="highlight-box">
               <h3 style="margin: 0 0 10px 0; color: #92400e;">⏰ Prazo de Entrega</h3>
-              <p style="margin: 0; color: #78350f;"><strong>Até 24 horas</strong> você receberá suas músicas no WhatsApp!</p>
+              <p style="margin: 0; color: #78350f;"><strong>Até 48 horas</strong> você receberá suas músicas no WhatsApp!</p>
             </div>
 
             <p><strong>O que você vai receber:</strong></p>

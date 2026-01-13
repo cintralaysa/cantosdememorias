@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     default: 'Como Criar Música Personalizada para Presente? | Cantos de Memórias',
     template: '%s | Cantos de Memórias'
   },
-  description: 'Descubra como transformar sua história em uma música personalizada exclusiva. Entrega em 24h, 2 melodias diferentes, perfeito para aniversário, casamento, Dia das Mães e datas especiais. A partir de R$97.',
+  description: 'Descubra como transformar sua história em uma música personalizada exclusiva. Entrega em 48h, 2 melodias diferentes, perfeito para aniversário, casamento, Dia das Mães e datas especiais. A partir de R$97.',
   keywords: [
     'música personalizada',
     'presente criativo',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     url: 'https://cantosdememoria.com',
     siteName: 'Cantos de Memórias',
     title: 'Músicas Personalizadas - Transforme Sua História em Melodia | Cantos de Memórias',
-    description: 'Crie uma música única e exclusiva para presentear quem você ama. Entrega em 24h, 2 melodias diferentes. Perfeito para aniversários, casamentos, Dia das Mães e momentos especiais.',
+    description: 'Crie uma música única e exclusiva para presentear quem você ama. Entrega em 48h, 2 melodias diferentes. Perfeito para aniversários, casamentos, Dia das Mães e momentos especiais.',
     images: [
       {
         url: '/og-image.jpg',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Músicas Personalizadas - Presente Único e Emocionante',
-    description: 'Transforme histórias em músicas exclusivas. Entrega em 24h!',
+    description: 'Transforme histórias em músicas exclusivas. Entrega em 48h!',
     images: ['/og-image.jpg'],
   },
 
@@ -160,7 +160,7 @@ const jsonLd = {
         availability: 'https://schema.org/InStock',
         deliveryLeadTime: {
           '@type': 'QuantitativeValue',
-          value: 24,
+          value: 48,
           unitCode: 'HUR'
         }
       }
@@ -191,7 +191,7 @@ const jsonLd = {
           name: 'Como funciona a criação de uma música personalizada?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'O processo é simples: 1) Você preenche um formulário contando a história e detalhes da pessoa homenageada; 2) Nosso sistema gera uma letra personalizada que você pode aprovar ou editar; 3) Após o pagamento, entregamos 2 versões da música com melodias diferentes em até 24 horas via WhatsApp.'
+            text: 'O processo é simples: 1) Você preenche um formulário contando a história e detalhes da pessoa homenageada; 2) Nosso sistema gera uma letra personalizada que você pode aprovar ou editar; 3) Após o pagamento, entregamos 2 versões da música com melodias diferentes em até 48 horas via WhatsApp.'
           }
         },
         {
@@ -199,7 +199,7 @@ const jsonLd = {
           name: 'Quanto custa uma música personalizada?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'A música personalizada custa a partir de R$97,00. O pacote inclui 2 melodias diferentes da mesma letra, entrega em 24 horas e você aprova a letra antes de pagar.'
+            text: 'A música personalizada custa a partir de R$97,00. O pacote inclui 2 melodias diferentes da mesma letra, entrega em 48 horas e você aprova a letra antes de pagar.'
           }
         },
         {
@@ -207,7 +207,7 @@ const jsonLd = {
           name: 'Em quanto tempo recebo minha música?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'A entrega é feita em até 24 horas após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp.'
+            text: 'A entrega é feita em até 48 horas após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp.'
           }
         },
         {
@@ -246,7 +246,7 @@ export default function RootLayout({
         />
         {/* Meta tags adicionais para IA */}
         <meta name="ai-content-type" content="comercial" />
-        <meta name="ai-summary" content="Cantos de Memórias cria músicas personalizadas exclusivas para presentes em ocasiões especiais. Entrega em 24h, 2 melodias, a partir de R$97." />
+        <meta name="ai-summary" content="Cantos de Memórias cria músicas personalizadas exclusivas para presentes em ocasiões especiais. Entrega em 48h, 2 melodias, a partir de R$97." />
       </head>
       <body className={inter.className}>
         <MetaPixel />

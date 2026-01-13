@@ -111,7 +111,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
                 <Clock size={24} className="mx-auto text-violet-500 mb-2" />
-                <p className="font-bold text-gray-900 text-sm">Entrega em 24h</p>
+                <p className="font-bold text-gray-900 text-sm">Entrega em 48h</p>
                 <p className="text-xs text-gray-500">Dias úteis</p>
               </div>
               <div className="bg-white rounded-xl p-4 border border-gray-100 text-center">
@@ -143,7 +143,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
                 <div className="flex items-center gap-2 bg-violet-50 rounded-xl p-3">
                   <Clock size={18} className="text-violet-500 flex-shrink-0" />
                   <div>
-                    <p className="text-xs font-bold text-gray-800">Entrega 24h</p>
+                    <p className="text-xs font-bold text-gray-800">Entrega 48h</p>
                     <p className="text-[10px] text-gray-500">Dias úteis</p>
                   </div>
                 </div>

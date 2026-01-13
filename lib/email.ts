@@ -238,7 +238,7 @@ export async function sendCustomerConfirmation(order: Order): Promise<boolean> {
 
             <div class="highlight-box">
               <h3>⏰ Prazo de Entrega</h3>
-              <p><strong>Até 24 horas</strong> você receberá suas músicas!</p>
+              <p><strong>Até 48 horas</strong> você receberá suas músicas!</p>
             </div>
 
             <div class="steps">
@@ -264,7 +264,7 @@ export async function sendCustomerConfirmation(order: Order): Promise<boolean> {
                 <div class="step-number">3</div>
                 <div class="step-content">
                   <h4>Entrega por WhatsApp</h4>
-                  <p>Você receberá as músicas diretamente no seu WhatsApp em até 24 horas.</p>
+                  <p>Você receberá as músicas diretamente no seu WhatsApp em até 48 horas.</p>
                 </div>
               </div>
             </div>

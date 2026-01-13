@@ -740,7 +740,7 @@ export default function CheckoutPage() {
             </div>
             <div className="flex items-center gap-1.5">
               <Clock size={14} className="text-violet-500" />
-              <span>Entrega em 24h</span>
+              <span>Entrega em 48h</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Heart size={14} className="text-red-400" />

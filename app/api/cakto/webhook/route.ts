@@ -338,7 +338,7 @@ async function handlePaymentApproved(body: any) {
             <p><strong>Próximos passos:</strong></p>
             <ol>
               <li>Nossa equipe já está trabalhando na sua música</li>
-              <li>Você receberá a música em até 24 horas</li>
+              <li>Você receberá a música em até 48 horas</li>
               <li>Qualquer dúvida, entre em contato pelo WhatsApp</li>
             </ol>
 

@@ -3,6 +3,7 @@
 import { SERVICES, TESTIMONIALS } from '@/lib/data';
 import { Music, PlayCircle, Star, Heart, Clock, ArrowRight, Mic2, Volume2, Headphones, Award, Users, Sparkles, ChevronRight, ChevronDown, Phone, Mail, Instagram, Shield, Gift, Zap, Check } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import PortfolioSection from '@/components/PortfolioSection';
 import CheckoutModal from '@/components/CheckoutModal';
 import { useState, useEffect, useRef } from 'react';
@@ -143,15 +144,15 @@ export default function Home() {
   const faqData = [
     {
       question: "Como funciona a criação de uma música personalizada?",
-      answer: "O processo é simples e rápido: 1) Você preenche um formulário contando a história e detalhes da pessoa homenageada; 2) Nosso sistema gera uma letra personalizada que você pode aprovar ou editar; 3) Após o pagamento, entregamos 2 versões da música com melodias diferentes em até 24 horas via WhatsApp."
+      answer: "O processo é simples e rápido: 1) Você preenche um formulário contando a história e detalhes da pessoa homenageada; 2) Nosso sistema gera uma letra personalizada que você pode aprovar ou editar; 3) Após o pagamento, entregamos 2 versões da música com melodias diferentes em até 48 horas via WhatsApp."
     },
     {
       question: "Quanto custa uma música personalizada?",
-      answer: "A música personalizada custa R$79,99. O pacote inclui 2 melodias diferentes da mesma letra (compre 1, ganhe outra!), entrega em 24 horas e você aprova a letra antes de pagar. É o presente mais emocionante que você pode dar!"
+      answer: "A música personalizada custa R$79,99. O pacote inclui 2 melodias diferentes da mesma letra (compre 1, ganhe outra!), entrega em 48 horas e você aprova a letra antes de pagar. É o presente mais emocionante que você pode dar!"
     },
     {
       question: "Em quanto tempo recebo minha música?",
-      answer: "A entrega é feita em até 24 horas após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp, prontas para emocionar quem você ama."
+      answer: "A entrega é feita em até 48 horas após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp, prontas para emocionar quem você ama."
     },
     {
       question: "Posso ver a letra antes de pagar?",
@@ -262,7 +263,7 @@ export default function Home() {
               {/* Subtítulo - Menor no mobile */}
               <p className="text-base sm:text-lg text-white/70 mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0">
                 Crie uma música <span className="text-white font-semibold">exclusiva</span> para eternizar momentos especiais.
-                <span className="block mt-1 text-violet-300 text-sm sm:text-base">Entrega 24h • 2 Melodias • Aprove antes de pagar</span>
+                <span className="block mt-1 text-violet-300 text-sm sm:text-base">Entrega 48h • 2 Melodias • Aprove antes de pagar</span>
               </p>
 
               {/* CTA Principal */}
@@ -287,7 +288,7 @@ export default function Home() {
               {/* Trust Indicators */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 mt-6 sm:mt-10 pt-4 sm:pt-8 border-t border-white/10">
                 {[
-                  { icon: <Clock size={16} />, label: 'Entrega 24h', sub: 'Rápido' },
+                  { icon: <Clock size={16} />, label: 'Entrega 48h', sub: 'Rápido' },
                   { icon: <Gift size={16} />, label: '2 Melodias', sub: 'Incluídas' },
                   { icon: <Shield size={16} />, label: 'Pagamento', sub: 'Seguro' },
                 ].map((item, i) => (
@@ -392,9 +393,9 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Badge Entrega 24h */}
+                {/* Badge Entrega 48h */}
                 <div className="absolute -top-4 -right-4 bg-gradient-to-r from-emerald-400 to-green-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  Entrega 24h
+                  Entrega 48h
                 </div>
               </div>
 
@@ -449,10 +450,13 @@ export default function Home() {
               <div className="grid md:grid-cols-2">
                 {/* Imagem - Menor no mobile */}
                 <div className="relative h-48 sm:h-64 md:h-auto">
-                  <img
+                  <Image
                     src="/portfolio/fotos/estudio-cantos-memorias.png"
                     alt="Música Personalizada"
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
 
@@ -485,7 +489,7 @@ export default function Home() {
                     {[
                       'Crie e edite a letra aqui no site',
                       '2 Melodias incluídas',
-                      'Entrega em 24 horas',
+                      'Entrega em 48 horas',
                       'Aprove antes de pagar'
                     ].map((feature, idx) => (
                       <li key={idx} className="flex items-center gap-2 sm:gap-3">
@@ -536,7 +540,7 @@ export default function Home() {
           {/* Trust Badges - Com descrições no mobile */}
           <div className="mt-8 sm:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
             {[
-              { icon: <Clock size={18} />, text: 'Entrega 24h', desc: 'Rápido e garantido' },
+              { icon: <Clock size={18} />, text: 'Entrega 48h', desc: 'Rápido e garantido' },
               { icon: <Shield size={18} />, text: '100% Seguro', desc: 'Pagamento protegido' },
               { icon: <Gift size={18} />, text: '2 Melodias', desc: 'Compre 1, ganhe outra' },
               { icon: <Heart size={18} />, text: '+2.000 Clientes', desc: 'Satisfeitos' },
@@ -579,7 +583,7 @@ export default function Home() {
             {[
               { step: 1, icon: <Heart className="fill-current" size={20} />, title: 'Conte sua história', desc: 'Preencha o formulário com os detalhes da pessoa homenageada', color: 'from-pink-500 to-rose-500' },
               { step: 2, icon: <Sparkles size={20} />, title: 'Aprove a letra', desc: 'Veja e aprove a letra antes de pagar', color: 'from-violet-500 to-purple-500' },
-              { step: 3, icon: <Music size={20} />, title: 'Receba em 24h', desc: 'Receba 2 melodias no WhatsApp', color: 'from-amber-500 to-orange-500' }
+              { step: 3, icon: <Music size={20} />, title: 'Receba em 48h', desc: 'Receba 2 melodias no WhatsApp', color: 'from-amber-500 to-orange-500' }
             ].map((item, index) => (
               <div key={index} className="flex sm:flex-col items-center sm:text-center gap-4 sm:gap-0 bg-white sm:bg-transparent p-4 sm:p-0 rounded-xl sm:rounded-none shadow-sm sm:shadow-none">
                 <div className="relative flex-shrink-0 sm:mx-auto sm:mb-4">
@@ -660,10 +664,13 @@ export default function Home() {
 
                 {/* Author */}
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={testimonial.image}
                     alt={testimonial.name}
+                    width={48}
+                    height={48}
                     className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-violet-100"
+                    loading="lazy"
                   />
                   <div>
                     <div className="font-bold text-gray-900 text-sm sm:text-base">{testimonial.name}</div>

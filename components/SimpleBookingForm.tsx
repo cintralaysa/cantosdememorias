@@ -258,7 +258,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Pagamento Aprovado!</h2>
         <p className="text-gray-600 mb-4">Sua música para <strong>{formData.honoreeName}</strong> está sendo preparada com muito carinho.</p>
         <div className="bg-violet-50 rounded-xl p-4 mb-6">
-          <p className="text-sm text-violet-700">Você receberá sua música em até <strong>24 horas</strong> no e-mail e WhatsApp cadastrados.</p>
+          <p className="text-sm text-violet-700">Você receberá sua música em até <strong>48 horas</strong> no e-mail e WhatsApp cadastrados.</p>
         </div>
         <button
           onClick={() => { if (onClose) onClose(); window.location.href = '/'; }}
@@ -554,7 +554,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
         {/* Trust badges */}
         <div className="flex items-center justify-center gap-4 pt-4 text-xs text-gray-400">
           <div className="flex items-center gap-1"><Shield size={12} className="text-green-500" /><span>Seguro</span></div>
-          <div className="flex items-center gap-1"><Clock size={12} className="text-violet-500" /><span>Entrega 24h</span></div>
+          <div className="flex items-center gap-1"><Clock size={12} className="text-violet-500" /><span>Entrega 48h</span></div>
           <div className="flex items-center gap-1"><Heart size={12} className="text-red-400" /><span>+2.000 clientes</span></div>
         </div>
       </div>

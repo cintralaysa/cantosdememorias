@@ -138,7 +138,7 @@ export default function SuccessPage() {
               </div>
               <div>
                 <p className="font-bold text-gray-900 text-lg">Prazo de entrega</p>
-                <p className="text-amber-700 font-semibold">Até 24 horas</p>
+                <p className="text-amber-700 font-semibold">Até 48 horas</p>
                 <p className="text-sm text-gray-600">Direto no seu WhatsApp</p>
               </div>
             </div>

@@ -19,7 +19,7 @@ export const SERVICES: Service[] = [
     description: "Transformamos seus sentimentos e histórias em uma canção emocionante e única.",
     price: 79.99,
     image: "/portfolio/fotos/cantor-estudio.png",
-    features: ["Letra exclusiva criada para você", "2 Melodias diferentes (Compre 1, Ganhe 1!)", "Entrega em até 24 horas", "Aprove a letra antes de pagar"],
+    features: ["Letra exclusiva criada para você", "2 Melodias diferentes (Compre 1, Ganhe 1!)", "Entrega em até 48 horas", "Aprove a letra antes de pagar"],
     highlight: "PRESENTE INESQUECÍVEL",
     audioSample: "https://cdn1.suno.ai/eb315faa-63eb-4fa3-885f-9dd2421027d0.mp3",
     type: "music"

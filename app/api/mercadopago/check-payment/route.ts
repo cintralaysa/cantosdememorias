@@ -124,7 +124,7 @@ async function sendCustomerConfirmationEmail(data: {
             <div class="timeline-item">
               <div class="timeline-icon">3</div>
               <div class="timeline-content">
-                <h4>Entrega em até 24 horas</h4>
+                <h4>Entrega em até 48 horas</h4>
                 <p>Você receberá 2 melodias exclusivas no seu email e WhatsApp!</p>
               </div>
             </div>

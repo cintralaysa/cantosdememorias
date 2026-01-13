@@ -183,7 +183,7 @@ export default function PixPage() {
             {/* Aviso */}
             <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
               <p className="text-sm text-purple-800">
-                Após o pagamento, você receberá a confirmação por <strong>e-mail</strong> e <strong>WhatsApp</strong> em até 24 horas.
+                Após o pagamento, você receberá a confirmação por <strong>e-mail</strong> e <strong>WhatsApp</strong> em até 48 horas.
               </p>
             </div>
 

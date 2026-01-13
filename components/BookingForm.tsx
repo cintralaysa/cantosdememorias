@@ -1539,7 +1539,7 @@ export default function BookingForm({ service }: { service: Service }) {
           </div>
           <div className="flex items-center gap-2">
             <Clock size={16} className="text-violet-500" />
-            <span>Entrega em 24h</span>
+            <span>Entrega em 48h</span>
           </div>
           <div className="flex items-center gap-2">
             <Heart size={16} className="text-red-400" />
