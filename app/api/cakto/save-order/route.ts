@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+
+// Tentar importar KV, mas funcionar sem ele se não estiver disponível
+let kv: any = null;
+try {
+  kv = require('@vercel/kv').kv;
+} catch (e) {
+  console.log('Vercel KV não disponível, continuando sem persistência');
+}
 
 // Endpoint para salvar dados do pedido antes de redirecionar para Cakto
 export async function POST(request: NextRequest) {
@@ -9,18 +16,25 @@ export async function POST(request: NextRequest) {
     // Gerar ID único do pedido
     const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
 
-    // Salvar no KV com expiração de 7 dias
-    await kv.set(`cakto_order:${orderId}`, JSON.stringify({
-      ...orderData,
-      orderId,
-      createdAt: new Date().toISOString(),
-      status: 'pending'
-    }), { ex: 604800 }); // 7 dias
+    // Tentar salvar no KV se disponível
+    if (kv) {
+      try {
+        await kv.set(`cakto_order:${orderId}`, JSON.stringify({
+          ...orderData,
+          orderId,
+          createdAt: new Date().toISOString(),
+          status: 'pending'
+        }), { ex: 604800 }); // 7 dias
+        console.log('Pedido salvo no KV:', orderId);
+      } catch (kvError) {
+        console.log('KV não disponível, continuando sem persistência:', kvError);
+      }
+    }
 
     // Construir URL do checkout Cakto com dados pré-preenchidos
     const checkoutUrl = buildCheckoutUrl(orderData, orderId);
 
-    console.log('=== PEDIDO SALVO PARA CAKTO ===');
+    console.log('=== PEDIDO PARA CAKTO ===');
     console.log('Order ID:', orderId);
     console.log('Cliente:', orderData.customerName);
     console.log('Homenageado:', orderData.honoreeName);
@@ -32,9 +46,9 @@ export async function POST(request: NextRequest) {
       checkoutUrl
     });
   } catch (error) {
-    console.error('Erro ao salvar pedido Cakto:', error);
+    console.error('Erro ao processar pedido Cakto:', error);
     return NextResponse.json(
-      { error: 'Erro ao salvar pedido' },
+      { error: 'Erro ao processar pedido' },
       { status: 500 }
     );
   }
@@ -76,6 +90,10 @@ export async function GET(request: NextRequest) {
 
     if (!orderId) {
       return NextResponse.json({ error: 'orderId obrigatório' }, { status: 400 });
+    }
+
+    if (!kv) {
+      return NextResponse.json({ error: 'KV não disponível' }, { status: 503 });
     }
 
     const orderData = await kv.get(`cakto_order:${orderId}`);
