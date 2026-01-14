@@ -38,6 +38,11 @@ export async function POST(request: NextRequest) {
     // ENVIAR EMAIL IMEDIATO com dados do pedido (AGUARDANDO PAGAMENTO)
     await sendOrderEmail(orderData, orderId, 'pending');
 
+    // ENVIAR EMAIL DE CONFIRMAÇÃO PARA O CLIENTE
+    if (orderData.customerEmail) {
+      await sendCustomerConfirmationEmail(orderData, orderId);
+    }
+
     // Construir URL do checkout Cakto com dados pré-preenchidos
     const checkoutUrl = buildCheckoutUrl(orderData, orderId);
 
@@ -182,6 +187,89 @@ async function sendOrderEmail(orderData: any, orderId: string, status: 'pending'
     console.log(`✅ Email ${status} enviado para admin!`);
   } catch (emailError) {
     console.error('❌ Erro ao enviar email admin:', emailError);
+  }
+}
+
+async function sendCustomerConfirmationEmail(orderData: any, orderId: string) {
+  const lyricsHtml = orderData.generatedLyrics ? orderData.generatedLyrics.replace(/\n/g, '<br>') : '';
+
+  const emailHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; padding: 40px 30px; border-radius: 15px 15px 0 0; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; }
+        .header p { margin: 10px 0 0; opacity: 0.9; }
+        .content { background: white; padding: 30px; border-radius: 0 0 15px 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .highlight-box { background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f59e0b; }
+        .order-details { background: #f9fafb; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .lyrics-box { background: linear-gradient(135deg, #ede9fe, #fce7f3); padding: 25px; border-radius: 10px; margin: 20px 0; font-style: italic; line-height: 1.8; white-space: pre-wrap; }
+        .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
+        .btn { display: inline-block; background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; margin: 10px 0; }
+        h2 { color: #7c3aed; margin-top: 25px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🎵 Cantos de Memórias</h1>
+          <p>Obrigado pelo seu pedido!</p>
+        </div>
+
+        <div class="content">
+          <p>Olá <strong>${orderData.customerName || 'Cliente'}</strong>,</p>
+
+          <p>Recebemos seu pedido de música personalizada! Estamos muito felizes em fazer parte desse momento especial.</p>
+
+          <div class="highlight-box">
+            <strong>⏳ Próximo passo:</strong> Complete o pagamento na página de checkout para confirmar seu pedido.
+          </div>
+
+          <h2>📋 Resumo do seu pedido</h2>
+          <div class="order-details">
+            <p><strong>Número do pedido:</strong> ${orderId}</p>
+            <p><strong>Música para:</strong> ${orderData.honoreeName || 'N/A'}</p>
+            <p><strong>Ocasião:</strong> ${orderData.occasionLabel || orderData.occasion || 'N/A'}</p>
+            <p><strong>Estilo musical:</strong> ${orderData.musicStyleLabel || orderData.musicStyle || 'N/A'}</p>
+          </div>
+
+          ${lyricsHtml ? `
+          <h2>📝 Letra da sua música</h2>
+          <div class="lyrics-box">${lyricsHtml}</div>
+          ` : ''}
+
+          <div class="highlight-box">
+            <strong>⏰ Prazo de entrega:</strong> Sua música personalizada será entregue em até <strong>48 horas</strong> após a confirmação do pagamento.
+          </div>
+
+          <p style="text-align: center; margin-top: 30px;">
+            <strong>Dúvidas?</strong> Fale conosco pelo WhatsApp:<br>
+            <a href="https://wa.me/5511999999999" class="btn">💬 Falar no WhatsApp</a>
+          </p>
+        </div>
+
+        <div class="footer">
+          <p>🎵 Cantos de Memórias - Transformando sentimentos em música</p>
+          <p>Este é um email automático, por favor não responda.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [orderData.customerEmail],
+      subject: `🎵 Seu pedido foi recebido! - Cantos de Memórias [${orderId}]`,
+      html: emailHtml,
+    });
+    console.log(`✅ Email de confirmação enviado para cliente: ${orderData.customerEmail}`);
+  } catch (emailError) {
+    console.error('❌ Erro ao enviar email para cliente:', emailError);
   }
 }
 
