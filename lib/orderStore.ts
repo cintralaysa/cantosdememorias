@@ -1,8 +1,12 @@
-// Armazenamento temporário de pedidos em memória
-// Para produção com múltiplas instâncias, usar Redis ou banco de dados
+// Armazenamento de pedidos usando Upstash Redis
+// Para funcionar no Vercel com múltiplas instâncias
 
-interface OrderData {
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+export interface OrderData {
   orderId: string;
+  correlationID: string;
   amount: number;
   customerName: string;
   customerEmail: string;
@@ -15,64 +19,115 @@ interface OrderData {
   musicStyle: string;
   musicStyleLabel: string;
   voicePreference: string;
-  qualities: string;
-  memories: string;
-  heartMessage: string;
+  storyAndMessage?: string;
   familyNames?: string;
-  approvedLyrics: string;
   generatedLyrics?: string;
   knowsBabySex?: string;
   babySex?: string;
   babyNameBoy?: string;
   babyNameGirl?: string;
-  paymentId?: string;
   createdAt: number;
 }
 
-// Map para armazenar pedidos por paymentId
-const orderStore = new Map<string, OrderData>();
-
-// Limpar pedidos antigos (mais de 24 horas)
-function cleanOldOrders() {
-  const now = Date.now();
-  const maxAge = 24 * 60 * 60 * 1000; // 24 horas
-
-  orderStore.forEach((order, key) => {
-    if (now - order.createdAt > maxAge) {
-      orderStore.delete(key);
-    }
-  });
-}
-
-// Salvar pedido
-export function saveOrder(paymentId: string, orderData: Omit<OrderData, 'createdAt' | 'paymentId'>): void {
-  cleanOldOrders();
-  orderStore.set(paymentId, {
-    ...orderData,
-    paymentId,
-    createdAt: Date.now(),
-  });
-  console.log(`[ORDER-STORE] Pedido salvo: ${paymentId}`);
-}
-
-// Buscar pedido
-export function getOrder(paymentId: string): OrderData | undefined {
-  const order = orderStore.get(paymentId);
-  if (order) {
-    console.log(`[ORDER-STORE] Pedido encontrado: ${paymentId}`);
-  } else {
-    console.log(`[ORDER-STORE] Pedido não encontrado: ${paymentId}`);
+// Salvar pedido no Redis
+export async function saveOrder(correlationID: string, orderData: Omit<OrderData, 'createdAt' | 'correlationID'>): Promise<boolean> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    console.error('[ORDER-STORE] Upstash não configurado! Configure UPSTASH_REDIS_REST_URL e UPSTASH_REDIS_REST_TOKEN');
+    return false;
   }
-  return order;
+
+  try {
+    const data: OrderData = {
+      ...orderData,
+      correlationID,
+      createdAt: Date.now(),
+    };
+
+    // Salvar com expiração de 24 horas (86400 segundos)
+    const response = await fetch(`${UPSTASH_URL}/set/order:${correlationID}?EX=86400`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[ORDER-STORE] Erro ao salvar:', errorText);
+      return false;
+    }
+
+    console.log(`[ORDER-STORE] ✅ Pedido salvo: ${correlationID}`);
+    return true;
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao salvar pedido:', error);
+    return false;
+  }
 }
 
-// Remover pedido
-export function removeOrder(paymentId: string): void {
-  orderStore.delete(paymentId);
-  console.log(`[ORDER-STORE] Pedido removido: ${paymentId}`);
+// Buscar pedido do Redis
+export async function getOrder(correlationID: string): Promise<OrderData | null> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    console.error('[ORDER-STORE] Upstash não configurado!');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${UPSTASH_URL}/get/order:${correlationID}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('[ORDER-STORE] Erro ao buscar pedido');
+      return null;
+    }
+
+    const result = await response.json();
+
+    if (!result.result) {
+      console.log(`[ORDER-STORE] Pedido não encontrado: ${correlationID}`);
+      return null;
+    }
+
+    // Upstash retorna string, precisamos parsear
+    const orderData = typeof result.result === 'string'
+      ? JSON.parse(result.result)
+      : result.result;
+
+    console.log(`[ORDER-STORE] ✅ Pedido encontrado: ${correlationID}`);
+    return orderData;
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao buscar pedido:', error);
+    return null;
+  }
 }
 
-// Verificar se pedido existe
-export function hasOrder(paymentId: string): boolean {
-  return orderStore.has(paymentId);
+// Remover pedido do Redis
+export async function removeOrder(correlationID: string): Promise<boolean> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${UPSTASH_URL}/del/order:${correlationID}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+      },
+    });
+
+    if (response.ok) {
+      console.log(`[ORDER-STORE] Pedido removido: ${correlationID}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao remover pedido:', error);
+    return false;
+  }
 }
