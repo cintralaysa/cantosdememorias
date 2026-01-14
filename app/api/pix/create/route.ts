@@ -5,8 +5,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Cantos de Memórias <onboarding@resend.dev>';
 const OPENPIX_APP_ID = process.env.OPENPIX_APP_ID;
 
-// Preço da música em centavos (R$ 49,90 = 4990)
-const PRECO_MUSICA = 4990;
+// Preço da música em centavos (R$ 79,99 = 7999)
+const PRECO_MUSICA = 7999;
 
 export async function POST(request: NextRequest) {
   try {
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         pixCopiaECola: pixData.charge?.brCode || pixData.brCode,
         expiresAt: pixData.charge?.expiresAt || pixData.expiresAt,
         value: PRECO_MUSICA,
-        valueFormatted: 'R$ 49,90',
+        valueFormatted: 'R$ 79,99',
       },
     });
   } catch (error) {
@@ -254,7 +254,7 @@ async function sendCustomerConfirmationEmail(orderData: any, orderId: string) {
             <p><strong>Música para:</strong> ${orderData.honoreeName || 'N/A'}</p>
             <p><strong>Ocasião:</strong> ${orderData.occasionLabel || orderData.occasion || 'N/A'}</p>
             <p><strong>Estilo musical:</strong> ${orderData.musicStyleLabel || orderData.musicStyle || 'N/A'}</p>
-            <p><strong>Valor:</strong> R$ 49,90</p>
+            <p><strong>Valor:</strong> R$ 79,99</p>
           </div>
 
           ${lyricsHtml ? `
