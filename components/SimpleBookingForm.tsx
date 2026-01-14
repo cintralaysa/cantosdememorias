@@ -551,7 +551,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
         <div className="flex items-center justify-center gap-4 pt-4 text-xs text-gray-400">
           <div className="flex items-center gap-1"><Shield size={12} className="text-green-500" /><span>Seguro</span></div>
           <div className="flex items-center gap-1"><Clock size={12} className="text-violet-500" /><span>Entrega 48h</span></div>
-          <div className="flex items-center gap-1"><Heart size={12} className="text-red-400" /><span>+6.000 clientes</span></div>
+          <div className="flex items-center gap-1"><Heart size={12} className="text-red-400" /><span>+7.000 clientes</span></div>
         </div>
       </div>
     </div>
