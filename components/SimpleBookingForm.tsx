@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
-import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CreditCard, CheckCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle } from 'lucide-react';
 
 // Opções de relacionamento - Chá Revelação primeiro!
 const RELATIONSHIPS = [
@@ -77,6 +78,7 @@ interface SimpleBookingFormProps {
 }
 
 export default function SimpleBookingForm({ service, onClose, isModal = false }: SimpleBookingFormProps) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [generatingLyrics, setGeneratingLyrics] = useState(false);
@@ -187,8 +189,8 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
     if (step > 1) setStep(step - 1);
   };
 
-  // Redirecionar para checkout Cakto
-  const handleCaktoCheckout = async () => {
+  // Redirecionar para checkout PIX interno
+  const handlePixCheckout = async () => {
     if (!canProceed()) return;
     setLoading(true);
     setPaymentError(null);
@@ -216,25 +218,11 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
         babyNameGirl: formData.babyNameGirl,
       };
 
-      // Salvar pedido e obter URL do checkout
-      const response = await fetch('/api/cakto/save-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
-      });
+      // Salvar dados no localStorage para a página de checkout
+      localStorage.setItem('pendingOrder', JSON.stringify(orderData));
 
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      if (data.checkoutUrl) {
-        // Redirecionar para o checkout da Cakto
-        window.location.href = data.checkoutUrl;
-      } else {
-        throw new Error('Erro ao gerar link de pagamento');
-      }
+      // Redirecionar para página de checkout PIX
+      router.push('/checkout/pix');
     } catch (error: any) {
       setPaymentError(error.message || 'Erro ao processar. Tente novamente.');
       setLoading(false);
@@ -495,21 +483,26 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
               </div>
             </div>
 
-            {/* Botão de Finalizar - Redireciona para Cakto */}
+            {/* Botão de Finalizar - PIX */}
             {canProceed() && (
               <div className="space-y-4">
-                {/* Métodos de pagamento disponíveis */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2"><Lock size={16} className="text-violet-500" />Formas de pagamento</h4>
-                  <div className="flex items-center justify-center gap-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <svg viewBox="0 0 512 512" className="w-6 h-6 fill-green-500"><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
-                      <span className="font-semibold text-green-600">PIX</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <CreditCard className="w-6 h-6 text-violet-500" />
-                      <span className="font-semibold">Cartão até 12x</span>
-                    </div>
+                {/* Pagamento via PIX */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <svg viewBox="0 0 512 512" className="w-5 h-5 fill-green-500"><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
+                    Pagamento via PIX
+                  </h4>
+                  <div className="flex items-center gap-3 text-sm text-green-700">
+                    <Check size={16} className="text-green-500" />
+                    <span>Pagamento instantâneo</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-green-700 mt-1">
+                    <Check size={16} className="text-green-500" />
+                    <span>Confirmação automática</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-green-700 mt-1">
+                    <Check size={16} className="text-green-500" />
+                    <span>Sem sair do site</span>
                   </div>
                 </div>
 
@@ -518,19 +511,22 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
                 {/* Botão Finalizar */}
                 <button
                   type="button"
-                  onClick={handleCaktoCheckout}
+                  onClick={handlePixCheckout}
                   disabled={loading}
-                  className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg"
+                  className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg"
                 >
                   {loading ? (
                     <><Loader2 className="w-5 h-5 animate-spin" />Processando...</>
                   ) : (
-                    <><Shield size={20} />Finalizar Pedido - R$ {service.price.toFixed(2).replace('.', ',')}</>
+                    <>
+                      <svg viewBox="0 0 512 512" className="w-6 h-6 fill-current"><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
+                      Pagar com PIX - R$ {service.price.toFixed(2).replace('.', ',')}
+                    </>
                   )}
                 </button>
 
                 <p className="text-center text-xs text-gray-500">
-                  Você será redirecionado para a página de pagamento seguro
+                  Pagamento seguro - QR Code gerado na próxima tela
                 </p>
               </div>
             )}
