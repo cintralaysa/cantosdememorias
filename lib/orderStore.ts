@@ -20,8 +20,12 @@ export interface OrderData {
   musicStyleLabel: string;
   voicePreference: string;
   storyAndMessage?: string;
+  qualities?: string;
+  memories?: string;
+  heartMessage?: string;
   familyNames?: string;
   generatedLyrics?: string;
+  approvedLyrics?: string;
   knowsBabySex?: string;
   babySex?: string;
   babyNameBoy?: string;
