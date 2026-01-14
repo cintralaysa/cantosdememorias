@@ -533,7 +533,7 @@ export async function GET(request: NextRequest) {
         const paymentMethod = payment.payment_method_id === 'pix' ? 'pix' : 'card';
 
         // Tentar buscar dados completos do orderStore primeiro
-        const storedOrder = getOrder(paymentId);
+        const storedOrder = await getOrder(paymentId);
         console.log('[CHECK-PAYMENT] Dados do orderStore:', storedOrder ? 'ENCONTRADO' : 'NÃO ENCONTRADO');
 
         if (storedOrder) {
