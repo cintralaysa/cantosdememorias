@@ -64,14 +64,9 @@ export async function POST(request: NextRequest) {
     console.log('Order ID:', orderId);
     console.log('Correlation ID:', correlationID);
     console.log('QR Code gerado com sucesso');
+    console.log('Aguardando pagamento - emails serão enviados após confirmação');
 
-    // Enviar email para admin com dados do pedido (AGUARDANDO PAGAMENTO)
-    await sendOrderEmail(orderData, orderId, 'pending');
-
-    // Enviar email de confirmação para o cliente
-    if (orderData.customerEmail) {
-      await sendCustomerConfirmationEmail(orderData, orderId);
-    }
+    // NÃO enviar emails aqui - só após confirmação do pagamento via webhook
 
     return NextResponse.json({
       success: true,
