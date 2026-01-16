@@ -3,8 +3,8 @@ import { saveOrder } from '@/lib/orderStore';
 
 const OPENPIX_APP_ID = process.env.OPENPIX_APP_ID;
 
-// Preço da música em centavos (R$ 79,99 = 7999)
-const PRECO_MUSICA = 7999;
+// Preço da música em centavos (R$ 49,90 = 4990)
+const PRECO_MUSICA = 4990;
 
 export async function POST(request: NextRequest) {
   try {
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         pixCopiaECola: pixData.charge?.brCode || pixData.brCode,
         expiresAt: pixData.charge?.expiresAt || pixData.expiresAt,
         value: PRECO_MUSICA,
-        valueFormatted: 'R$ 79,99',
+        valueFormatted: 'R$ 49,90',
       },
     });
   } catch (error) {
