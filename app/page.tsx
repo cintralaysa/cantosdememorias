@@ -144,15 +144,19 @@ export default function Home() {
   const faqData = [
     {
       question: "Como funciona a criação de uma música personalizada?",
-      answer: "O processo é simples e rápido: 1) Você preenche um formulário contando a história e detalhes da pessoa homenageada; 2) Nosso sistema gera uma letra personalizada que você pode aprovar ou editar; 3) Após o pagamento, entregamos 2 versões da música com melodias diferentes em até 48 horas via WhatsApp."
+      answer: "O processo é simples e rápido: 1) Você preenche um formulário contando a história e detalhes da pessoa homenageada; 2) Nosso sistema gera uma letra personalizada que você pode aprovar ou editar; 3) Escolha entre o Plano Básico ou Premium; 4) Após o pagamento, entregamos sua música via WhatsApp."
     },
     {
       question: "Quanto custa uma música personalizada?",
-      answer: "A música personalizada custa R$79,99. O pacote inclui 2 melodias diferentes da mesma letra (compre 1, ganhe outra!), entrega em 48 horas e você aprova a letra antes de pagar. É o presente mais emocionante que você pode dar!"
+      answer: "Temos dois planos: Plano Básico por R$49,90 (1 melodia, entrega em 48h) e Plano Premium por R$79,90 (2 melodias diferentes, entrega em 24h). Em ambos você aprova a letra antes de pagar!"
+    },
+    {
+      question: "Qual a diferença entre os planos?",
+      answer: "No Plano Básico (R$49,90) você recebe 1 melodia exclusiva com entrega em até 48 horas. No Plano Premium (R$79,90) você recebe 2 melodias diferentes da mesma letra e a entrega é mais rápida, em até 24 horas."
     },
     {
       question: "Em quanto tempo recebo minha música?",
-      answer: "A entrega é feita em até 48 horas após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp, prontas para emocionar quem você ama."
+      answer: "Depende do plano escolhido: Plano Básico tem entrega em até 48 horas, e o Plano Premium em até 24 horas após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp."
     },
     {
       question: "Posso ver a letra antes de pagar?",
@@ -161,10 +165,6 @@ export default function Home() {
     {
       question: "Para quais ocasiões posso encomendar uma música?",
       answer: "Você pode encomendar músicas para qualquer ocasião especial: aniversários, casamentos, Dia das Mães, Dia dos Pais, Dia dos Namorados, chá revelação, homenagens póstumas, formaturas, bodas, mesversários e muito mais."
-    },
-    {
-      question: "Recebo quantas versões da música?",
-      answer: "Você recebe 2 versões da música com melodias diferentes, usando a mesma letra que você aprovou. Assim você pode escolher a que mais combina com o momento ou usar as duas!"
     },
     {
       question: "Posso usar a música em redes sociais?",
@@ -263,7 +263,7 @@ export default function Home() {
               {/* Subtítulo - Menor no mobile */}
               <p className="text-base sm:text-lg text-white/70 mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0">
                 Crie uma música <span className="text-white font-semibold">exclusiva</span> para eternizar momentos especiais.
-                <span className="block mt-1 text-violet-300 text-sm sm:text-base">Entrega 48h • 2 Melodias • Aprove antes de pagar</span>
+                <span className="block mt-1 text-violet-300 text-sm sm:text-base">Entrega rápida • Aprove antes de pagar</span>
               </p>
 
               {/* CTA Principal */}
@@ -288,8 +288,8 @@ export default function Home() {
               {/* Trust Indicators */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 mt-6 sm:mt-10 pt-4 sm:pt-8 border-t border-white/10">
                 {[
-                  { icon: <Clock size={16} />, label: 'Entrega 48h', sub: 'Rápido' },
-                  { icon: <Gift size={16} />, label: '2 Melodias', sub: 'Incluídas' },
+                  { icon: <Clock size={16} />, label: 'Entrega rápida', sub: 'Garantida' },
+                  { icon: <Sparkles size={16} />, label: 'A partir de', sub: 'R$ 49,90' },
                   { icon: <Shield size={16} />, label: 'Pagamento', sub: 'Seguro' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2">
@@ -393,9 +393,9 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Badge Entrega 48h */}
+                {/* Badge Entrega Rápida */}
                 <div className="absolute -top-4 -right-4 bg-gradient-to-r from-emerald-400 to-green-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  Entrega 48h
+                  A partir de R$49,90
                 </div>
               </div>
 
@@ -444,94 +444,126 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Single Product Card - Otimizado Mobile */}
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-violet-500/10 overflow-hidden border border-gray-100">
-              <div className="grid md:grid-cols-2">
-                {/* Imagem - Menor no mobile */}
-                <div className="relative h-48 sm:h-64 md:h-auto">
-                  <Image
-                    src="/portfolio/fotos/estudio-cantos-memorias.png"
-                    alt="Música Personalizada"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+          {/* Dois Planos - Cards lado a lado */}
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+              {/* Plano Básico */}
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-violet-500/10 overflow-hidden border border-gray-100 flex flex-col">
+                {/* Header do Plano */}
+                <div className="bg-gradient-to-r from-violet-500 to-purple-600 p-4 sm:p-6 text-center relative">
+                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                    <span className="bg-white/20 backdrop-blur-sm text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full">
+                      MAIS POPULAR
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white mb-1">Plano Básico</h3>
+                  <p className="text-violet-100 text-sm">Perfeito para surpreender</p>
+                </div>
 
-                  {/* Badge - Menor no mobile */}
-                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
-                    <div className="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">
-                      <Zap size={12} />
-                      <span className="hidden xs:inline">COMPRE 1, GANHE OUTRA!</span>
-                      <span className="xs:hidden">2 POR 1!</span>
+                {/* Conteúdo */}
+                <div className="p-5 sm:p-6 flex flex-col flex-1">
+                  {/* Preço */}
+                  <div className="text-center mb-4 sm:mb-6">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-sm text-gray-500 font-bold">R$</span>
+                      <span className="text-4xl sm:text-5xl font-black text-gray-900">49</span>
+                      <span className="text-xl font-bold text-gray-900">,90</span>
                     </div>
                   </div>
 
-                  {/* Icon - Menor no mobile */}
-                  <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-10 h-10 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-xl rounded-xl flex items-center justify-center">
-                    <Music className="text-white" size={20} />
-                  </div>
-                </div>
-
-                {/* Conteúdo - Menor no mobile */}
-                <div className="p-5 sm:p-8 md:p-10 flex flex-col justify-center">
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-2 sm:mb-4">
-                    Sua História em Música
-                  </h3>
-                  <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
-                    Uma canção exclusiva criada especialmente para você. Perfeita para aniversários, casamentos, Dia das Mães, Dia dos Namorados, chá revelação e momentos especiais.
-                  </p>
-
-                  {/* Features - Compacto no mobile */}
-                  <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+                  {/* Features */}
+                  <ul className="space-y-3 mb-6 flex-1">
                     {[
-                      'Crie e edite a letra aqui no site',
-                      '2 Melodias incluídas',
-                      'Entrega em 48 horas',
-                      'Aprove antes de pagar'
+                      { text: '1 Melodia exclusiva', highlight: true },
+                      { text: 'Letra personalizada', highlight: false },
+                      { text: 'Entrega em até 48 horas', highlight: false },
+                      { text: 'Aprove a letra antes de pagar', highlight: false },
                     ].map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2 sm:gap-3">
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <li key={idx} className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-gradient-to-br from-violet-500 to-purple-500' : 'bg-gradient-to-br from-green-500 to-emerald-500'}`}>
                           <Check className="text-white" size={12} />
                         </div>
-                        <span className="text-gray-700 text-sm sm:text-base font-medium">{feature}</span>
+                        <span className={`text-sm sm:text-base ${feature.highlight ? 'font-bold text-violet-700' : 'text-gray-700'}`}>{feature.text}</span>
                       </li>
                     ))}
                   </ul>
 
-                  {/* Destaque - Criação da letra no site */}
-                  <div className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-3 sm:p-4 mb-5 sm:mb-8">
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Sparkles className="text-white" size={16} />
-                      </div>
-                      <div>
-                        <p className="text-violet-900 font-bold text-sm sm:text-base">Você cria a letra aqui!</p>
-                        <p className="text-violet-700 text-xs sm:text-sm">Gere, visualize e edite a letra diretamente no site antes de pagar.</p>
-                      </div>
+                  {/* CTA */}
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-5 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 transition-all duration-300"
+                  >
+                    <span>Escolher Básico</span>
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Plano Premium */}
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-amber-500/10 overflow-hidden border-2 border-amber-400 flex flex-col relative">
+                {/* Ribbon */}
+                <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 z-10">
+                  <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                    <Zap size={12} />
+                    <span>MELHOR VALOR</span>
+                  </div>
+                </div>
+
+                {/* Header do Plano */}
+                <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4 sm:p-6 text-center">
+                  <h3 className="text-xl sm:text-2xl font-black text-white mb-1">Plano Premium</h3>
+                  <p className="text-amber-100 text-sm">Mais melodias, mais rápido</p>
+                </div>
+
+                {/* Conteúdo */}
+                <div className="p-5 sm:p-6 flex flex-col flex-1">
+                  {/* Preço */}
+                  <div className="text-center mb-4 sm:mb-6">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-sm text-gray-500 font-bold">R$</span>
+                      <span className="text-4xl sm:text-5xl font-black text-gray-900">79</span>
+                      <span className="text-xl font-bold text-gray-900">,90</span>
                     </div>
                   </div>
 
-                  {/* Preço e CTA - Otimizado mobile */}
-                  <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-100">
-                    <div className="text-center sm:text-left">
-                      <div className="text-gray-400 text-xs sm:text-sm line-through">De R$ 159,98</div>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-xs sm:text-sm text-black font-bold">R$</span>
-                        <span className="text-3xl sm:text-4xl font-black text-black">79</span>
-                        <span className="text-base sm:text-xl font-bold text-black">,99</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setIsModalOpen(true)}
-                      className="w-full sm:w-auto flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-5 py-3 sm:px-8 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 transition-all duration-300"
-                    >
-                      <span>Criar Música</span>
-                      <ArrowRight size={18} />
-                    </button>
-                  </div>
+                  {/* Features */}
+                  <ul className="space-y-3 mb-6 flex-1">
+                    {[
+                      { text: '2 Melodias diferentes', highlight: true },
+                      { text: 'Letra personalizada', highlight: false },
+                      { text: 'Entrega em até 24 horas', highlight: true },
+                      { text: 'Aprove a letra antes de pagar', highlight: false },
+                    ].map((feature, idx) => (
+                      <li key={idx} className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-gradient-to-br from-amber-500 to-orange-500' : 'bg-gradient-to-br from-green-500 to-emerald-500'}`}>
+                          <Check className="text-white" size={12} />
+                        </div>
+                        <span className={`text-sm sm:text-base ${feature.highlight ? 'font-bold text-amber-700' : 'text-gray-700'}`}>{feature.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA */}
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-5 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300"
+                  >
+                    <span>Escolher Premium</span>
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Destaque - Criação da letra no site */}
+            <div className="mt-6 sm:mt-8 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-4 sm:p-6 max-w-2xl mx-auto">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="text-white" size={20} />
+                </div>
+                <div>
+                  <p className="text-violet-900 font-bold text-base sm:text-lg">Você cria a letra aqui no site!</p>
+                  <p className="text-violet-700 text-sm sm:text-base">Gere, visualize e edite a letra diretamente no site antes de pagar. Sem surpresas!</p>
                 </div>
               </div>
             </div>
@@ -540,9 +572,9 @@ export default function Home() {
           {/* Trust Badges - Com descrições no mobile */}
           <div className="mt-8 sm:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
             {[
-              { icon: <Clock size={18} />, text: 'Entrega 48h', desc: 'Rápido e garantido' },
+              { icon: <Clock size={18} />, text: 'Entrega rápida', desc: 'Garantida' },
               { icon: <Shield size={18} />, text: '100% Seguro', desc: 'Pagamento protegido' },
-              { icon: <Gift size={18} />, text: '2 Melodias', desc: 'Compre 1, ganhe outra' },
+              { icon: <Sparkles size={18} />, text: '2 Planos', desc: 'Escolha o seu' },
               { icon: <Heart size={18} />, text: '+2.000 Clientes', desc: 'Satisfeitos' },
             ].map((item, idx) => (
               <div key={idx} className="flex flex-col items-center text-center p-3 sm:p-4 bg-white rounded-xl shadow-md">

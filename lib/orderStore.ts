@@ -8,6 +8,7 @@ export interface OrderData {
   orderId: string;
   correlationID: string;
   amount: number;
+  plan?: 'basico' | 'premium';
   customerName: string;
   customerEmail: string;
   customerWhatsapp: string;

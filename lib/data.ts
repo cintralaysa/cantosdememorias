@@ -4,25 +4,49 @@ export interface Service {
   title: string;
   description: string;
   price: number;
+  priceInCents: number;
   image: string;
   features: string[];
   highlight?: string;
   audioSample?: string;
   type: "music" | "voiceover";
+  plan: "basico" | "premium";
+  melodias: number;
+  deliveryHours: number;
 }
 
 export const SERVICES: Service[] = [
   {
     id: "1",
-    slug: "musica-personalizada",
-    title: "Música Personalizada",
-    description: "Transformamos seus sentimentos e histórias em uma canção emocionante e única.",
+    slug: "musica-personalizada-basico",
+    title: "Plano Básico",
+    description: "Uma melodia exclusiva com letra personalizada para eternizar seu momento especial.",
     price: 49.90,
+    priceInCents: 4990,
     image: "/portfolio/fotos/cantor-estudio.png",
     features: ["1 Melodia exclusiva", "Letra personalizada", "Entrega em até 48 horas", "Aprove a letra antes de pagar"],
-    highlight: "PRESENTE INESQUECÍVEL",
+    highlight: "MAIS POPULAR",
     audioSample: "https://cdn1.suno.ai/eb315faa-63eb-4fa3-885f-9dd2421027d0.mp3",
-    type: "music"
+    type: "music",
+    plan: "basico",
+    melodias: 1,
+    deliveryHours: 48
+  },
+  {
+    id: "2",
+    slug: "musica-personalizada-premium",
+    title: "Plano Premium",
+    description: "Duas melodias diferentes da mesma letra, com entrega prioritária.",
+    price: 79.90,
+    priceInCents: 7990,
+    image: "/portfolio/fotos/cantor-estudio.png",
+    features: ["2 Melodias diferentes", "Letra personalizada", "Entrega em até 24 horas", "Aprove a letra antes de pagar"],
+    highlight: "MELHOR VALOR",
+    audioSample: "https://cdn1.suno.ai/eb315faa-63eb-4fa3-885f-9dd2421027d0.mp3",
+    type: "music",
+    plan: "premium",
+    melodias: 2,
+    deliveryHours: 24
   }
 ];
 

@@ -3,12 +3,25 @@ import { saveOrder } from '@/lib/orderStore';
 
 const OPENPIX_APP_ID = process.env.OPENPIX_APP_ID;
 
-// Preço da música em centavos (R$ 49,90 = 4990)
-const PRECO_MUSICA = 4990;
+// Preços em centavos
+const PRECOS = {
+  basico: 4990,  // R$ 49,90
+  premium: 7990  // R$ 79,90
+};
+
+const PRECOS_FORMATADOS = {
+  basico: 'R$ 49,90',
+  premium: 'R$ 79,90'
+};
 
 export async function POST(request: NextRequest) {
   try {
     const orderData = await request.json();
+
+    // Determinar o plano e preço
+    const plan = orderData.plan || 'basico';
+    const preco = PRECOS[plan as keyof typeof PRECOS] || PRECOS.basico;
+    const precoFormatado = PRECOS_FORMATADOS[plan as keyof typeof PRECOS_FORMATADOS] || PRECOS_FORMATADOS.basico;
 
     // Gerar ID único do pedido
     const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
@@ -25,7 +38,8 @@ export async function POST(request: NextRequest) {
     // Salvar dados completos do pedido no Redis ANTES de criar o PIX
     const saved = await saveOrder(correlationID, {
       orderId,
-      amount: PRECO_MUSICA,
+      amount: preco,
+      plan: plan,
       customerName: orderData.customerName || '',
       customerEmail: orderData.customerEmail || '',
       customerWhatsapp: orderData.customerWhatsapp || '',
@@ -51,6 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar cobrança PIX na OpenPix
+    const planLabel = plan === 'premium' ? 'Premium' : 'Básico';
     const pixResponse = await fetch('https://api.openpix.com.br/api/v1/charge', {
       method: 'POST',
       headers: {
@@ -59,14 +74,15 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         correlationID,
-        value: PRECO_MUSICA,
-        comment: `Música personalizada para ${orderData.honoreeName || 'presente'}`,
+        value: preco,
+        comment: `Música personalizada (${planLabel}) para ${orderData.honoreeName || 'presente'}`,
         customer: {
           name: orderData.customerName,
           email: orderData.customerEmail,
           phone: orderData.customerWhatsapp?.replace(/\D/g, ''),
         },
         additionalInfo: [
+          { key: 'Plano', value: planLabel },
           { key: 'Homenageado', value: orderData.honoreeName || '' },
           { key: 'Ocasião', value: orderData.occasionLabel || orderData.occasion || '' },
           { key: 'Estilo', value: orderData.musicStyleLabel || orderData.musicStyle || '' },
@@ -89,6 +105,8 @@ export async function POST(request: NextRequest) {
     console.log('=== PIX GERADO ===');
     console.log('Order ID:', orderId);
     console.log('Correlation ID:', correlationID);
+    console.log('Plano:', planLabel);
+    console.log('Valor:', precoFormatado);
     console.log('Dados salvos no Redis:', saved ? 'SIM' : 'NÃO');
     console.log('QR Code gerado com sucesso');
     console.log('Aguardando pagamento - emails serão enviados após confirmação');
@@ -99,13 +117,14 @@ export async function POST(request: NextRequest) {
       success: true,
       orderId,
       correlationID,
+      plan,
       pixData: {
         qrCode: pixData.charge?.qrCodeImage || pixData.qrCodeImage,
         qrCodeBase64: pixData.charge?.qrCodeImage || pixData.qrCodeImage,
         pixCopiaECola: pixData.charge?.brCode || pixData.brCode,
         expiresAt: pixData.charge?.expiresAt || pixData.expiresAt,
-        value: PRECO_MUSICA,
-        valueFormatted: 'R$ 49,90',
+        value: preco,
+        valueFormatted: precoFormatado,
       },
     });
   } catch (error) {
