@@ -50,6 +50,8 @@ export async function POST(request: NextRequest) {
       occasionLabel: orderData.occasionLabel || '',
       musicStyle: orderData.musicStyle || '',
       musicStyleLabel: orderData.musicStyleLabel || '',
+      musicStyle2: orderData.musicStyle2 || '',
+      musicStyle2Label: orderData.musicStyle2Label || '',
       voicePreference: orderData.voicePreference || '',
       storyAndMessage: orderData.storyAndMessage || '',
       familyNames: orderData.familyNames || '',

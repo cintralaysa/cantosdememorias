@@ -19,6 +19,8 @@ export interface OrderData {
   occasionLabel: string;
   musicStyle: string;
   musicStyleLabel: string;
+  musicStyle2?: string; // Segundo estilo para Premium
+  musicStyle2Label?: string;
   voicePreference: string;
   storyAndMessage?: string;
   qualities?: string;

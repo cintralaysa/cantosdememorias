@@ -58,6 +58,7 @@ interface FormData {
   honoreeName: string;
   occasion: string;
   musicStyle: string;
+  musicStyle2: string; // Segundo estilo para plano Premium
   voicePreference: string;
   storyAndMessage: string;
   familyNames: string;
@@ -117,6 +118,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
     honoreeName: '',
     occasion: '',
     musicStyle: '',
+    musicStyle2: '', // Segundo estilo para Premium
     voicePreference: 'sem_preferencia',
     storyAndMessage: '',
     familyNames: '',
@@ -144,15 +146,19 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
       case 1:
         return formData.plan === 'basico' || formData.plan === 'premium';
       case 2:
+        // Para Premium, exigir também o segundo estilo musical
+        const needsSecondStyle = formData.plan === 'premium';
+        const hasSecondStyle = !needsSecondStyle || formData.musicStyle2;
+
         if (formData.relationship === 'cha-revelacao') {
           if (!formData.knowsBabySex) return false;
           if (formData.knowsBabySex === 'sim' && !formData.babySex) return false;
           if (formData.knowsBabySex === 'sim' && formData.babySex === 'menino' && !formData.babyNameBoy.trim()) return false;
           if (formData.knowsBabySex === 'sim' && formData.babySex === 'menina' && !formData.babyNameGirl.trim()) return false;
           if (formData.knowsBabySex === 'nao' && (!formData.babyNameBoy.trim() || !formData.babyNameGirl.trim())) return false;
-          return formData.honoreeName.trim().length >= 2 && formData.musicStyle;
+          return formData.honoreeName.trim().length >= 2 && formData.musicStyle && hasSecondStyle;
         }
-        return formData.relationship && formData.honoreeName.trim().length >= 2 && formData.occasion && formData.musicStyle;
+        return formData.relationship && formData.honoreeName.trim().length >= 2 && formData.occasion && formData.musicStyle && hasSecondStyle;
       case 3:
         return formData.storyAndMessage.trim().length >= 20;
       case 4:
@@ -238,6 +244,8 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
         occasionLabel: OCCASIONS.find(o => o.value === formData.occasion)?.label,
         musicStyle: formData.musicStyle,
         musicStyleLabel: MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label,
+        musicStyle2: formData.plan === 'premium' ? formData.musicStyle2 : '',
+        musicStyle2Label: formData.plan === 'premium' ? MUSIC_STYLES.find(m => m.value === formData.musicStyle2)?.label : '',
         voicePreference: formData.voicePreference,
         storyAndMessage: formData.storyAndMessage,
         familyNames: formData.familyNames,
@@ -330,35 +338,41 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
             </div>
 
             <div className="space-y-3">
-              {/* Plano Básico */}
+              {/* Plano Essencial */}
               <button
                 type="button"
                 onClick={() => updateField('plan', 'basico')}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${formData.plan === 'basico' ? 'border-violet-500 bg-violet-50 shadow-lg' : 'border-gray-200 hover:border-gray-300'}`}
+                className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${formData.plan === 'basico' ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 shadow-lg shadow-violet-200/50' : 'border-gray-200 hover:border-violet-200 bg-white'}`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-gray-900">Plano Básico</span>
-                      <span className="text-[10px] bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full font-bold">MAIS POPULAR</span>
+                      <span className="font-bold text-gray-900">Plano Essencial</span>
+                      <span className="text-[10px] bg-gradient-to-r from-violet-500 to-purple-500 text-white px-2 py-0.5 rounded-full font-bold">MAIS POPULAR</span>
                     </div>
                     <div className="text-2xl font-black text-gray-900 mb-2">R$ 49,90</div>
-                    <ul className="space-y-1">
+                    <ul className="space-y-1.5">
                       <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <Check size={12} className="text-green-500" />
+                        <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center">
+                          <Check size={10} className="text-violet-600" />
+                        </div>
                         <span><strong>1 Melodia</strong> exclusiva</span>
                       </li>
                       <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <Check size={12} className="text-green-500" />
+                        <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center">
+                          <Check size={10} className="text-violet-600" />
+                        </div>
                         <span>Letra personalizada</span>
                       </li>
                       <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <Check size={12} className="text-green-500" />
+                        <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center">
+                          <Check size={10} className="text-violet-600" />
+                        </div>
                         <span>Entrega em até <strong>48 horas</strong></span>
                       </li>
                     </ul>
                   </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.plan === 'basico' ? 'border-violet-500 bg-violet-500' : 'border-gray-300'}`}>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${formData.plan === 'basico' ? 'border-violet-500 bg-violet-500' : 'border-gray-300'}`}>
                     {formData.plan === 'basico' && <Check size={14} className="text-white" />}
                   </div>
                 </div>
@@ -368,40 +382,55 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
               <button
                 type="button"
                 onClick={() => updateField('plan', 'premium')}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all relative ${formData.plan === 'premium' ? 'border-amber-500 bg-amber-50 shadow-lg' : 'border-gray-200 hover:border-gray-300'}`}
+                className={`w-full p-4 rounded-2xl text-left transition-all relative overflow-hidden ${formData.plan === 'premium' ? 'shadow-xl shadow-purple-500/30 ring-2 ring-violet-400' : 'hover:shadow-lg'} bg-gradient-to-br from-gray-900 via-violet-950 to-purple-950`}
               >
-                <div className="absolute -top-2 -right-2">
-                  <span className="text-[10px] bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full font-bold">MELHOR VALOR</span>
+                <div className="absolute top-3 right-3">
+                  <span className="text-[10px] bg-gradient-to-r from-violet-400 to-purple-400 text-white px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
+                    <Sparkles size={10} />
+                    RECOMENDADO
+                  </span>
                 </div>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-gray-900">Plano Premium</span>
+                      <span className="font-bold text-white">Plano Premium</span>
                     </div>
-                    <div className="text-2xl font-black text-gray-900 mb-2">R$ 79,90</div>
-                    <ul className="space-y-1">
-                      <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <Check size={12} className="text-amber-500" />
-                        <span><strong>2 Melodias</strong> diferentes</span>
+                    <div className="text-2xl font-black text-white mb-2">R$ 79,90</div>
+                    <ul className="space-y-1.5">
+                      <li className="flex items-center gap-2 text-xs text-gray-300">
+                        <div className="w-4 h-4 rounded-full bg-violet-500/30 flex items-center justify-center">
+                          <Check size={10} className="text-violet-300" />
+                        </div>
+                        <span><strong className="text-white">2 Melodias</strong> diferentes</span>
                       </li>
-                      <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <Check size={12} className="text-green-500" />
+                      <li className="flex items-center gap-2 text-xs text-gray-300">
+                        <div className="w-4 h-4 rounded-full bg-violet-500/30 flex items-center justify-center">
+                          <Check size={10} className="text-violet-300" />
+                        </div>
+                        <span><strong className="text-white">2 Estilos</strong> à sua escolha</span>
+                      </li>
+                      <li className="flex items-center gap-2 text-xs text-gray-300">
+                        <div className="w-4 h-4 rounded-full bg-violet-500/30 flex items-center justify-center">
+                          <Check size={10} className="text-violet-300" />
+                        </div>
                         <span>Letra personalizada</span>
                       </li>
-                      <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <Check size={12} className="text-amber-500" />
-                        <span>Entrega em até <strong>24 horas</strong></span>
+                      <li className="flex items-center gap-2 text-xs text-gray-300">
+                        <div className="w-4 h-4 rounded-full bg-green-500/30 flex items-center justify-center">
+                          <Zap size={10} className="text-green-400" />
+                        </div>
+                        <span>Entrega <strong className="text-green-400">EXPRESSA 24h</strong></span>
                       </li>
                     </ul>
                   </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${formData.plan === 'premium' ? 'border-amber-500 bg-amber-500' : 'border-gray-300'}`}>
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${formData.plan === 'premium' ? 'border-violet-400 bg-violet-500' : 'border-gray-500'}`}>
                     {formData.plan === 'premium' && <Check size={14} className="text-white" />}
                   </div>
                 </div>
               </button>
             </div>
 
-            <div className="bg-violet-50 rounded-xl p-3 mt-4">
+            <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-3 mt-4 border border-violet-100">
               <p className="text-xs text-violet-700 text-center">
                 <Sparkles size={12} className="inline mr-1" />
                 Em ambos os planos você <strong>aprova a letra antes de pagar</strong>!
@@ -484,7 +513,10 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
             )}
 
             <div className="space-y-3">
-              <label className="flex items-center gap-2 text-sm font-bold text-gray-800"><Music size={16} className="text-violet-500" />Qual estilo musical?</label>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-800">
+                <Music size={16} className="text-violet-500" />
+                {formData.plan === 'premium' ? 'Estilo da 1ª melodia' : 'Qual estilo musical?'}
+              </label>
               <div className="grid grid-cols-3 gap-2">
                 {MUSIC_STYLES.map((style) => (
                   <button key={style.value} type="button" onClick={() => updateField('musicStyle', style.value)} className={`p-2 rounded-xl border-2 text-center active:scale-95 ${formData.musicStyle === style.value ? 'border-violet-500 bg-violet-50 shadow-md' : 'border-gray-200'}`}>
@@ -494,6 +526,31 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
                 ))}
               </div>
             </div>
+
+            {/* Segundo estilo musical - apenas para Premium */}
+            {formData.plan === 'premium' && (
+              <div className="space-y-3">
+                <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-3 border border-violet-200">
+                  <p className="text-xs text-violet-700 flex items-center gap-2">
+                    <Sparkles size={14} className="text-violet-500" />
+                    <span><strong>Plano Premium:</strong> Escolha um estilo diferente para a 2ª melodia!</span>
+                  </p>
+                </div>
+                <label className="flex items-center gap-2 text-sm font-bold text-gray-800">
+                  <Music size={16} className="text-purple-500" />
+                  Estilo da 2ª melodia
+                  <span className="text-xs font-normal text-gray-400">(pode ser igual ou diferente)</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {MUSIC_STYLES.map((style) => (
+                    <button key={`style2-${style.value}`} type="button" onClick={() => updateField('musicStyle2', style.value)} className={`p-2 rounded-xl border-2 text-center active:scale-95 ${formData.musicStyle2 === style.value ? 'border-purple-500 bg-purple-50 shadow-md' : 'border-gray-200'}`}>
+                      <span className="text-lg block">{style.emoji}</span>
+                      <span className={`font-medium text-[9px] block mt-1 ${formData.musicStyle2 === style.value ? 'text-purple-600' : 'text-gray-600'}`}>{style.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-800"><Mic2 size={16} className="text-violet-500" />Qual voz você prefere?</label>
@@ -599,7 +656,14 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
                 <div className="flex justify-between"><span className="text-gray-500">Plano:</span><span className="font-semibold">{selectedPlan.name}</span></div>
                 <div className="flex justify-between"><span className="text-gray-500">Música para:</span><span className="font-semibold">{formData.honoreeName}</span></div>
                 <div className="flex justify-between"><span className="text-gray-500">Ocasião:</span><span className="font-semibold">{OCCASIONS.find(o => o.value === formData.occasion)?.label}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Estilo:</span><span className="font-semibold">{MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label}</span></div>
+                {formData.plan === 'premium' ? (
+                  <>
+                    <div className="flex justify-between"><span className="text-gray-500">Estilo 1ª melodia:</span><span className="font-semibold">{MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label}</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Estilo 2ª melodia:</span><span className="font-semibold">{MUSIC_STYLES.find(m => m.value === formData.musicStyle2)?.label}</span></div>
+                  </>
+                ) : (
+                  <div className="flex justify-between"><span className="text-gray-500">Estilo:</span><span className="font-semibold">{MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label}</span></div>
+                )}
                 <div className="flex justify-between"><span className="text-gray-500">Melodias:</span><span className="font-semibold">{selectedPlan.melodias}</span></div>
                 <div className="flex justify-between"><span className="text-gray-500">Entrega:</span><span className="font-semibold">Até {selectedPlan.deliveryHours}h</span></div>
                 <div className="border-t pt-3 mt-3 flex justify-between items-center"><span className="font-bold">Total:</span><span className="text-2xl font-black text-violet-600">{selectedPlan.priceFormatted}</span></div>

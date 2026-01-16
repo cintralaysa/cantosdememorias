@@ -247,7 +247,7 @@ export default function Home() {
                   ))}
                 </div>
                 <span className="text-white/90 text-xs sm:text-sm font-medium">
-                  +2.000 Clientes
+                  +7.000 Clientes
                 </span>
               </div>
 
@@ -288,9 +288,9 @@ export default function Home() {
               {/* Trust Indicators */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 mt-6 sm:mt-10 pt-4 sm:pt-8 border-t border-white/10">
                 {[
-                  { icon: <Clock size={16} />, label: 'Entrega rápida', sub: 'Garantida' },
-                  { icon: <Sparkles size={16} />, label: 'A partir de', sub: 'R$ 49,90' },
-                  { icon: <Shield size={16} />, label: 'Pagamento', sub: 'Seguro' },
+                  { icon: <Clock size={16} />, label: 'Entrega', sub: 'Super Rápida' },
+                  { icon: <Heart size={16} />, label: '+7.000', sub: 'Clientes Felizes' },
+                  { icon: <Shield size={16} />, label: 'Pagamento', sub: '100% Seguro' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-lg flex items-center justify-center text-violet-300">
@@ -394,8 +394,8 @@ export default function Home() {
                 </div>
 
                 {/* Badge Entrega Rápida */}
-                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-emerald-400 to-green-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  A partir de R$49,90
+                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  Entrega Expressa
                 </div>
               </div>
 
@@ -406,7 +406,7 @@ export default function Home() {
                     <Heart className="text-white fill-white" size={24} />
                   </div>
                   <div>
-                    <div className="text-2xl font-black text-gray-900">+2.000</div>
+                    <div className="text-2xl font-black text-gray-900">+7.000</div>
                     <div className="text-xs text-gray-500">Clientes Felizes</div>
                   </div>
                 </div>
@@ -444,109 +444,166 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Dois Planos - Cards lado a lado */}
+          {/* Dois Planos - Design Premium */}
           <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
-              {/* Plano Básico */}
-              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-violet-500/10 overflow-hidden border border-gray-100 flex flex-col">
-                {/* Header do Plano */}
-                <div className="bg-gradient-to-r from-violet-500 to-purple-600 p-4 sm:p-6 text-center relative">
-                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
-                    <span className="bg-white/20 backdrop-blur-sm text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full">
-                      MAIS POPULAR
-                    </span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white mb-1">Plano Básico</h3>
-                  <p className="text-violet-100 text-sm">Perfeito para surpreender</p>
-                </div>
+            <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+
+              {/* Plano Essencial */}
+              <div className="group relative bg-white rounded-3xl shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100 flex flex-col hover:shadow-violet-200/50 transition-all duration-500">
+                {/* Decoração superior */}
+                <div className="h-2 bg-gradient-to-r from-violet-400 via-purple-500 to-violet-600" />
 
                 {/* Conteúdo */}
-                <div className="p-5 sm:p-6 flex flex-col flex-1">
-                  {/* Preço */}
-                  <div className="text-center mb-4 sm:mb-6">
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-sm text-gray-500 font-bold">R$</span>
-                      <span className="text-4xl sm:text-5xl font-black text-gray-900">49</span>
-                      <span className="text-xl font-bold text-gray-900">,90</span>
+                <div className="p-6 sm:p-8 flex flex-col flex-1">
+                  {/* Badge */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <span className="text-xs font-bold text-violet-600 uppercase tracking-wider">Essencial</span>
+                      <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mt-1">Plano Básico</h3>
+                    </div>
+                    <div className="w-14 h-14 bg-gradient-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center">
+                      <Music className="text-violet-600" size={28} />
                     </div>
                   </div>
 
+                  {/* Preço */}
+                  <div className="mb-6 pb-6 border-b border-gray-100">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg text-gray-400 font-medium">R$</span>
+                      <span className="text-5xl sm:text-6xl font-black text-gray-900">49</span>
+                      <span className="text-2xl font-bold text-gray-400">,90</span>
+                    </div>
+                    <p className="text-gray-500 text-sm mt-2">Pagamento único</p>
+                  </div>
+
                   {/* Features */}
-                  <ul className="space-y-3 mb-6 flex-1">
-                    {[
-                      { text: '1 Melodia exclusiva', highlight: true },
-                      { text: 'Letra personalizada', highlight: false },
-                      { text: 'Entrega em até 48 horas', highlight: false },
-                      { text: 'Aprove a letra antes de pagar', highlight: false },
-                    ].map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-gradient-to-br from-violet-500 to-purple-500' : 'bg-gradient-to-br from-green-500 to-emerald-500'}`}>
-                          <Check className="text-white" size={12} />
-                        </div>
-                        <span className={`text-sm sm:text-base ${feature.highlight ? 'font-bold text-violet-700' : 'text-gray-700'}`}>{feature.text}</span>
-                      </li>
-                    ))}
+                  <ul className="space-y-4 mb-8 flex-1">
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="text-violet-600" size={14} />
+                      </div>
+                      <div>
+                        <span className="font-bold text-gray-900">1 Melodia exclusiva</span>
+                        <p className="text-gray-500 text-sm">Composição única para você</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="text-violet-600" size={14} />
+                      </div>
+                      <div>
+                        <span className="font-bold text-gray-900">Letra personalizada</span>
+                        <p className="text-gray-500 text-sm">Criada com sua história</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="text-violet-600" size={14} />
+                      </div>
+                      <div>
+                        <span className="font-bold text-gray-900">Entrega em até 48h</span>
+                        <p className="text-gray-500 text-sm">Direto no seu WhatsApp</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="text-violet-600" size={14} />
+                      </div>
+                      <div>
+                        <span className="font-bold text-gray-900">Aprove antes de pagar</span>
+                        <p className="text-gray-500 text-sm">Veja a letra no site</p>
+                      </div>
+                    </li>
                   </ul>
 
                   {/* CTA */}
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-5 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-4 rounded-2xl font-bold text-base shadow-xl shadow-gray-900/10 hover:shadow-gray-900/20 hover:scale-[1.02] transition-all duration-300"
                   >
-                    <span>Escolher Básico</span>
+                    <span>Começar Agora</span>
                     <ArrowRight size={18} />
                   </button>
                 </div>
               </div>
 
               {/* Plano Premium */}
-              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-amber-500/10 overflow-hidden border-2 border-amber-400 flex flex-col relative">
-                {/* Ribbon */}
-                <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 z-10">
-                  <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
-                    <Zap size={12} />
-                    <span>MELHOR VALOR</span>
+              <div className="group relative bg-gradient-to-br from-gray-900 via-violet-950 to-purple-950 rounded-3xl shadow-2xl shadow-violet-500/20 overflow-hidden flex flex-col">
+                {/* Badge Recomendado */}
+                <div className="absolute top-4 right-4 z-10">
+                  <div className="bg-gradient-to-r from-violet-400 to-purple-400 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                    <Star className="fill-white" size={12} />
+                    <span>RECOMENDADO</span>
                   </div>
-                </div>
-
-                {/* Header do Plano */}
-                <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4 sm:p-6 text-center">
-                  <h3 className="text-xl sm:text-2xl font-black text-white mb-1">Plano Premium</h3>
-                  <p className="text-amber-100 text-sm">Mais melodias, mais rápido</p>
                 </div>
 
                 {/* Conteúdo */}
-                <div className="p-5 sm:p-6 flex flex-col flex-1">
-                  {/* Preço */}
-                  <div className="text-center mb-4 sm:mb-6">
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-sm text-gray-500 font-bold">R$</span>
-                      <span className="text-4xl sm:text-5xl font-black text-gray-900">79</span>
-                      <span className="text-xl font-bold text-gray-900">,90</span>
+                <div className="p-6 sm:p-8 flex flex-col flex-1">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <span className="text-xs font-bold text-violet-300 uppercase tracking-wider">Completo</span>
+                      <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">Plano Premium</h3>
+                    </div>
+                    <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
+                      <Award className="text-violet-300" size={28} />
                     </div>
                   </div>
 
+                  {/* Preço */}
+                  <div className="mb-6 pb-6 border-b border-white/10">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg text-violet-300 font-medium">R$</span>
+                      <span className="text-5xl sm:text-6xl font-black text-white">79</span>
+                      <span className="text-2xl font-bold text-violet-300">,90</span>
+                    </div>
+                    <p className="text-violet-200/60 text-sm mt-2">Pagamento único</p>
+                  </div>
+
                   {/* Features */}
-                  <ul className="space-y-3 mb-6 flex-1">
-                    {[
-                      { text: '2 Melodias diferentes', highlight: true },
-                      { text: 'Letra personalizada', highlight: false },
-                      { text: 'Entrega em até 24 horas', highlight: true },
-                      { text: 'Aprove a letra antes de pagar', highlight: false },
-                    ].map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${feature.highlight ? 'bg-gradient-to-br from-amber-500 to-orange-500' : 'bg-gradient-to-br from-green-500 to-emerald-500'}`}>
-                          <Check className="text-white" size={12} />
-                        </div>
-                        <span className={`text-sm sm:text-base ${feature.highlight ? 'font-bold text-amber-700' : 'text-gray-700'}`}>{feature.text}</span>
-                      </li>
-                    ))}
+                  <ul className="space-y-4 mb-8 flex-1">
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="text-violet-300" size={14} />
+                      </div>
+                      <div>
+                        <span className="font-bold text-white">2 Melodias diferentes</span>
+                        <p className="text-violet-200/60 text-sm">Estilos que você escolhe</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="text-violet-300" size={14} />
+                      </div>
+                      <div>
+                        <span className="font-bold text-white">Letra personalizada</span>
+                        <p className="text-violet-200/60 text-sm">Criada com sua história</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="text-violet-300" size={14} />
+                      </div>
+                      <div>
+                        <span className="font-bold text-white">Entrega em até 24h</span>
+                        <p className="text-violet-200/60 text-sm">Entrega prioritária</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="text-violet-300" size={14} />
+                      </div>
+                      <div>
+                        <span className="font-bold text-white">Aprove antes de pagar</span>
+                        <p className="text-violet-200/60 text-sm">Veja a letra no site</p>
+                      </div>
+                    </li>
                   </ul>
 
                   {/* CTA */}
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-5 py-3 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white px-6 py-4 rounded-2xl font-bold text-base shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] transition-all duration-300"
                   >
                     <span>Escolher Premium</span>
                     <ArrowRight size={18} />
@@ -556,33 +613,33 @@ export default function Home() {
             </div>
 
             {/* Destaque - Criação da letra no site */}
-            <div className="mt-6 sm:mt-8 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-4 sm:p-6 max-w-2xl mx-auto">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="text-white" size={20} />
+            <div className="mt-8 sm:mt-10 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-2xl p-5 sm:p-6 max-w-2xl mx-auto">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="text-white" size={22} />
                 </div>
                 <div>
-                  <p className="text-violet-900 font-bold text-base sm:text-lg">Você cria a letra aqui no site!</p>
-                  <p className="text-violet-700 text-sm sm:text-base">Gere, visualize e edite a letra diretamente no site antes de pagar. Sem surpresas!</p>
+                  <p className="text-violet-900 font-bold text-lg">Você cria a letra aqui no site!</p>
+                  <p className="text-violet-700 text-sm">Gere, visualize e edite antes de pagar. Sem surpresas!</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Trust Badges - Com descrições no mobile */}
-          <div className="mt-8 sm:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+          {/* Trust Badges */}
+          <div className="mt-10 sm:mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
             {[
-              { icon: <Clock size={18} />, text: 'Entrega rápida', desc: 'Garantida' },
-              { icon: <Shield size={18} />, text: '100% Seguro', desc: 'Pagamento protegido' },
-              { icon: <Sparkles size={18} />, text: '2 Planos', desc: 'Escolha o seu' },
-              { icon: <Heart size={18} />, text: '+2.000 Clientes', desc: 'Satisfeitos' },
+              { icon: <Clock size={20} />, text: 'Entrega Expressa', desc: 'Até 24h' },
+              { icon: <Shield size={20} />, text: 'Pagamento Seguro', desc: 'PIX protegido' },
+              { icon: <Heart size={20} />, text: '+7.000 Clientes', desc: 'Emocionados' },
+              { icon: <Star size={20} />, text: 'Aprovação', desc: 'Antes de pagar' },
             ].map((item, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center p-3 sm:p-4 bg-white rounded-xl shadow-md">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-500 to-purple-500 rounded-lg sm:rounded-xl flex items-center justify-center text-white mb-2">
+              <div key={idx} className="flex flex-col items-center text-center p-4 sm:p-5 bg-white rounded-2xl shadow-lg shadow-gray-100 border border-gray-50">
+                <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-white mb-3">
                   {item.icon}
                 </div>
-                <span className="text-gray-900 font-bold text-xs sm:text-sm">{item.text}</span>
-                <span className="text-gray-500 text-[10px] sm:text-xs mt-0.5">{item.desc}</span>
+                <span className="text-gray-900 font-bold text-sm">{item.text}</span>
+                <span className="text-gray-400 text-xs mt-1">{item.desc}</span>
               </div>
             ))}
           </div>
