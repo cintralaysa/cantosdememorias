@@ -1,20 +1,43 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Music, Clock, MessageCircle, Heart, ArrowLeft, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { MetaPixelEvents } from '@/components/MetaPixel';
 
 export default function SuccessPage() {
   const searchParams = useSearchParams();
   const paymentId = searchParams.get('payment_id');
+  const value = searchParams.get('value');
+  const plan = searchParams.get('plan');
   const [showConfetti, setShowConfetti] = useState(true);
+  const pixelFired = useRef(false);
 
   useEffect(() => {
     // Esconder confetti após 5 segundos
     const timer = setTimeout(() => setShowConfetti(false), 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Disparar evento de Purchase do Meta Pixel
+  useEffect(() => {
+    if (!pixelFired.current) {
+      pixelFired.current = true;
+
+      // Pegar valor do pedido (da URL ou usar valor padrão baseado no plano)
+      const purchaseValue = value ? parseFloat(value) : (plan === 'premium' ? 79.90 : 49.90);
+
+      MetaPixelEvents.purchase({
+        value: purchaseValue,
+        currency: 'BRL',
+        content_name: plan === 'premium' ? 'Plano Premium' : 'Plano Essencial',
+        content_ids: [paymentId || 'unknown'],
+      });
+
+      console.log('[Meta Pixel] Purchase event fired:', { value: purchaseValue, plan });
+    }
+  }, [value, plan, paymentId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-violet-50 relative overflow-hidden">

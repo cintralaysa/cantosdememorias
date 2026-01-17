@@ -19,6 +19,7 @@ export default function CheckoutPixPage() {
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [orderId, setOrderId] = useState<string>('');
   const [correlationID, setCorrelationID] = useState<string>('');
+  const [orderPlan, setOrderPlan] = useState<string>('basico');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -37,6 +38,9 @@ export default function CheckoutPixPage() {
         }
 
         const orderData = JSON.parse(savedOrder);
+
+        // Guardar o plano para usar no redirecionamento
+        setOrderPlan(orderData.plan || 'basico');
 
         const response = await fetch('/api/pix/create', {
           method: 'POST',
@@ -80,9 +84,10 @@ export default function CheckoutPixPage() {
       if (data.isPaid) {
         setStatus('paid');
         localStorage.removeItem('pendingOrder');
-        // Redirecionar para página de sucesso após 2 segundos
+        // Redirecionar para página de sucesso após 2 segundos com dados para o Meta Pixel
         setTimeout(() => {
-          router.push(`/pagamento/sucesso?orderId=${orderId}`);
+          const value = pixData?.value || (orderPlan === 'premium' ? 79.90 : 49.90);
+          router.push(`/pagamento/sucesso?orderId=${orderId}&value=${value}&plan=${orderPlan}`);
         }, 2000);
       } else if (data.isExpired) {
         setStatus('expired');
@@ -92,7 +97,7 @@ export default function CheckoutPixPage() {
     } finally {
       setCheckingPayment(false);
     }
-  }, [correlationID, status, orderId, router]);
+  }, [correlationID, status, orderId, orderPlan, pixData, router]);
 
   // Polling do status a cada 5 segundos
   useEffect(() => {
