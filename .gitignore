@@ -54,3 +54,6 @@ coverage/
 
 # Data files (pedidos salvos localmente)
 data/orders.json
+
+.vercel
+.env*.local

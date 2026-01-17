@@ -415,27 +415,27 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
               </div>
             </div>
 
-            {/* Segundo estilo musical - apenas para Premium */}
-            {formData.plan === 'premium' && (
-              <div className="space-y-3">
-                <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-3 border border-violet-200">
-                  <p className="text-xs text-violet-700 flex items-center gap-2">
-                    <Sparkles size={14} className="text-violet-500" />
-                    <span><strong>Plano Premium:</strong> Escolha um estilo diferente para a 2ª melodia!</span>
-                  </p>
-                </div>
-                <label className="flex items-center gap-2 text-sm font-bold text-gray-800">
-                  <Music size={16} className="text-purple-500" />
-                  Estilo da 2ª melodia
-                  <span className="text-xs font-normal text-gray-400">(pode ser igual ou diferente)</span>
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {MUSIC_STYLES.map((style) => (
-                    <button key={`style2-${style.value}`} type="button" onClick={() => updateField('musicStyle2', style.value)} className={`p-2 rounded-xl border-2 text-center active:scale-95 ${formData.musicStyle2 === style.value ? 'border-purple-500 bg-purple-50 shadow-md' : 'border-gray-200'}`}>
-                      <span className="text-lg block">{style.emoji}</span>
-                      <span className={`font-medium text-[9px] block mt-1 ${formData.musicStyle2 === style.value ? 'text-purple-600' : 'text-gray-600'}`}>{style.label}</span>
-                    </button>
-                  ))}
+            {/* Segunda melodia - apenas para Premium */}
+            {formData.plan === 'premium' && formData.musicStyle && (
+              <div className="bg-purple-50 rounded-xl p-3 border border-purple-200">
+                <p className="text-xs text-purple-700 mb-2 flex items-center gap-1">
+                  <Sparkles size={12} />
+                  <strong>2ª melodia:</strong>
+                </p>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => updateField('musicStyle2', formData.musicStyle)} className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition ${formData.musicStyle2 === formData.musicStyle ? 'bg-purple-500 text-white' : 'bg-white border border-purple-200 text-purple-700'}`}>
+                    Mesmo estilo
+                  </button>
+                  <select
+                    value={formData.musicStyle2 !== formData.musicStyle ? formData.musicStyle2 : ''}
+                    onChange={(e) => updateField('musicStyle2', e.target.value || formData.musicStyle)}
+                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium border ${formData.musicStyle2 && formData.musicStyle2 !== formData.musicStyle ? 'bg-purple-500 text-white border-purple-500' : 'bg-white border-purple-200 text-purple-700'}`}
+                  >
+                    <option value="">Outro estilo...</option>
+                    {MUSIC_STYLES.filter(s => s.value !== formData.musicStyle).map((style) => (
+                      <option key={style.value} value={style.value}>{style.emoji} {style.label}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             )}
