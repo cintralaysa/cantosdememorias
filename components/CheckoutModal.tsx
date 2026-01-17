@@ -8,9 +8,10 @@ interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   service: Service;
+  selectedPlan?: 'basico' | 'premium';
 }
 
-export default function CheckoutModal({ isOpen, onClose, service }: CheckoutModalProps) {
+export default function CheckoutModal({ isOpen, onClose, service, selectedPlan = 'basico' }: CheckoutModalProps) {
   // Bloquear scroll do body quando modal está aberto
   useEffect(() => {
     if (isOpen) {
@@ -39,6 +40,7 @@ export default function CheckoutModal({ isOpen, onClose, service }: CheckoutModa
           service={service}
           onClose={onClose}
           isModal={true}
+          initialPlan={selectedPlan}
         />
       </div>
     </div>

@@ -102,6 +102,7 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'basico' | 'premium'>('basico');
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Pegar o serviço de música personalizada
@@ -269,7 +270,7 @@ export default function Home() {
               {/* CTA Principal */}
               <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
                 <button
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
                   className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-base sm:text-lg font-bold px-6 py-4 sm:px-10 sm:py-5 rounded-full shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
                 >
                   <Music size={20} />
@@ -518,7 +519,7 @@ export default function Home() {
 
                   {/* CTA */}
                   <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
                     className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-4 rounded-2xl font-bold text-base shadow-xl shadow-gray-900/10 hover:shadow-gray-900/20 hover:scale-[1.02] transition-all duration-300"
                   >
                     <span>Começar Agora</span>
@@ -602,7 +603,7 @@ export default function Home() {
 
                   {/* CTA */}
                   <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => { setSelectedPlan('premium'); setIsModalOpen(true); }}
                     className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white px-6 py-4 rounded-2xl font-bold text-base shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] transition-all duration-300"
                   >
                     <span>Escolher Premium</span>
@@ -694,7 +695,7 @@ export default function Home() {
           {/* CTA - Menor no mobile */}
           <div className="text-center mt-8 sm:mt-12">
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
               className="inline-flex items-center gap-2 btn-premium text-sm sm:text-base px-6 py-3 sm:px-8 sm:py-4"
             >
               <Music size={18} />
@@ -836,7 +837,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
               className="w-full sm:w-auto flex items-center justify-center gap-2 btn-premium text-sm sm:text-base px-6 py-3 sm:px-8 sm:py-4"
             >
               <Music size={18} />
@@ -948,6 +949,7 @@ export default function Home() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         service={musicService}
+        selectedPlan={selectedPlan}
       />
     </main>
   );

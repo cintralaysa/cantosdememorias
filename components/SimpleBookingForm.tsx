@@ -101,11 +101,12 @@ interface SimpleBookingFormProps {
   service: Service;
   onClose?: () => void;
   isModal?: boolean;
+  initialPlan?: 'basico' | 'premium';
 }
 
-export default function SimpleBookingForm({ service, onClose, isModal = false }: SimpleBookingFormProps) {
+export default function SimpleBookingForm({ service, onClose, isModal = false, initialPlan = 'basico' }: SimpleBookingFormProps) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(1); // Agora começa direto nas informações
   const [loading, setLoading] = useState(false);
   const [generatingLyrics, setGeneratingLyrics] = useState(false);
   const [lyricsError, setLyricsError] = useState('');
@@ -113,7 +114,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
-    plan: 'basico',
+    plan: initialPlan, // Usa o plano passado pela props
     relationship: '',
     honoreeName: '',
     occasion: '',
@@ -134,7 +135,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
   });
 
   const selectedPlan = PLANS[formData.plan];
-  const totalSteps = 5;
+  const totalSteps = 4; // Agora são só 4 passos (removemos a escolha do plano)
   const progress = (step / totalSteps) * 100;
 
   const updateField = (field: keyof FormData, value: string | boolean) => {
@@ -143,9 +144,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
 
   const canProceed = () => {
     switch (step) {
-      case 1:
-        return formData.plan === 'basico' || formData.plan === 'premium';
-      case 2:
+      case 1: // Informações (antigo passo 2)
         // Para Premium, exigir também o segundo estilo musical
         const needsSecondStyle = formData.plan === 'premium';
         const hasSecondStyle = !needsSecondStyle || formData.musicStyle2;
@@ -159,11 +158,11 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
           return formData.honoreeName.trim().length >= 2 && formData.musicStyle && hasSecondStyle;
         }
         return formData.relationship && formData.honoreeName.trim().length >= 2 && formData.occasion && formData.musicStyle && hasSecondStyle;
-      case 3:
+      case 2: // Sua História (antigo passo 3)
         return formData.storyAndMessage.trim().length >= 20;
-      case 4:
+      case 3: // Sua Letra (antigo passo 4)
         return formData.lyricsApproved && formData.generatedLyrics.trim().length > 0;
-      case 5:
+      case 4: // Pagamento (antigo passo 5)
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return formData.userName.trim().length >= 2 && formData.whatsapp.trim().length >= 10 && emailRegex.test(formData.email.trim());
       default:
@@ -213,7 +212,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
 
   const nextStep = async () => {
     if (step < totalSteps && canProceed()) {
-      if (step === 3 && !formData.generatedLyrics) {
+      if (step === 2 && !formData.generatedLyrics) { // Agora é passo 2 que vai para letra
         await generateLyrics();
       }
       setStep(step + 1);
@@ -268,7 +267,6 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
   };
 
   const stepInfo = [
-    { title: 'Escolha o Plano', desc: 'Qual pacote é ideal para você?' },
     { title: 'Informações', desc: 'Para quem é a música?' },
     { title: 'Sua História', desc: 'Conte sobre essa pessoa especial' },
     { title: 'Sua Letra', desc: 'Veja e aprove a letra criada' },
@@ -329,118 +327,8 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
       {/* Conteúdo */}
       <div className={`p-4 ${isModal ? 'overflow-y-auto flex-1' : ''}`}>
 
-        {/* PASSO 1 - ESCOLHA DO PLANO */}
+        {/* PASSO 1 - INFORMAÇÕES */}
         {step === 1 && (
-          <div className="space-y-4 animate-fadeInUp">
-            <div className="text-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Escolha seu plano</h3>
-              <p className="text-sm text-gray-500">Selecione o pacote ideal para você</p>
-            </div>
-
-            <div className="space-y-3">
-              {/* Plano Essencial */}
-              <button
-                type="button"
-                onClick={() => updateField('plan', 'basico')}
-                className={`w-full p-4 rounded-2xl border-2 text-left transition-all ${formData.plan === 'basico' ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 shadow-lg shadow-violet-200/50' : 'border-gray-200 hover:border-violet-200 bg-white'}`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-gray-900">Plano Essencial</span>
-                      <span className="text-[10px] bg-gradient-to-r from-violet-500 to-purple-500 text-white px-2 py-0.5 rounded-full font-bold">MAIS POPULAR</span>
-                    </div>
-                    <div className="text-2xl font-black text-gray-900 mb-2">R$ 49,90</div>
-                    <ul className="space-y-1.5">
-                      <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center">
-                          <Check size={10} className="text-violet-600" />
-                        </div>
-                        <span><strong>1 Melodia</strong> exclusiva</span>
-                      </li>
-                      <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center">
-                          <Check size={10} className="text-violet-600" />
-                        </div>
-                        <span>Letra personalizada</span>
-                      </li>
-                      <li className="flex items-center gap-2 text-xs text-gray-600">
-                        <div className="w-4 h-4 rounded-full bg-violet-100 flex items-center justify-center">
-                          <Check size={10} className="text-violet-600" />
-                        </div>
-                        <span>Entrega em até <strong>48 horas</strong></span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${formData.plan === 'basico' ? 'border-violet-500 bg-violet-500' : 'border-gray-300'}`}>
-                    {formData.plan === 'basico' && <Check size={14} className="text-white" />}
-                  </div>
-                </div>
-              </button>
-
-              {/* Plano Premium */}
-              <button
-                type="button"
-                onClick={() => updateField('plan', 'premium')}
-                className={`w-full p-4 rounded-2xl text-left transition-all relative overflow-hidden ${formData.plan === 'premium' ? 'shadow-xl shadow-purple-500/30 ring-2 ring-violet-400' : 'hover:shadow-lg'} bg-gradient-to-br from-gray-900 via-violet-950 to-purple-950`}
-              >
-                <div className="absolute top-3 right-3">
-                  <span className="text-[10px] bg-gradient-to-r from-violet-400 to-purple-400 text-white px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
-                    <Sparkles size={10} />
-                    RECOMENDADO
-                  </span>
-                </div>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-white">Plano Premium</span>
-                    </div>
-                    <div className="text-2xl font-black text-white mb-2">R$ 79,90</div>
-                    <ul className="space-y-1.5">
-                      <li className="flex items-center gap-2 text-xs text-gray-300">
-                        <div className="w-4 h-4 rounded-full bg-violet-500/30 flex items-center justify-center">
-                          <Check size={10} className="text-violet-300" />
-                        </div>
-                        <span><strong className="text-white">2 Melodias</strong> diferentes</span>
-                      </li>
-                      <li className="flex items-center gap-2 text-xs text-gray-300">
-                        <div className="w-4 h-4 rounded-full bg-violet-500/30 flex items-center justify-center">
-                          <Check size={10} className="text-violet-300" />
-                        </div>
-                        <span><strong className="text-white">2 Estilos</strong> à sua escolha</span>
-                      </li>
-                      <li className="flex items-center gap-2 text-xs text-gray-300">
-                        <div className="w-4 h-4 rounded-full bg-violet-500/30 flex items-center justify-center">
-                          <Check size={10} className="text-violet-300" />
-                        </div>
-                        <span>Letra personalizada</span>
-                      </li>
-                      <li className="flex items-center gap-2 text-xs text-gray-300">
-                        <div className="w-4 h-4 rounded-full bg-green-500/30 flex items-center justify-center">
-                          <Zap size={10} className="text-green-400" />
-                        </div>
-                        <span>Entrega <strong className="text-green-400">EXPRESSA 24h</strong></span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${formData.plan === 'premium' ? 'border-violet-400 bg-violet-500' : 'border-gray-500'}`}>
-                    {formData.plan === 'premium' && <Check size={14} className="text-white" />}
-                  </div>
-                </div>
-              </button>
-            </div>
-
-            <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-3 mt-4 border border-violet-100">
-              <p className="text-xs text-violet-700 text-center">
-                <Sparkles size={12} className="inline mr-1" />
-                Em ambos os planos você <strong>aprova a letra antes de pagar</strong>!
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* PASSO 2 - INFORMAÇÕES */}
-        {step === 2 && (
           <div className="space-y-5 animate-fadeInUp">
             <div className="space-y-3">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-800">
@@ -563,8 +451,8 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
           </div>
         )}
 
-        {/* PASSO 3 - SUA HISTÓRIA */}
-        {step === 3 && (
+        {/* PASSO 2 - SUA HISTÓRIA */}
+        {step === 2 && (
           <div className="space-y-5 animate-fadeInUp">
             <div className="bg-violet-50 rounded-xl p-3 flex items-center gap-3">
               <div className="w-10 h-10 bg-violet-500 rounded-lg flex items-center justify-center text-white text-lg">{RELATIONSHIPS.find(r => r.value === formData.relationship)?.emoji}</div>
@@ -586,8 +474,8 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
           </div>
         )}
 
-        {/* PASSO 4 - LETRA */}
-        {step === 4 && (
+        {/* PASSO 3 - LETRA */}
+        {step === 3 && (
           <div className="space-y-4 animate-fadeInUp">
             {generatingLyrics ? (
               <div className="text-center py-8">
@@ -628,8 +516,8 @@ export default function SimpleBookingForm({ service, onClose, isModal = false }:
           </div>
         )}
 
-        {/* PASSO 5 - DADOS E PAGAMENTO */}
-        {step === 5 && (
+        {/* PASSO 4 - DADOS E PAGAMENTO */}
+        {step === 4 && (
           <div className="space-y-5 animate-fadeInUp">
             {/* Dados de contato */}
             <div className="space-y-4">
