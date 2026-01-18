@@ -445,183 +445,136 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Dois Planos - Design Premium */}
-          <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+          {/* Dois Planos - Side by Side no Mobile */}
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6">
 
               {/* Plano Essencial */}
-              <div className="group relative bg-white rounded-3xl shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100 flex flex-col hover:shadow-violet-200/50 transition-all duration-500">
-                {/* Decoração superior */}
-                <div className="h-2 bg-gradient-to-r from-violet-400 via-purple-500 to-violet-600" />
+              <div className="relative bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border border-gray-200 flex flex-col">
+                {/* Header compacto */}
+                <div className="bg-gray-100 p-3 sm:p-4 text-center">
+                  <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase">Essencial</span>
+                  <h3 className="text-base sm:text-xl font-black text-gray-900">Básico</h3>
+                </div>
 
-                {/* Conteúdo */}
-                <div className="p-6 sm:p-8 flex flex-col flex-1">
-                  {/* Badge */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <span className="text-xs font-bold text-violet-600 uppercase tracking-wider">Essencial</span>
-                      <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mt-1">Plano Básico</h3>
-                    </div>
-                    <div className="w-14 h-14 bg-gradient-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center">
-                      <Music className="text-violet-600" size={28} />
-                    </div>
+                {/* Preço */}
+                <div className="p-3 sm:p-5 text-center border-b border-gray-100">
+                  <div className="flex items-baseline justify-center">
+                    <span className="text-sm text-gray-400">R$</span>
+                    <span className="text-3xl sm:text-5xl font-black text-gray-900">49</span>
+                    <span className="text-base sm:text-xl font-bold text-gray-400">,90</span>
                   </div>
+                </div>
 
-                  {/* Preço */}
-                  <div className="mb-6 pb-6 border-b border-gray-100">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-lg text-gray-400 font-medium">R$</span>
-                      <span className="text-5xl sm:text-6xl font-black text-gray-900">49</span>
-                      <span className="text-2xl font-bold text-gray-400">,90</span>
-                    </div>
-                    <p className="text-gray-500 text-sm mt-2">Pagamento único</p>
+                {/* Entrega - DESTAQUE */}
+                <div className="bg-gray-50 p-2 sm:p-3 text-center">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <Clock size={14} className="text-gray-500 sm:w-4 sm:h-4" />
+                    <span className="text-xs sm:text-sm font-bold text-gray-700">48 horas</span>
                   </div>
+                </div>
 
-                  {/* Features */}
-                  <ul className="space-y-4 mb-8 flex-1">
-                    <li className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="text-violet-600" size={14} />
-                      </div>
-                      <div>
-                        <span className="font-bold text-gray-900">1 Melodia exclusiva</span>
-                        <p className="text-gray-500 text-sm">Composição única para você</p>
-                      </div>
+                {/* Features compactas */}
+                <div className="p-3 sm:p-4 flex-1">
+                  <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
+                    <li className="flex items-center gap-2">
+                      <Check className="text-violet-500 flex-shrink-0" size={14} />
+                      <span className="text-gray-700"><strong>1</strong> melodia</span>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="text-violet-600" size={14} />
-                      </div>
-                      <div>
-                        <span className="font-bold text-gray-900">Letra personalizada</span>
-                        <p className="text-gray-500 text-sm">Criada com sua história</p>
-                      </div>
+                    <li className="flex items-center gap-2">
+                      <Check className="text-violet-500 flex-shrink-0" size={14} />
+                      <span className="text-gray-700">Letra exclusiva</span>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="text-violet-600" size={14} />
-                      </div>
-                      <div>
-                        <span className="font-bold text-gray-900">Entrega em até 48h</span>
-                        <p className="text-gray-500 text-sm">Direto no seu WhatsApp</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="text-violet-600" size={14} />
-                      </div>
-                      <div>
-                        <span className="font-bold text-gray-900">Aprove antes de pagar</span>
-                        <p className="text-gray-500 text-sm">Veja a letra no site</p>
-                      </div>
+                    <li className="flex items-center gap-2">
+                      <Check className="text-violet-500 flex-shrink-0" size={14} />
+                      <span className="text-gray-700">Aprove antes</span>
                     </li>
                   </ul>
+                </div>
 
-                  {/* CTA */}
+                {/* CTA */}
+                <div className="p-3 sm:p-4 pt-0">
                   <button
                     onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
-                    className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-6 py-4 rounded-2xl font-bold text-base shadow-xl shadow-gray-900/10 hover:shadow-gray-900/20 hover:scale-[1.02] transition-all duration-300"
+                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm transition-all"
                   >
-                    <span>Começar Agora</span>
-                    <ArrowRight size={18} />
+                    Escolher
                   </button>
                 </div>
               </div>
 
               {/* Plano Premium */}
-              <div className="group relative bg-gradient-to-br from-gray-900 via-violet-950 to-purple-950 rounded-3xl shadow-2xl shadow-violet-500/20 overflow-hidden flex flex-col">
+              <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-violet-700 rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden flex flex-col ring-2 ring-violet-400 ring-offset-2">
                 {/* Badge Recomendado */}
-                <div className="absolute top-4 right-4 z-10">
-                  <div className="bg-gradient-to-r from-violet-400 to-purple-400 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
-                    <Star className="fill-white" size={12} />
-                    <span>RECOMENDADO</span>
+                <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-10">
+                  <div className="bg-amber-400 text-amber-900 text-[9px] sm:text-[10px] font-black px-2 sm:px-3 py-0.5 sm:py-1 rounded-b-lg shadow-lg flex items-center gap-1">
+                    <Star className="fill-amber-900" size={10} />
+                    <span>MAIS VENDIDO</span>
                   </div>
                 </div>
 
-                {/* Conteúdo */}
-                <div className="p-6 sm:p-8 flex flex-col flex-1">
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <span className="text-xs font-bold text-violet-300 uppercase tracking-wider">Completo</span>
-                      <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">Plano Premium</h3>
-                    </div>
-                    <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
-                      <Award className="text-violet-300" size={28} />
-                    </div>
-                  </div>
+                {/* Header compacto */}
+                <div className="bg-white/10 p-3 sm:p-4 text-center mt-4 sm:mt-5">
+                  <span className="text-[10px] sm:text-xs font-bold text-violet-200 uppercase">Completo</span>
+                  <h3 className="text-base sm:text-xl font-black text-white">Premium</h3>
+                </div>
 
-                  {/* Preço */}
-                  <div className="mb-6 pb-6 border-b border-white/10">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-lg text-violet-300 font-medium">R$</span>
-                      <span className="text-5xl sm:text-6xl font-black text-white">79</span>
-                      <span className="text-2xl font-bold text-violet-300">,90</span>
-                    </div>
-                    <p className="text-violet-200/60 text-sm mt-2">Pagamento único</p>
+                {/* Preço */}
+                <div className="p-3 sm:p-5 text-center border-b border-white/10">
+                  <div className="flex items-baseline justify-center">
+                    <span className="text-sm text-violet-200">R$</span>
+                    <span className="text-3xl sm:text-5xl font-black text-white">79</span>
+                    <span className="text-base sm:text-xl font-bold text-violet-200">,90</span>
                   </div>
+                </div>
 
-                  {/* Features */}
-                  <ul className="space-y-4 mb-8 flex-1">
-                    <li className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="text-violet-300" size={14} />
-                      </div>
-                      <div>
-                        <span className="font-bold text-white">2 Melodias diferentes</span>
-                        <p className="text-violet-200/60 text-sm">Estilos que você escolhe</p>
-                      </div>
+                {/* Entrega - DESTAQUE */}
+                <div className="bg-amber-400 p-2 sm:p-3 text-center">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <Zap size={14} className="text-amber-900 sm:w-4 sm:h-4" />
+                    <span className="text-xs sm:text-sm font-black text-amber-900">24 horas</span>
+                  </div>
+                </div>
+
+                {/* Features compactas */}
+                <div className="p-3 sm:p-4 flex-1">
+                  <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
+                    <li className="flex items-center gap-2">
+                      <Check className="text-violet-200 flex-shrink-0" size={14} />
+                      <span className="text-white"><strong>2</strong> melodias</span>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="text-violet-300" size={14} />
-                      </div>
-                      <div>
-                        <span className="font-bold text-white">Letra personalizada</span>
-                        <p className="text-violet-200/60 text-sm">Criada com sua história</p>
-                      </div>
+                    <li className="flex items-center gap-2">
+                      <Check className="text-violet-200 flex-shrink-0" size={14} />
+                      <span className="text-white">Letra exclusiva</span>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="text-violet-300" size={14} />
-                      </div>
-                      <div>
-                        <span className="font-bold text-white">Entrega em até 24h</span>
-                        <p className="text-violet-200/60 text-sm">Entrega prioritária</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="text-violet-300" size={14} />
-                      </div>
-                      <div>
-                        <span className="font-bold text-white">Aprove antes de pagar</span>
-                        <p className="text-violet-200/60 text-sm">Veja a letra no site</p>
-                      </div>
+                    <li className="flex items-center gap-2">
+                      <Check className="text-violet-200 flex-shrink-0" size={14} />
+                      <span className="text-white">Aprove antes</span>
                     </li>
                   </ul>
+                </div>
 
-                  {/* CTA */}
+                {/* CTA */}
+                <div className="p-3 sm:p-4 pt-0">
                   <button
                     onClick={() => { setSelectedPlan('premium'); setIsModalOpen(true); }}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white px-6 py-4 rounded-2xl font-bold text-base shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] transition-all duration-300"
+                    className="w-full bg-white hover:bg-violet-50 text-violet-700 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg"
                   >
-                    <span>Escolher Premium</span>
-                    <ArrowRight size={18} />
+                    Escolher
                   </button>
                 </div>
               </div>
             </div>
 
             {/* Destaque - Criação da letra no site */}
-            <div className="mt-8 sm:mt-10 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-2xl p-5 sm:p-6 max-w-2xl mx-auto">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="text-white" size={22} />
+            <div className="mt-6 sm:mt-8 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl sm:rounded-2xl p-4 sm:p-5">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="text-white" size={18} />
                 </div>
                 <div>
-                  <p className="text-violet-900 font-bold text-lg">Você cria a letra aqui no site!</p>
-                  <p className="text-violet-700 text-sm">Gere, visualize e edite antes de pagar. Sem surpresas!</p>
+                  <p className="text-violet-900 font-bold text-sm sm:text-base">Você cria a letra aqui no site!</p>
+                  <p className="text-violet-600 text-xs sm:text-sm">Visualize e aprove antes de pagar</p>
                 </div>
               </div>
             </div>
