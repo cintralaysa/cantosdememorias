@@ -478,14 +478,14 @@ export default function Home() {
                   </div>
 
                   {/* Entrega com destaque visual */}
-                  <div className="bg-gradient-to-r from-gray-50 to-slate-100 rounded-xl p-2.5 sm:p-3 lg:p-4 mb-3 sm:mb-5 border border-gray-200/50">
-                    <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                        <Clock className="text-gray-600 w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <div className="bg-gradient-to-r from-violet-100 via-purple-100 to-violet-100 rounded-xl p-3 sm:p-4 mb-3 sm:mb-5 border-2 border-violet-200 shadow-md shadow-violet-100">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-7 h-7 sm:w-9 sm:h-9 bg-white rounded-lg flex items-center justify-center shadow-md border border-violet-200">
+                        <Clock className="text-violet-600 w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
                       <div className="text-center">
-                        <span className="text-xs sm:text-sm lg:text-base font-bold text-gray-700 block">48 horas</span>
-                        <span className="text-[9px] sm:text-[10px] text-gray-500 hidden sm:block">de entrega</span>
+                        <span className="text-sm sm:text-base lg:text-lg font-black text-violet-800 block">48 horas</span>
+                        <span className="text-[10px] sm:text-xs text-violet-600 font-medium">de entrega</span>
                       </div>
                     </div>
                   </div>
@@ -560,15 +560,15 @@ export default function Home() {
                   </div>
 
                   {/* Entrega EXPRESSA - Destaque máximo */}
-                  <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 rounded-xl p-2.5 sm:p-3 lg:p-4 mb-3 sm:mb-5 shadow-lg shadow-amber-500/30 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/10 pointer-events-none" />
-                    <div className="flex items-center justify-center gap-1.5 sm:gap-2 relative">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/90 rounded-lg flex items-center justify-center shadow-sm">
-                        <Zap className="text-amber-600 w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 rounded-xl p-3 sm:p-4 mb-3 sm:mb-5 shadow-lg shadow-amber-400/50 border-2 border-amber-300 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-white/10 to-white/30 pointer-events-none" />
+                    <div className="flex items-center justify-center gap-2 relative">
+                      <div className="w-7 h-7 sm:w-9 sm:h-9 bg-white rounded-lg flex items-center justify-center shadow-md border border-amber-300">
+                        <Zap className="text-amber-600 w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
                       <div className="text-center">
-                        <span className="text-xs sm:text-sm lg:text-base font-black text-amber-900 block">24 horas</span>
-                        <span className="text-[9px] sm:text-[10px] text-amber-800/80 hidden sm:block">entrega expressa</span>
+                        <span className="text-sm sm:text-base lg:text-lg font-black text-amber-900 block">24 horas</span>
+                        <span className="text-[10px] sm:text-xs text-amber-800 font-semibold">entrega expressa</span>
                       </div>
                     </div>
                   </div>
