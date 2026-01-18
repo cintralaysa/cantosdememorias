@@ -445,6 +445,19 @@ export default function Home() {
             </p>
           </div>
 
+          {/* Destaque - Criação da letra no site */}
+          <div className="mb-6 sm:mb-10 bg-gradient-to-r from-violet-50 via-purple-50 to-violet-50 border border-violet-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-w-2xl mx-auto shadow-lg shadow-violet-100/50">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-violet-500/30">
+                <Sparkles className="text-white w-5 h-5 sm:w-6 sm:h-6" />
+              </div>
+              <div>
+                <p className="text-violet-900 font-bold text-sm sm:text-lg">Você cria a letra aqui no site!</p>
+                <p className="text-violet-600 text-xs sm:text-sm">Gere, visualize e edite antes de pagar. Sem surpresas!</p>
+              </div>
+            </div>
+          </div>
+
           {/* Dois Planos - Premium Design Responsivo */}
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:gap-8">
@@ -603,19 +616,6 @@ export default function Home() {
                     <span>Escolher Premium</span>
                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Destaque - Criação da letra no site */}
-            <div className="mt-6 sm:mt-10 bg-gradient-to-r from-violet-50 via-purple-50 to-violet-50 border border-violet-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-w-2xl mx-auto shadow-lg shadow-violet-100/50">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-violet-500/30">
-                  <Sparkles className="text-white w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div>
-                  <p className="text-violet-900 font-bold text-sm sm:text-lg">Você cria a letra aqui no site!</p>
-                  <p className="text-violet-600 text-xs sm:text-sm">Gere, visualize e edite antes de pagar. Sem surpresas!</p>
                 </div>
               </div>
             </div>
