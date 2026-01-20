@@ -831,3 +831,22 @@ h1, h2, h3, h4, h5, h6 {
   border-color: rgba(124, 58, 237, 0.3);
   background: linear-gradient(135deg, rgba(124, 58, 237, 0.02) 0%, rgba(168, 85, 247, 0.02) 100%);
 }
+
+/* ================================================================
+   INSTAGRAM REELS SECTION
+   ================================================================ */
+
+/* Esconder scrollbar mas manter funcional */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Estilo para os embeds do Instagram */
+.instagram-media {
+  min-height: 500px !important;
+}

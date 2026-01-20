@@ -1,7 +1,7 @@
 'use client';
 
 import { SERVICES, TESTIMONIALS } from '@/lib/data';
-import { Music, PlayCircle, Star, Heart, Clock, ArrowRight, Mic2, Volume2, Headphones, Award, Users, Sparkles, ChevronRight, ChevronDown, Phone, Mail, Instagram, Shield, Gift, Zap, Check } from 'lucide-react';
+import { Music, PlayCircle, Star, Heart, Clock, ArrowRight, Mic2, Volume2, Headphones, Award, Users, Sparkles, ChevronRight, ChevronDown, Phone, Mail, Instagram, Shield, Gift, Zap, Check, RefreshCw, Play } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import PortfolioSection from '@/components/PortfolioSection';
@@ -50,6 +50,230 @@ const MusicVisualizer = () => (
     ))}
   </div>
 );
+
+// Seção de Reações - Cards com thumbnails reais dos vídeos do Instagram
+const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Dados dos vídeos de reação com URLs específicas e thumbnails
+  // IMPORTANTE: Substitua as thumbnails pelas capas reais dos vídeos salvando em /public/reels/
+  const reels = [
+    {
+      id: 1,
+      url: 'https://www.instagram.com/reel/DDopleHp0YS/',
+      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_czgkh4czgkh4czgk.png',
+      title: 'Mãe emocionada',
+      desc: 'Presente de aniversário',
+      likes: '2.4k',
+      gradient: 'from-pink-500 to-rose-600'
+    },
+    {
+      id: 2,
+      url: 'https://www.instagram.com/reel/DDgU47IJu5P/',
+      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_bzavwlbzavwlbzav.png',
+      title: 'Surpresa incrível',
+      desc: 'Ela não esperava',
+      likes: '3.1k',
+      gradient: 'from-violet-500 to-purple-600'
+    },
+    {
+      id: 3,
+      url: 'https://www.instagram.com/reel/DDYqsW8pXEw/',
+      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_siy9uysiy9uysiy9.png',
+      title: 'Dia especial',
+      desc: 'Momento único',
+      likes: '1.8k',
+      gradient: 'from-blue-500 to-indigo-600'
+    },
+    {
+      id: 4,
+      url: 'https://www.instagram.com/reel/DDTGR2lJCiH/',
+      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_qm5isrqm5isrqm5i.png',
+      title: 'Reação linda',
+      desc: 'Emoção pura',
+      likes: '4.2k',
+      gradient: 'from-red-500 to-pink-600'
+    },
+    {
+      id: 5,
+      url: 'https://www.instagram.com/reel/DC5Y44wpsHv/',
+      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_dkfj25dkfj25dkfj.png',
+      title: 'Homenagem',
+      desc: 'Família emocionada',
+      likes: '2.9k',
+      gradient: 'from-amber-500 to-orange-600'
+    },
+    {
+      id: 6,
+      url: 'https://www.instagram.com/reel/DCx3P3MJp9t/',
+      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_yx5imgyx5imgyx5i.png',
+      title: 'Presente especial',
+      desc: 'Chorou de alegria',
+      likes: '1.5k',
+      gradient: 'from-emerald-500 to-teal-600'
+    },
+  ];
+
+  // Auto scroll a cada 4 segundos
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (scrollRef.current) {
+        const nextIndex = (currentIndex + 1) % reels.length;
+        const cardWidth = 200;
+        scrollRef.current.scrollTo({
+          left: nextIndex * cardWidth,
+          behavior: 'smooth'
+        });
+        setCurrentIndex(nextIndex);
+      }
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, [currentIndex, reels.length]);
+
+  return (
+    <section className="py-12 sm:py-20 bg-gradient-to-b from-white to-violet-50/30 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="inline-flex items-center gap-2 bg-pink-100 border border-pink-200 px-4 py-2 rounded-full mb-4">
+            <Heart className="text-pink-600 fill-pink-600" size={16} />
+            <span className="text-pink-700 font-semibold text-sm">Reações Reais</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 mb-3">
+            Veja a <span className="text-gradient-royal">emoção</span> de quem recebeu
+          </h2>
+          <p className="text-gray-600 text-sm sm:text-base max-w-xl mx-auto">
+            Clique em cada vídeo para assistir no Instagram
+          </p>
+        </div>
+
+        {/* Carrossel de Cards */}
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
+        >
+          {reels.map((reel, idx) => (
+            <a
+              key={reel.id}
+              href={reel.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex-shrink-0 snap-center group relative w-[160px] sm:w-[200px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+                idx === currentIndex ? 'ring-4 ring-violet-400 ring-offset-2' : ''
+              }`}
+            >
+              {/* Thumbnail do vídeo */}
+              <Image
+                src={reel.thumbnail}
+                alt={reel.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 160px, 200px"
+              />
+
+              {/* Overlay escuro */}
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+
+              {/* Play button */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white/50 group-hover:scale-110 transition-all">
+                  <Play className="text-white w-6 h-6 sm:w-8 sm:h-8 ml-1" fill="white" />
+                </div>
+              </div>
+
+              {/* Instagram badge */}
+              <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-sm rounded-full p-1.5">
+                <Instagram className="text-white w-4 h-4" />
+              </div>
+
+              {/* Reel indicator */}
+              <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
+                <Play className="text-white w-3 h-3" fill="white" />
+                <span className="text-white text-xs font-medium">Reel</span>
+              </div>
+
+              {/* Content */}
+              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+                <p className="text-white font-bold text-sm sm:text-base leading-tight">{reel.title}</p>
+                <p className="text-white/70 text-xs mt-0.5">{reel.desc}</p>
+                <div className="flex items-center gap-1 mt-2">
+                  <Heart className="text-red-400 w-3 h-3" fill="#f87171" />
+                  <span className="text-white/80 text-xs">{reel.likes}</span>
+                </div>
+              </div>
+            </a>
+          ))}
+
+          {/* Card final - Ver mais */}
+          <a
+            href="https://www.instagram.com/cantosdememorias"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 snap-center group relative w-[160px] sm:w-[200px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+          >
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Instagram className="text-white w-8 h-8" />
+              </div>
+              <p className="text-white font-bold text-lg">Ver todos</p>
+              <p className="text-white/80 text-sm mt-1">@cantosdememorias</p>
+              <div className="mt-4 bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-bold group-hover:bg-gray-100 transition-colors">
+                Abrir Instagram
+              </div>
+            </div>
+          </a>
+        </div>
+
+        {/* Indicadores */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {reels.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setCurrentIndex(idx);
+                if (scrollRef.current) {
+                  scrollRef.current.scrollTo({
+                    left: idx * 200,
+                    behavior: 'smooth'
+                  });
+                }
+              }}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                idx === currentIndex ? 'w-8 bg-violet-500' : 'w-2 bg-gray-300 hover:bg-gray-400'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Info + CTA */}
+        <div className="text-center mt-8 sm:mt-10">
+          <p className="text-gray-500 text-sm mb-4">
+            <span className="font-semibold text-violet-600">+7.234 músicas</span> criadas • Dezenas de reações emocionantes
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={onOpenModal}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 btn-premium text-sm sm:text-base px-6 py-3 sm:px-8 sm:py-4"
+            >
+              <Sparkles size={18} />
+              <span>Quero emocionar alguém</span>
+            </button>
+            <a
+              href="https://www.instagram.com/cantosdememorias"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-sm sm:text-base hover:scale-105 transition-transform"
+            >
+              <Instagram size={18} />
+              <span>Ver vídeos no Instagram</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 // Notas musicais para as partículas flutuantes
 const MUSIC_NOTES = ['♪', '♫', '♩', '♬', '𝄞', '𝄢'];
@@ -248,7 +472,7 @@ export default function Home() {
                   ))}
                 </div>
                 <span className="text-white/90 text-xs sm:text-sm font-medium">
-                  +7.000 Clientes
+                  +7.234 músicas criadas
                 </span>
               </div>
 
@@ -290,7 +514,7 @@ export default function Home() {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 mt-6 sm:mt-10 pt-4 sm:pt-8 border-t border-white/10">
                 {[
                   { icon: <Clock size={16} />, label: 'Entrega', sub: 'Super Rápida' },
-                  { icon: <Heart size={16} />, label: '+7.000', sub: 'Clientes Felizes' },
+                  { icon: <Heart size={16} />, label: '+7.234', sub: 'Músicas Criadas' },
                   { icon: <Shield size={16} />, label: 'Pagamento', sub: '100% Seguro' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2">
@@ -404,11 +628,11 @@ export default function Home() {
               <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-2xl p-5">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center">
-                    <Heart className="text-white fill-white" size={24} />
+                    <Music className="text-white" size={24} />
                   </div>
                   <div>
-                    <div className="text-2xl font-black text-gray-900">+7.000</div>
-                    <div className="text-xs text-gray-500">Clientes Felizes</div>
+                    <div className="text-2xl font-black text-gray-900">+7.234</div>
+                    <div className="text-xs text-gray-500">Músicas Criadas</div>
                   </div>
                 </div>
               </div>
@@ -626,7 +850,7 @@ export default function Home() {
             {[
               { icon: <Clock size={20} />, text: 'Entrega Expressa', desc: 'Até 24h' },
               { icon: <Shield size={20} />, text: 'Pagamento Seguro', desc: 'PIX protegido' },
-              { icon: <Heart size={20} />, text: '+7.000 Clientes', desc: 'Emocionados' },
+              { icon: <Music size={20} />, text: '+7.234 Músicas', desc: 'Criadas' },
               { icon: <Star size={20} />, text: 'Aprovação', desc: 'Antes de pagar' },
             ].map((item, idx) => (
               <div key={idx} className="flex flex-col items-center text-center p-4 sm:p-5 bg-white rounded-2xl shadow-lg shadow-gray-100 border border-gray-50">
@@ -638,8 +862,33 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          {/* Selo de Garantia - Destaque */}
+          <div className="mt-8 sm:mt-12 max-w-2xl mx-auto">
+            <div className="relative bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 border-2 border-green-200 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg shadow-green-100/50">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                  GARANTIA
+                </div>
+              </div>
+              <div className="flex items-center gap-4 mt-2">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-green-500/30">
+                  <RefreshCw className="text-white w-7 h-7 sm:w-8 sm:h-8" />
+                </div>
+                <div>
+                  <p className="text-green-900 font-black text-base sm:text-xl">Não gostou da letra? Ajustamos grátis!</p>
+                  <p className="text-green-700 text-xs sm:text-sm mt-1">Você aprova e pode pedir ajustes até ficar 100% satisfeito</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* ================================================================
+          VÍDEO DE REAÇÃO - CARROSSEL DE REELS DO INSTAGRAM
+          ================================================================ */}
+      <InstagramReelsSection onOpenModal={() => { setSelectedPlan('basico'); setIsModalOpen(true); }} />
 
       {/* ================================================================
           COMO FUNCIONA - OTIMIZADO MOBILE
