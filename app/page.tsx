@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import PortfolioSection from '@/components/PortfolioSection';
 import CheckoutModal from '@/components/CheckoutModal';
+import Planos from '@/components/Planos';
 import { useState, useEffect, useRef } from 'react';
 
 // Componente de Logo Premium
@@ -373,15 +374,15 @@ export default function Home() {
     },
     {
       question: "Quanto custa uma música personalizada?",
-      answer: "Temos dois planos: Plano Básico por R$49,90 (1 melodia, entrega em 48h) e Plano Premium por R$79,90 (2 melodias diferentes, entrega em 24h). Em ambos você aprova a letra antes de pagar!"
+      answer: "Temos dois planos: Plano Básico por R$59,90 (1 música, entrega em 24h) e Plano Premium por R$79,90 (2 músicas completas, entrega no mesmo dia). Em ambos você aprova a letra antes de pagar!"
     },
     {
       question: "Qual a diferença entre os planos?",
-      answer: "No Plano Básico (R$49,90) você recebe 1 melodia exclusiva com entrega em até 48 horas. No Plano Premium (R$79,90) você recebe 2 melodias diferentes da mesma letra e a entrega é mais rápida, em até 24 horas."
+      answer: "No Plano Básico (R$59,90) você recebe 1 música exclusiva com entrega em até 24 horas. No Plano Premium (R$79,90) você recebe 2 músicas completas com ritmos diferentes e a entrega é no mesmo dia, com prioridade na produção."
     },
     {
       question: "Em quanto tempo recebo minha música?",
-      answer: "Depende do plano escolhido: Plano Básico tem entrega em até 48 horas, e o Plano Premium em até 24 horas após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp."
+      answer: "Depende do plano escolhido: Plano Básico tem entrega em até 24 horas, e o Plano Premium tem entrega no mesmo dia após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp."
     },
     {
       question: "Posso ver a letra antes de pagar?",
@@ -430,7 +431,7 @@ export default function Home() {
 
             {/* CTA Button */}
             <Link
-              href="#servicos"
+              href="#planos"
               className={`hidden sm:flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                 isScrolled
                   ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-500/25'
@@ -445,12 +446,9 @@ export default function Home() {
       </header>
 
       {/* ================================================================
-          HERO SECTION - DESIGN PREMIUM OTIMIZADO MOBILE
+          HERO SECTION - DESIGN COM IMAGEM PERSONALIZADA
           ================================================================ */}
-      <section className="relative min-h-[85vh] sm:min-h-screen flex items-center overflow-hidden">
-        {/* Background Gradient Premium */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-violet-950 to-purple-950" />
-
+      <section className="relative w-full overflow-hidden bg-[#0d0620]">
         {/* Audio Element Hidden */}
         <audio
           ref={audioRef}
@@ -460,490 +458,176 @@ export default function Home() {
           onEnded={() => setIsPlaying(false)}
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-40">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
-            {/* Left Content */}
-            <div className="text-center lg:text-left">
-              {/* Badge Premium - Menor no mobile */}
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full mb-4 sm:mb-8">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="text-amber-400 fill-amber-400" size={12} />
-                  ))}
-                </div>
-                <span className="text-white/90 text-xs sm:text-sm font-medium">
-                  +7.234 músicas criadas
-                </span>
-              </div>
+        {/* Container com altura máxima para manter proporções */}
+        <div className="relative w-full max-w-[1920px] mx-auto" style={{ aspectRatio: '1456/816' }}>
+          {/* Imagem de fundo */}
+          <img
+            src="/images/hero-bg.png"
+            alt="Cantos de Memórias - Músicas Personalizadas"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          />
 
-              {/* Título Principal - Menor no mobile */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-4 sm:mb-6">
-                Transforme
-                <span className="block mt-1 sm:mt-2 bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Sentimentos
-                </span>
-                <span className="block mt-1 sm:mt-2">em Música</span>
-              </h1>
+          {/* Overlay para esconder o header da imagem */}
+          <div
+            className="absolute top-0 left-0 right-0 z-10"
+            style={{
+              height: '12%',
+              background: 'linear-gradient(to bottom, #0d0a1a 0%, #0d0a1a 60%, transparent 100%)'
+            }}
+          />
 
-              {/* Subtítulo - Menor no mobile */}
-              <p className="text-base sm:text-lg text-white/70 mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0">
-                Crie uma música <span className="text-white font-semibold">exclusiva</span> para eternizar momentos especiais.
-                <span className="block mt-1 text-violet-300 text-sm sm:text-base">Entrega rápida • Aprove antes de pagar</span>
-              </p>
+          {/* Botões transparentes clicáveis posicionados EXATAMENTE sobre os botões da imagem */}
 
-              {/* CTA Principal */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
-                <button
-                  onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
-                  className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-base sm:text-lg font-bold px-6 py-4 sm:px-10 sm:py-5 rounded-full shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
-                >
-                  <Music size={20} />
-                  <span>Criar Minha Música</span>
-                  <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-                </button>
-                <Link
-                  href="#portfolio"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-6 py-3 sm:py-4 rounded-full font-bold transition-all duration-300 hover:bg-white/20"
-                >
-                  <PlayCircle size={18} />
-                  <span>Ouvir Exemplos</span>
-                </Link>
-              </div>
+          {/* Botão "Criar Minha Música" */}
+          <a
+            href="#planos"
+            className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
+            style={{
+              left: '9%',
+              top: '66%',
+              width: '19%',
+              height: '8%',
+            }}
+            aria-label="Criar Minha Música"
+          />
 
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 mt-6 sm:mt-10 pt-4 sm:pt-8 border-t border-white/10">
-                {[
-                  { icon: <Clock size={16} />, label: 'Entrega', sub: 'Super Rápida' },
-                  { icon: <Heart size={16} />, label: '+7.234', sub: 'Músicas Criadas' },
-                  { icon: <Shield size={16} />, label: 'Pagamento', sub: '100% Seguro' },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-lg flex items-center justify-center text-violet-300">
-                      {item.icon}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-white text-xs sm:text-sm font-medium leading-tight">{item.label}</span>
-                      <span className="text-white/50 text-[10px] sm:text-xs">{item.sub}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* Botão "Ouvir Exemplos" */}
+          <a
+            href="#portfolio"
+            className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
+            style={{
+              left: '29%',
+              top: '66%',
+              width: '14%',
+              height: '8%',
+            }}
+            aria-label="Ouvir Exemplos"
+          />
 
-            {/* Right Content - Player Premium */}
-            <div className="relative hidden lg:block">
-              {/* Glow Effect Behind Card */}
-              <div className={`absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-600 rounded-[3rem] blur-3xl opacity-30 ${isPlaying ? 'animate-pulse' : ''}`} />
+          {/* Player - Área clicável para tocar/pausar música (botão de play grande) */}
+          <button
+            onClick={togglePlay}
+            className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
+            style={{
+              left: '64%',
+              top: '64%',
+              width: '7%',
+              height: '13%',
+            }}
+            aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
+          />
 
-              {/* Main Card */}
-              <div className="relative bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl">
-                {/* Playing Now Header */}
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center ${isPlaying ? 'animate-pulse' : ''}`}>
-                      <Music className="text-white" size={32} />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-bold text-xl">Para Minha Mãe</h3>
-                      <p className="text-white/50 text-sm">Música Personalizada</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="text-amber-400 fill-amber-400" size={14} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Waveform Visualization */}
-                <div className="h-32 flex items-center justify-center gap-[3px] mb-8 bg-white/5 rounded-2xl p-6">
-                  {[...Array(40)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="w-1.5 bg-gradient-to-t from-violet-600 via-purple-500 to-pink-400 rounded-full transition-all duration-300"
-                      style={{
-                        height: isPlaying ? `${20 + Math.sin(i * 0.3 + currentTime) * 30}%` : `${20 + Math.sin(i * 0.3) * 20}%`,
-                        opacity: isPlaying ? 0.6 + Math.sin(i * 0.2) * 0.4 : 0.3,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Progress Bar */}
-                <div className="flex items-center gap-4 mb-6">
-                  <span className="text-violet-400 text-sm font-mono">{formatTime(currentTime)}</span>
-                  <div
-                    className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden cursor-pointer"
-                    onClick={(e) => {
-                      if (audioRef.current && duration) {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const percent = (e.clientX - rect.left) / rect.width;
-                        audioRef.current.currentTime = percent * duration;
-                      }
-                    }}
-                  >
-                    <div
-                      className="h-full bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 rounded-full relative transition-all duration-100"
-                      style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }}
-                    >
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg shadow-violet-500/50" />
-                    </div>
-                  </div>
-                  <span className="text-white/30 text-sm font-mono">{formatTime(duration)}</span>
-                </div>
-
-                {/* Controls */}
-                <div className="flex items-center justify-center gap-6">
-                  <button
-                    onClick={() => { if (audioRef.current) audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10); }}
-                    className="w-12 h-12 flex items-center justify-center text-white/50 hover:text-white transition-colors"
-                  >
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-                  </button>
-                  <button
-                    onClick={togglePlay}
-                    className={`w-20 h-20 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl shadow-violet-500/50 hover:scale-110 transition-transform`}
-                  >
-                    {isPlaying ? (
-                      <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                    ) : (
-                      <PlayCircle size={40} />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => { if (audioRef.current) audioRef.current.currentTime = Math.min(duration, audioRef.current.currentTime + 10); }}
-                    className="w-12 h-12 flex items-center justify-center text-white/50 hover:text-white transition-colors"
-                  >
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M16 18h2V6h-2zM6 18l8.5-6L6 6z"/></svg>
-                  </button>
-                </div>
-
-                {/* Badge Entrega Rápida */}
-                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                  Entrega Expressa
-                </div>
-              </div>
-
-              {/* Floating Stats Card */}
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-2xl p-5">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center">
-                    <Music className="text-white" size={24} />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-black text-gray-900">+7.234</div>
-                    <div className="text-xs text-gray-500">Músicas Criadas</div>
-                  </div>
-                </div>
+          {/* Indicador visual de reprodução */}
+          {isPlaying && (
+            <div
+              className="absolute z-30 pointer-events-none flex items-center justify-center"
+              style={{
+                left: '51%',
+                top: '18%',
+                width: '23%',
+                height: '72%',
+              }}
+            >
+              <div className="bg-black/70 backdrop-blur-sm rounded-full p-4 animate-pulse">
+                <svg className="w-10 h-10 text-white fill-current" viewBox="0 0 24 24">
+                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                </svg>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Scroll Indicator - Hidden on mobile */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce hidden sm:block">
-          <a href="#servicos" className="flex flex-col items-center gap-1 text-white/40 hover:text-white transition-colors">
-            <ChevronDown size={20} />
-          </a>
+          )}
         </div>
       </section>
 
       {/* ================================================================
-          SERVIÇOS - SEÇÃO PREMIUM OTIMIZADA
+          PLANOS - SEÇÃO ESCURA COM DESIGN ROXO/LARANJA
           ================================================================ */}
-      <section id="servicos" className="py-12 sm:py-20 lg:py-28 relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Section Header - Menor no mobile */}
-          <div className="text-center mb-8 sm:mb-12">
-            <div className="inline-flex items-center gap-2 bg-violet-100 border border-violet-200 px-3 py-1.5 sm:px-5 sm:py-2 rounded-full mb-4 sm:mb-6">
-              <Gift className="text-violet-600" size={16} />
-              <span className="text-violet-700 font-semibold text-xs sm:text-sm uppercase tracking-wider">
-                Presente Inesquecível
-              </span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-3 sm:mb-6">
-              Música <span className="text-gradient-royal">Personalizada</span>
-            </h2>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-              Transforme sentimentos em uma canção única
-            </p>
-          </div>
-
-          {/* Destaque - Criação da letra no site */}
-          <div className="mb-6 sm:mb-10 bg-gradient-to-r from-violet-50 via-purple-50 to-violet-50 border border-violet-200/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-w-2xl mx-auto shadow-lg shadow-violet-100/50">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-violet-500/30">
-                <Sparkles className="text-white w-5 h-5 sm:w-6 sm:h-6" />
-              </div>
-              <div>
-                <p className="text-violet-900 font-bold text-sm sm:text-lg">Você cria a letra aqui no site!</p>
-                <p className="text-violet-600 text-xs sm:text-sm">Gere, visualize e edite antes de pagar. Sem surpresas!</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Dois Planos - Premium Design Responsivo */}
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:gap-8">
-
-              {/* Plano Essencial */}
-              <div className="group relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100 flex flex-col hover:shadow-violet-200/50 transition-all duration-500">
-                {/* Decoração superior gradiente */}
-                <div className="h-1.5 sm:h-2 bg-gradient-to-r from-violet-400 via-purple-500 to-violet-600" />
-
-                {/* Conteúdo */}
-                <div className="p-4 sm:p-6 lg:p-8 flex flex-col flex-1">
-                  {/* Header com ícone */}
-                  <div className="flex items-start justify-between mb-3 sm:mb-5">
-                    <div>
-                      <span className="text-[10px] sm:text-xs font-bold text-violet-600 uppercase tracking-wider">Essencial</span>
-                      <h3 className="text-lg sm:text-2xl lg:text-3xl font-black text-gray-900 mt-0.5 sm:mt-1">Básico</h3>
-                    </div>
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-inner">
-                      <Music className="text-violet-600 w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                  </div>
-
-                  {/* Preço elegante */}
-                  <div className="mb-3 sm:mb-5 pb-3 sm:pb-5 border-b border-gray-100">
-                    <div className="flex items-baseline gap-0.5">
-                      <span className="text-sm sm:text-lg text-gray-400 font-medium">R$</span>
-                      <span className="text-3xl sm:text-5xl lg:text-6xl font-black text-gray-900">49</span>
-                      <span className="text-base sm:text-xl lg:text-2xl font-bold text-gray-400">,90</span>
-                    </div>
-                    <p className="text-gray-400 text-[10px] sm:text-xs mt-1">Pagamento único</p>
-                  </div>
-
-                  {/* Entrega com destaque visual */}
-                  <div className="bg-gradient-to-r from-violet-100 via-purple-100 to-violet-100 rounded-xl p-3 sm:p-4 mb-3 sm:mb-5 border-2 border-violet-200 shadow-md shadow-violet-100">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-7 h-7 sm:w-9 sm:h-9 bg-white rounded-lg flex items-center justify-center shadow-md border border-violet-200">
-                        <Clock className="text-violet-600 w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                      <div className="text-center">
-                        <span className="text-sm sm:text-base lg:text-lg font-black text-violet-800 block">48 horas</span>
-                        <span className="text-[10px] sm:text-xs text-violet-600 font-medium">de entrega</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Features elegantes */}
-                  <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 flex-1">
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="text-violet-600 w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      </div>
-                      <span className="font-semibold text-gray-800 text-xs sm:text-sm lg:text-base">1 Melodia exclusiva</span>
-                    </li>
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="text-violet-600 w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      </div>
-                      <span className="font-semibold text-gray-800 text-xs sm:text-sm lg:text-base">Letra personalizada</span>
-                    </li>
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-violet-100 to-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Check className="text-violet-600 w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      </div>
-                      <span className="font-semibold text-gray-800 text-xs sm:text-sm lg:text-base">Aprove antes</span>
-                    </li>
-                  </ul>
-
-                  {/* CTA Premium */}
-                  <button
-                    onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
-                    className="w-full flex items-center justify-center gap-1.5 sm:gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm lg:text-base shadow-xl shadow-gray-900/20 hover:shadow-gray-900/30 hover:scale-[1.02] transition-all duration-300"
-                  >
-                    <span>Começar</span>
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Plano Premium - Destaque */}
-              <div className="group relative bg-gradient-to-br from-gray-900 via-violet-950 to-purple-950 rounded-2xl sm:rounded-3xl shadow-2xl shadow-violet-500/25 overflow-hidden flex flex-col ring-2 ring-violet-400/50 ring-offset-2 ring-offset-gray-50">
-                {/* Badge Premium */}
-                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 lg:top-4 lg:right-4 z-10">
-                  <div className="bg-gradient-to-r from-amber-400 to-orange-400 text-amber-900 text-[8px] sm:text-[10px] lg:text-xs font-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg shadow-amber-500/30 flex items-center gap-1">
-                    <Star className="fill-amber-900 w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                    <span>POPULAR</span>
-                  </div>
-                </div>
-
-                {/* Efeito de brilho */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
-
-                {/* Conteúdo */}
-                <div className="p-4 sm:p-6 lg:p-8 flex flex-col flex-1 relative">
-                  {/* Header com ícone */}
-                  <div className="flex items-start justify-between mb-3 sm:mb-5">
-                    <div>
-                      <span className="text-[10px] sm:text-xs font-bold text-violet-300 uppercase tracking-wider">Completo</span>
-                      <h3 className="text-lg sm:text-2xl lg:text-3xl font-black text-white mt-0.5 sm:mt-1">Premium</h3>
-                    </div>
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
-                      <Award className="text-violet-300 w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                  </div>
-
-                  {/* Preço elegante */}
-                  <div className="mb-3 sm:mb-5 pb-3 sm:pb-5 border-b border-white/10">
-                    <div className="flex items-baseline gap-0.5">
-                      <span className="text-sm sm:text-lg text-violet-300 font-medium">R$</span>
-                      <span className="text-3xl sm:text-5xl lg:text-6xl font-black text-white">79</span>
-                      <span className="text-base sm:text-xl lg:text-2xl font-bold text-violet-300">,90</span>
-                    </div>
-                    <p className="text-violet-300/60 text-[10px] sm:text-xs mt-1">Pagamento único</p>
-                  </div>
-
-                  {/* Entrega EXPRESSA - Destaque máximo */}
-                  <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400 rounded-xl p-3 sm:p-4 mb-3 sm:mb-5 shadow-lg shadow-amber-400/50 border-2 border-amber-300 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-white/10 to-white/30 pointer-events-none" />
-                    <div className="flex items-center justify-center gap-2 relative">
-                      <div className="w-7 h-7 sm:w-9 sm:h-9 bg-white rounded-lg flex items-center justify-center shadow-md border border-amber-300">
-                        <Zap className="text-amber-600 w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                      <div className="text-center">
-                        <span className="text-sm sm:text-base lg:text-lg font-black text-amber-900 block">24 horas</span>
-                        <span className="text-[10px] sm:text-xs text-amber-800 font-semibold">entrega expressa</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Features elegantes */}
-                  <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 flex-1">
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 border border-violet-400/30">
-                        <Check className="text-violet-300 w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      </div>
-                      <span className="font-semibold text-white text-xs sm:text-sm lg:text-base">2 Melodias diferentes</span>
-                    </li>
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 border border-violet-400/30">
-                        <Check className="text-violet-300 w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      </div>
-                      <span className="font-semibold text-white text-xs sm:text-sm lg:text-base">Letra personalizada</span>
-                    </li>
-                    <li className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-violet-500/30 rounded-full flex items-center justify-center flex-shrink-0 border border-violet-400/30">
-                        <Check className="text-violet-300 w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      </div>
-                      <span className="font-semibold text-white text-xs sm:text-sm lg:text-base">Aprove antes</span>
-                    </li>
-                  </ul>
-
-                  {/* CTA Premium */}
-                  <button
-                    onClick={() => { setSelectedPlan('premium'); setIsModalOpen(true); }}
-                    className="w-full flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm lg:text-base shadow-xl shadow-violet-500/40 hover:shadow-violet-500/60 hover:scale-[1.02] transition-all duration-300"
-                  >
-                    <span>Escolher Premium</span>
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Trust Badges */}
-          <div className="mt-10 sm:mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            {[
-              { icon: <Clock size={20} />, text: 'Entrega Expressa', desc: 'Até 24h' },
-              { icon: <Shield size={20} />, text: 'Pagamento Seguro', desc: 'PIX protegido' },
-              { icon: <Music size={20} />, text: '+7.234 Músicas', desc: 'Criadas' },
-              { icon: <Star size={20} />, text: 'Aprovação', desc: 'Antes de pagar' },
-            ].map((item, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center p-4 sm:p-5 bg-white rounded-2xl shadow-lg shadow-gray-100 border border-gray-50">
-                <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center text-white mb-3">
-                  {item.icon}
-                </div>
-                <span className="text-gray-900 font-bold text-sm">{item.text}</span>
-                <span className="text-gray-400 text-xs mt-1">{item.desc}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Selo de Garantia - Destaque */}
-          <div className="mt-8 sm:mt-12 max-w-2xl mx-auto">
-            <div className="relative bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 border-2 border-green-200 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg shadow-green-100/50">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
-                  GARANTIA
-                </div>
-              </div>
-              <div className="flex items-center gap-4 mt-2">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-green-500/30">
-                  <RefreshCw className="text-white w-7 h-7 sm:w-8 sm:h-8" />
-                </div>
-                <div>
-                  <p className="text-green-900 font-black text-base sm:text-xl">Não gostou da letra? Ajustamos grátis!</p>
-                  <p className="text-green-700 text-xs sm:text-sm mt-1">Você aprova e pode pedir ajustes até ficar 100% satisfeito</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================================
-          VÍDEO DE REAÇÃO - CARROSSEL DE REELS DO INSTAGRAM
-          ================================================================ */}
-      <InstagramReelsSection onOpenModal={() => { setSelectedPlan('basico'); setIsModalOpen(true); }} />
+      <Planos onSelectPlan={(plan) => { setSelectedPlan(plan); setIsModalOpen(true); }} />
 
       {/* ================================================================
           COMO FUNCIONA - OTIMIZADO MOBILE
           ================================================================ */}
-      <section id="como-funciona" className="py-12 sm:py-20 lg:py-28 relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+      <section id="como-funciona" className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-gradient-to-b from-[#0f0a1e] via-[#1a1333] to-[#0f0a1e]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Section Header - Menor no mobile */}
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <div className="inline-flex items-center gap-2 bg-violet-100 border border-violet-200 px-3 py-1.5 sm:px-5 sm:py-2 rounded-full mb-3 sm:mb-6">
-              <Zap className="text-violet-600" size={14} />
-              <span className="text-violet-700 font-semibold text-xs sm:text-sm uppercase tracking-wider">
+          {/* Section Header */}
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 bg-violet-500/20 border border-violet-500/30 px-4 py-2 rounded-full mb-6">
+              <Zap className="text-violet-400" size={16} />
+              <span className="text-violet-300 font-semibold text-sm uppercase tracking-wider">
                 Super Simples
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-2 sm:mb-4">
-              Como <span className="text-gradient-royal">Funciona</span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4">
+              Como <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-400">Funciona</span>
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 max-w-xl mx-auto">
-              3 passos para emocionar quem você ama
+            <p className="text-gray-400 max-w-xl mx-auto text-lg">
+              3 passos simples para emocionar quem você ama
             </p>
           </div>
 
-          {/* Steps - Compacto mas informativo no mobile */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-10 max-w-4xl mx-auto">
+          {/* Steps - Design Premium */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto mb-12">
             {[
-              { step: 1, icon: <Heart className="fill-current" size={20} />, title: 'Conte sua história', desc: 'Preencha o formulário com os detalhes da pessoa homenageada', color: 'from-pink-500 to-rose-500' },
-              { step: 2, icon: <Sparkles size={20} />, title: 'Aprove a letra', desc: 'Veja e aprove a letra antes de pagar', color: 'from-violet-500 to-purple-500' },
-              { step: 3, icon: <Music size={20} />, title: 'Receba em 48h', desc: 'Receba 2 melodias no WhatsApp', color: 'from-amber-500 to-orange-500' }
+              { step: 1, icon: <Heart className="fill-current" size={28} />, title: 'Conte sua história', desc: 'Preencha o formulário com os detalhes da pessoa homenageada e o momento especial', color: 'from-pink-500 to-rose-600' },
+              { step: 2, icon: <Sparkles size={28} />, title: 'Aprove a letra', desc: 'Veja e aprove a letra personalizada antes de pagar - você tem total controle!', color: 'from-violet-500 to-purple-600' },
+              { step: 3, icon: <Music size={28} />, title: 'Receba no WhatsApp', desc: 'Sua música exclusiva é entregue diretamente no seu WhatsApp', color: 'from-amber-500 to-orange-600' }
             ].map((item, index) => (
-              <div key={index} className="flex sm:flex-col items-center sm:text-center gap-4 sm:gap-0 bg-white sm:bg-transparent p-4 sm:p-0 rounded-xl sm:rounded-none shadow-sm sm:shadow-none">
-                <div className="relative flex-shrink-0 sm:mx-auto sm:mb-4">
-                  <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br ${item.color} rounded-full flex items-center justify-center text-white shadow-lg`}>
-                    {item.icon}
+              <div key={index} className="relative group">
+                <div className="bg-[#1a1333]/80 backdrop-blur border border-purple-500/20 rounded-2xl p-6 sm:p-8 text-center transition-all duration-300 hover:border-purple-500/40 hover:transform hover:scale-[1.02]">
+                  <div className="relative mx-auto mb-6">
+                    <div className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center text-white shadow-lg mx-auto`}>
+                      {item.icon}
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-black text-gray-900 shadow-lg">
+                      {item.step}
+                    </div>
                   </div>
-                  <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-7 sm:h-7 bg-white rounded-full flex items-center justify-center text-xs font-black shadow">
-                    {item.step}
+                  <h3 className="text-white font-bold text-lg sm:text-xl mb-3">{item.title}</h3>
+                  <p className="text-gray-400 text-sm sm:text-base leading-relaxed">{item.desc}</p>
+                </div>
+                {index < 2 && (
+                  <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                    <ArrowRight className="text-purple-500/50" size={24} />
                   </div>
-                </div>
-                <div className="flex-1 sm:flex-none">
-                  <span className="text-gray-900 font-bold text-sm sm:text-base block">{item.title}</span>
-                  <span className="text-gray-500 text-xs sm:text-sm mt-1 block">{item.desc}</span>
-                </div>
+                )}
               </div>
             ))}
           </div>
 
-          {/* CTA - Menor no mobile */}
-          <div className="text-center mt-8 sm:mt-12">
-            <button
-              onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
-              className="inline-flex items-center gap-2 btn-premium text-sm sm:text-base px-6 py-3 sm:px-8 sm:py-4"
+          {/* Info de Entrega */}
+          <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto mb-10">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-center sm:text-left">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                  <Clock className="text-purple-400" size={24} />
+                </div>
+                <div>
+                  <p className="text-white font-bold">Plano Básico</p>
+                  <p className="text-purple-300 text-sm">Entrega em até 24 horas</p>
+                </div>
+              </div>
+              <div className="hidden sm:block w-px h-12 bg-purple-500/30" />
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
+                  <Zap className="text-orange-400" size={24} />
+                </div>
+                <div>
+                  <p className="text-white font-bold">Plano Premium</p>
+                  <p className="text-orange-300 text-sm">Entrega em 4 a 5 horas</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center">
+            <a
+              href="#planos"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold px-8 py-4 rounded-full shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
             >
-              <Music size={18} />
+              <Music size={20} />
               <span>Começar Agora</span>
-            </button>
+              <ArrowRight size={18} />
+            </a>
           </div>
         </div>
       </section>
@@ -956,42 +640,42 @@ export default function Home() {
       </section>
 
       {/* ================================================================
-          DEPOIMENTOS - OTIMIZADO MOBILE
+          DEPOIMENTOS - ESTILO ESCURO
           ================================================================ */}
-      <section id="depoimentos" className="py-12 sm:py-20 lg:py-28 relative overflow-hidden bg-gradient-to-b from-white via-violet-50/30 to-white">
+      <section id="depoimentos" className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-gradient-to-b from-[#0f0a1e] via-[#1a1333] to-[#0f0a1e]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Section Header - Menor no mobile */}
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <div className="inline-flex items-center gap-2 bg-violet-100 border border-violet-200 px-3 py-1.5 sm:px-5 sm:py-2 rounded-full mb-3 sm:mb-6">
-              <Heart className="text-violet-600 fill-violet-600" size={14} />
-              <span className="text-violet-700 font-semibold text-xs sm:text-sm uppercase tracking-wider">
+          {/* Section Header */}
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 bg-pink-500/20 border border-pink-500/30 px-4 py-2 rounded-full mb-6">
+              <Heart className="text-pink-400 fill-pink-400" size={16} />
+              <span className="text-pink-300 font-semibold text-sm uppercase tracking-wider">
                 Depoimentos
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 mb-2 sm:mb-4">
-              Histórias que <span className="text-gradient-royal">Emocionam</span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4">
+              Histórias que <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">Emocionam</span>
             </h2>
-            <p className="text-sm sm:text-base text-gray-600">
-              O que nossos clientes dizem
+            <p className="text-gray-400 max-w-xl mx-auto text-lg">
+              O que nossos clientes dizem sobre suas músicas
             </p>
           </div>
 
-          {/* Testimonials - Scroll horizontal no mobile */}
-          <div className="flex overflow-x-auto pb-4 gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 sm:overflow-visible -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory">
+          {/* Testimonials Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {TESTIMONIALS.slice(0, 3).map((testimonial, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-[85%] sm:w-auto snap-center testimonial-card rounded-2xl sm:rounded-3xl p-5 sm:p-8"
+                className="bg-[#1a1333]/80 backdrop-blur border border-purple-500/20 rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:border-purple-500/40"
               >
                 {/* Stars */}
-                <div className="flex items-center gap-0.5 mb-3 sm:mb-4">
+                <div className="flex items-center gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="text-amber-400 fill-amber-400" size={14} />
+                    <Star key={i} className="text-amber-400 fill-amber-400" size={16} />
                   ))}
                 </div>
 
                 {/* Quote */}
-                <p className="text-gray-700 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed line-clamp-4 sm:line-clamp-none">
+                <p className="text-gray-300 text-base mb-6 leading-relaxed">
                   "{testimonial.text}"
                 </p>
 
@@ -1002,12 +686,12 @@ export default function Home() {
                     alt={testimonial.name}
                     width={48}
                     height={48}
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-violet-100"
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-purple-500/30"
                     loading="lazy"
                   />
                   <div>
-                    <div className="font-bold text-gray-900 text-sm sm:text-base">{testimonial.name}</div>
-                    <div className="text-xs sm:text-sm text-violet-600 font-medium">{testimonial.role}</div>
+                    <div className="font-bold text-white">{testimonial.name}</div>
+                    <div className="text-sm text-purple-400">{testimonial.role}</div>
                   </div>
                 </div>
               </div>
@@ -1017,48 +701,59 @@ export default function Home() {
       </section>
 
       {/* ================================================================
-          FAQ - OTIMIZADO MOBILE
+          FAQ - ESTILO ESCURO
           ================================================================ */}
-      <section id="faq" className="py-12 sm:py-20 lg:py-28 relative overflow-hidden bg-gray-50">
+      <section id="faq" className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-gradient-to-b from-[#0f0a1e] via-[#1a1333] to-[#0f0a1e]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Section Header - Menor no mobile */}
-          <div className="text-center mb-8 sm:mb-12">
-            <div className="inline-flex items-center gap-2 bg-violet-100 border border-violet-200 px-3 py-1.5 sm:px-5 sm:py-2 rounded-full mb-3 sm:mb-6">
-              <Sparkles className="text-violet-600" size={14} />
-              <span className="text-violet-700 font-semibold text-xs sm:text-sm uppercase tracking-wider">
+          {/* Section Header */}
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 bg-amber-500/20 border border-amber-500/30 px-4 py-2 rounded-full mb-6">
+              <Sparkles className="text-amber-400" size={16} />
+              <span className="text-amber-300 font-semibold text-sm uppercase tracking-wider">
                 Dúvidas
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 mb-2 sm:mb-4">
-              Perguntas <span className="text-gradient-royal">Frequentes</span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4">
+              Perguntas <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">Frequentes</span>
             </h2>
-            <p className="text-sm sm:text-base text-gray-600">
-              Respostas rápidas para você
+            <p className="text-gray-400 max-w-xl mx-auto text-lg">
+              Respostas rápidas para suas dúvidas
             </p>
           </div>
 
-          {/* FAQ Accordion */}
-          <div className="space-y-2 sm:space-y-4">
+          {/* FAQ Accordion - Estilo Escuro */}
+          <div className="space-y-4">
             {faqData.map((faq, index) => (
-              <FAQItem
+              <div
                 key={index}
-                question={faq.question}
-                answer={faq.answer}
-                isOpen={openFAQ === index}
-                onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
-              />
+                className="bg-[#1a1333]/80 backdrop-blur border border-purple-500/20 rounded-2xl overflow-hidden transition-all duration-300 hover:border-purple-500/40"
+              >
+                <button
+                  onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+                  className="w-full p-5 sm:p-6 flex items-center justify-between text-left"
+                >
+                  <h3 className="text-white font-bold text-sm sm:text-base pr-4">{faq.question}</h3>
+                  <ChevronDown
+                    className={`flex-shrink-0 text-purple-400 transition-transform duration-300 ${openFAQ === index ? 'rotate-180' : ''}`}
+                    size={20}
+                  />
+                </button>
+                <div className={`overflow-hidden transition-all duration-500 ${openFAQ === index ? 'max-h-96 pb-5 sm:pb-6' : 'max-h-0'}`}>
+                  <p className="px-5 sm:px-6 text-gray-400 text-sm sm:text-base leading-relaxed">{faq.answer}</p>
+                </div>
+              </div>
             ))}
           </div>
 
           {/* Additional Help */}
-          <div className="mt-8 text-center">
+          <div className="mt-10 text-center">
             <a
               href="https://wa.me/5585996811925?text=Olá! Tenho uma dúvida sobre as músicas personalizadas."
               target="_blank"
-              className="inline-flex items-center gap-2 text-violet-600 font-bold text-sm sm:text-base hover:text-violet-700 transition-colors"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold px-6 py-3 rounded-full hover:scale-105 transition-all duration-300"
             >
-              <Phone size={16} />
-              <span>Mais dúvidas? Fale conosco</span>
+              <Phone size={18} />
+              <span>Mais dúvidas? Fale conosco no WhatsApp</span>
             </a>
           </div>
         </div>
@@ -1079,13 +774,13 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={() => { setSelectedPlan('basico'); setIsModalOpen(true); }}
+            <a
+              href="#planos"
               className="w-full sm:w-auto flex items-center justify-center gap-2 btn-premium text-sm sm:text-base px-6 py-3 sm:px-8 sm:py-4"
             >
               <Music size={18} />
               <span>Criar Música</span>
-            </button>
+            </a>
             <a
               href="https://wa.me/5585996811925"
               target="_blank"

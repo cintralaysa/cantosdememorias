@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { getOrder, OrderData } from '@/lib/orderStore';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Inicialização lazy do Resend para evitar erro no build
+let resend: Resend | null = null;
+function getResend() {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Cantos de Memórias <onboarding@resend.dev>';
 
 // Webhook da OpenPix para confirmação de pagamento
@@ -140,7 +147,9 @@ async function sendCompleteOrderEmail(orderData: OrderData) {
             <p class="info-row"><strong>Música para:</strong> ${orderData.honoreeName || 'N/A'}</p>
             <p class="info-row"><strong>Relacionamento:</strong> ${orderData.relationshipLabel || orderData.relationship || 'N/A'}</p>
             <p class="info-row"><strong>Ocasião:</strong> ${orderData.occasionLabel || orderData.occasion || 'N/A'}</p>
-            <p class="info-row"><strong>Estilo Musical:</strong> ${orderData.musicStyleLabel || orderData.musicStyle || 'N/A'}</p>
+            <p class="info-row"><strong>Plano:</strong> ${orderData.plan === 'premium' ? '⭐ PREMIUM (2 músicas)' : 'Básico (1 música)'}</p>
+            <p class="info-row"><strong>Estilo Musical 1:</strong> ${orderData.musicStyleLabel || orderData.musicStyle || 'N/A'}</p>
+            ${orderData.plan === 'premium' && orderData.musicStyle2Label ? `<p class="info-row"><strong>Estilo Musical 2:</strong> ${orderData.musicStyle2Label || orderData.musicStyle2 || 'N/A'}</p>` : ''}
             <p class="info-row"><strong>Preferência de Voz:</strong> ${orderData.voicePreference === 'feminina' ? 'Feminina' : orderData.voicePreference === 'masculina' ? 'Masculina' : 'Sem preferência'}</p>
           </div>
 
@@ -179,7 +188,7 @@ async function sendCompleteOrderEmail(orderData: OrderData) {
 
           <div class="section" style="background: #fef3c7; border-left-color: #f59e0b;">
             <div class="section-title" style="color: #d97706;">⏰ Próximo Passo</div>
-            <p><strong>Prazo de entrega:</strong> 48 horas</p>
+            <p><strong>Prazo de entrega:</strong> ${orderData.plan === 'premium' ? '4 a 5 horas (mesmo dia) ⚡' : 'Até 24 horas'}</p>
             <p>Entre em contato com o cliente pelo WhatsApp para confirmar os detalhes e entregar a música personalizada.</p>
           </div>
         </div>
@@ -189,7 +198,7 @@ async function sendCompleteOrderEmail(orderData: OrderData) {
   `;
 
   try {
-    await resend.emails.send({
+    await getResend()?.emails.send({
       from: FROM_EMAIL,
       to: ['cantosdememorias@gmail.com'],
       subject: `🎵 ✅ PIX PAGO: ${orderData.customerName} → ${orderData.honoreeName} [${orderData.orderId}]`,
@@ -282,7 +291,7 @@ async function sendBasicPaymentEmail(
   `;
 
   try {
-    await resend.emails.send({
+    await getResend()?.emails.send({
       from: FROM_EMAIL,
       to: ['cantosdememorias@gmail.com'],
       subject: `🎵 ✅ PIX PAGO: ${customerName} - ${valueFormatted} [${orderId}]`,
@@ -335,9 +344,11 @@ async function sendCustomerPaymentConfirmedEmail(orderData: OrderData) {
           <h2>📋 Resumo do seu pedido</h2>
           <div class="order-details">
             <p><strong>Número do pedido:</strong> ${orderData.orderId}</p>
+            <p><strong>Plano:</strong> ${orderData.plan === 'premium' ? '⭐ Premium (2 músicas)' : 'Básico (1 música)'}</p>
             <p><strong>Música para:</strong> ${orderData.honoreeName}</p>
             <p><strong>Ocasião:</strong> ${orderData.occasionLabel || orderData.occasion}</p>
             <p><strong>Estilo musical:</strong> ${orderData.musicStyleLabel || orderData.musicStyle}</p>
+            ${orderData.plan === 'premium' && orderData.musicStyle2Label ? `<p><strong>2º Estilo musical:</strong> ${orderData.musicStyle2Label || orderData.musicStyle2}</p>` : ''}
           </div>
 
           ${lyricsHtml ? `
@@ -346,7 +357,7 @@ async function sendCustomerPaymentConfirmedEmail(orderData: OrderData) {
           ` : ''}
 
           <div class="highlight-box">
-            <strong>⏰ Prazo de entrega:</strong> Sua música personalizada será entregue em até <strong>48 horas</strong> pelo WhatsApp.
+            <strong>⏰ Prazo de entrega:</strong> Sua música personalizada será entregue em até <strong>${orderData.plan === 'premium' ? '4 a 5 horas (mesmo dia!)' : '24 horas'}</strong> pelo WhatsApp.
           </div>
 
           <p>Qualquer dúvida, estamos à disposição!</p>
@@ -361,7 +372,7 @@ async function sendCustomerPaymentConfirmedEmail(orderData: OrderData) {
   `;
 
   try {
-    await resend.emails.send({
+    await getResend()?.emails.send({
       from: FROM_EMAIL,
       to: [orderData.customerEmail],
       subject: `✅ Pagamento confirmado! Sua música está sendo criada - Cantos de Memórias`,

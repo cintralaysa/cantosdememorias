@@ -77,11 +77,11 @@ interface FormData {
 const PLANS = {
   basico: {
     name: 'Plano Básico',
-    price: 49.90,
-    priceFormatted: 'R$ 49,90',
+    price: 59.90,
+    priceFormatted: 'R$ 59,90',
     melodias: 1,
-    deliveryHours: 48,
-    features: ['1 Melodia exclusiva', 'Letra personalizada', 'Entrega em até 48h', 'Aprove antes de pagar'],
+    deliveryHours: 24,
+    features: ['1 Melodia exclusiva', 'Letra personalizada', 'Entrega em até 24h', 'Aprove antes de pagar'],
     color: 'violet',
     highlight: 'MAIS POPULAR'
   },
@@ -137,6 +137,13 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
   const selectedPlan = PLANS[formData.plan];
   const totalSteps = 4; // Agora são só 4 passos (removemos a escolha do plano)
   const progress = (step / totalSteps) * 100;
+
+  // Quando não sabe o sexo do bebê no Chá Revelação, automaticamente vai para Premium
+  // (pois receberá 2 músicas - uma para cada possibilidade)
+  const isChaBabyUnknown = formData.relationship === 'cha-revelacao' && formData.knowsBabySex === 'nao';
+  if (isChaBabyUnknown && formData.plan !== 'premium') {
+    setFormData(prev => ({ ...prev, plan: 'premium' }));
+  }
 
   const updateField = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -371,10 +378,18 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                 )}
                 {formData.knowsBabySex === 'nao' && (
                   <div className="space-y-3">
-                    <p className="text-xs text-violet-700 bg-violet-100 p-2 rounded-lg">Criaremos uma música com suspense e dois finais!</p>
+                    <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-300 rounded-lg p-3">
+                      <p className="text-xs text-orange-800 font-semibold flex items-center gap-2">
+                        <Zap size={14} className="text-orange-500" />
+                        Plano Premium ativado automaticamente!
+                      </p>
+                      <p className="text-xs text-orange-700 mt-1">
+                        Você receberá <strong>2 músicas completas</strong> - uma para menino e uma para menina - para revelar no momento especial!
+                      </p>
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <div><label className="block text-xs font-bold text-blue-600 mb-1">💙 Se for menino</label><input type="text" value={formData.babyNameBoy} onChange={(e) => updateField('babyNameBoy', e.target.value)} className="w-full px-3 py-2 rounded-xl border-2 border-blue-200 text-sm" /></div>
-                      <div><label className="block text-xs font-bold text-pink-600 mb-1">💖 Se for menina</label><input type="text" value={formData.babyNameGirl} onChange={(e) => updateField('babyNameGirl', e.target.value)} className="w-full px-3 py-2 rounded-xl border-2 border-pink-200 text-sm" /></div>
+                      <div><label className="block text-xs font-bold text-blue-600 mb-1">💙 Se for menino</label><input type="text" value={formData.babyNameBoy} onChange={(e) => updateField('babyNameBoy', e.target.value)} className="w-full px-3 py-2 rounded-xl border-2 border-blue-200 text-sm" placeholder="Nome do bebê" /></div>
+                      <div><label className="block text-xs font-bold text-pink-600 mb-1">💖 Se for menina</label><input type="text" value={formData.babyNameGirl} onChange={(e) => updateField('babyNameGirl', e.target.value)} className="w-full px-3 py-2 rounded-xl border-2 border-pink-200 text-sm" placeholder="Nome do bebê" /></div>
                     </div>
                   </div>
                 )}

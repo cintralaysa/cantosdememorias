@@ -57,8 +57,8 @@ function AudioPlayer({ item }: { item: PortfolioItem }) {
   };
 
   return (
-    <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-md sm:shadow-lg hover:shadow-xl transition-all duration-300 group">
-      {/* Imagem - Menor no mobile */}
+    <div className="bg-[#1a1333]/80 backdrop-blur border border-purple-500/20 rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 hover:border-purple-500/40 group">
+      {/* Imagem */}
       <div className="relative aspect-square sm:aspect-[4/3] overflow-hidden">
         {item.imageUrl ? (
           <img
@@ -70,11 +70,11 @@ function AudioPlayer({ item }: { item: PortfolioItem }) {
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-purple-900/50 to-violet-900/50 flex items-center justify-center">
             {item.type === 'music' ? (
-              <Music size={32} className="text-gray-300" />
+              <Music size={32} className="text-purple-400" />
             ) : (
-              <Mic2 size={32} className="text-gray-300" />
+              <Mic2 size={32} className="text-purple-400" />
             )}
           </div>
         )}
@@ -84,25 +84,25 @@ function AudioPlayer({ item }: { item: PortfolioItem }) {
           onClick={togglePlay}
           className="absolute inset-0 flex items-center justify-center"
         >
-          <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
+          <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
             isPlaying
-              ? 'bg-violet-500 scale-100 shadow-lg'
-              : 'bg-white/90 scale-90 group-hover:scale-100 shadow-md'
+              ? 'bg-violet-500 scale-100 shadow-lg shadow-violet-500/50'
+              : 'bg-white/90 scale-90 group-hover:scale-100 shadow-lg'
           }`}>
             {isPlaying ? (
-              <Pause size={20} className="text-white" />
+              <Pause size={22} className="text-white" />
             ) : (
-              <Play size={20} className="text-gray-900 ml-0.5" />
+              <Play size={22} className="text-gray-900 ml-0.5" />
             )}
           </div>
         </button>
 
-        {/* Badge de tipo - Menor no mobile */}
+        {/* Badge de tipo */}
         <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
-          <span className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold ${
+          <span className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold ${
             item.type === 'music'
-              ? 'bg-violet-500/90 text-white'
-              : 'bg-purple-500/90 text-white'
+              ? 'bg-violet-500 text-white'
+              : 'bg-purple-500 text-white'
           }`}>
             {item.type === 'music' ? '♪' : '🎙️'}
           </span>
@@ -110,15 +110,15 @@ function AudioPlayer({ item }: { item: PortfolioItem }) {
 
         {/* Player quando tocando */}
         {isPlaying && (
-          <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-gradient-to-t from-black/80 to-transparent">
+          <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-gradient-to-t from-black/90 to-transparent">
             <div className="flex items-center gap-2 text-white text-[10px] sm:text-xs">
               <span>{currentTime}</span>
               <div
-                className="flex-1 h-1 bg-white/30 rounded-full cursor-pointer overflow-hidden"
+                className="flex-1 h-1.5 bg-white/30 rounded-full cursor-pointer overflow-hidden"
                 onClick={handleProgressClick}
               >
                 <div
-                  className="h-full bg-violet-500 rounded-full"
+                  className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -128,12 +128,12 @@ function AudioPlayer({ item }: { item: PortfolioItem }) {
         )}
       </div>
 
-      {/* Info - Compacto no mobile */}
+      {/* Info */}
       <div className="p-3 sm:p-4">
-        <h3 className="font-bold text-gray-900 text-xs sm:text-sm mb-1 line-clamp-1">
+        <h3 className="font-bold text-white text-sm sm:text-base mb-1 line-clamp-1">
           {item.title}
         </h3>
-        <p className="text-gray-500 text-[10px] sm:text-xs line-clamp-2">
+        <p className="text-gray-400 text-xs sm:text-sm line-clamp-2">
           {item.occasion}
         </p>
       </div>
@@ -165,17 +165,18 @@ export default function PortfolioSection() {
   }
 
   return (
-    <section className="py-12 sm:py-20 bg-white">
+    <section id="portfolio" className="py-12 sm:py-20 bg-gradient-to-b from-[#0f0a1e] via-[#1a1333] to-[#0f0a1e]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header - Menor no mobile */}
         <div className="text-center mb-8 sm:mb-12">
-          <span className="inline-block text-violet-600 font-semibold text-xs sm:text-sm uppercase tracking-wider mb-2 sm:mb-4">
-            Nosso Trabalho
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-4">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 rounded-full px-4 py-2 mb-4">
+            <span className="text-lg">🎵</span>
+            <span className="text-white text-sm font-medium uppercase tracking-wider">Nosso Trabalho</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-4">
             Portfólio
           </h2>
-          <p className="text-sm sm:text-base text-gray-600 max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-gray-400 max-w-xl mx-auto">
             Ouça alguns trabalhos que já realizamos
           </p>
         </div>
@@ -186,8 +187,8 @@ export default function PortfolioSection() {
             onClick={() => setFilter('all')}
             className={`px-3 py-2 sm:px-5 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all ${
               filter === 'all'
-                ? 'bg-gray-900 text-white shadow-lg'
-                : 'bg-gray-100 text-gray-600'
+                ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-lg shadow-purple-500/30'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
             }`}
           >
             Todos
@@ -196,8 +197,8 @@ export default function PortfolioSection() {
             onClick={() => setFilter('music')}
             className={`px-3 py-2 sm:px-5 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
               filter === 'music'
-                ? 'bg-gray-900 text-white shadow-lg'
-                : 'bg-gray-100 text-gray-600'
+                ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-lg shadow-purple-500/30'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
             }`}
           >
             <Music size={14} />
@@ -207,8 +208,8 @@ export default function PortfolioSection() {
             onClick={() => setFilter('voiceover')}
             className={`px-3 py-2 sm:px-5 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
               filter === 'voiceover'
-                ? 'bg-gray-900 text-white shadow-lg'
-                : 'bg-gray-100 text-gray-600'
+                ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-lg shadow-purple-500/30'
+                : 'bg-white/10 text-gray-300 hover:bg-white/20'
             }`}
           >
             <Mic2 size={14} />
@@ -225,18 +226,18 @@ export default function PortfolioSection() {
 
         {filteredItems.length === 0 && (
           <div className="text-center py-10">
-            <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Music size={24} className="text-gray-400" />
+            <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Music size={24} className="text-purple-400" />
             </div>
-            <p className="text-gray-500 text-sm">Nenhum item encontrado.</p>
+            <p className="text-gray-400 text-sm">Nenhum item encontrado.</p>
           </div>
         )}
 
         {/* CTA - Menor no mobile */}
         <div className="text-center mt-8 sm:mt-12">
           <a
-            href="#servicos"
-            className="btn-gold inline-flex items-center gap-2 text-sm sm:text-base px-5 py-3 sm:px-6 sm:py-3"
+            href="#planos"
+            className="inline-flex items-center gap-2 text-sm sm:text-base px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-semibold rounded-full transition-all shadow-lg shadow-orange-500/30"
           >
             <Music size={18} />
             <span>Criar Minha Música</span>

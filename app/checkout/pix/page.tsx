@@ -86,7 +86,7 @@ export default function CheckoutPixPage() {
         localStorage.removeItem('pendingOrder');
         // Redirecionar para página de sucesso após 2 segundos com dados para o Meta Pixel
         setTimeout(() => {
-          const value = pixData?.value || (orderPlan === 'premium' ? 79.90 : 49.90);
+          const value = pixData?.value || (orderPlan === 'premium' ? 79.90 : 59.90);
           router.push(`/pagamento/sucesso?orderId=${orderId}&value=${value}&plan=${orderPlan}`);
         }, 2000);
       } else if (data.isExpired) {
@@ -207,7 +207,7 @@ export default function CheckoutPixPage() {
           {/* Valor */}
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-center">
             <p className="text-purple-100 text-sm mb-1">Valor a pagar</p>
-            <p className="text-4xl font-bold text-white">{pixData?.valueFormatted || 'R$ 49,90'}</p>
+            <p className="text-4xl font-bold text-white">{pixData?.valueFormatted || 'R$ 59,90'}</p>
           </div>
 
           {/* QR Code */}

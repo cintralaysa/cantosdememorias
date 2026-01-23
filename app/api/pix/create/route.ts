@@ -5,12 +5,12 @@ const OPENPIX_APP_ID = process.env.OPENPIX_APP_ID;
 
 // Preços em centavos
 const PRECOS = {
-  basico: 4990,  // R$ 49,90
+  basico: 5990,  // R$ 59,90
   premium: 7990  // R$ 79,90
 };
 
 const PRECOS_FORMATADOS = {
-  basico: 'R$ 49,90',
+  basico: 'R$ 59,90',
   premium: 'R$ 79,90'
 };
 

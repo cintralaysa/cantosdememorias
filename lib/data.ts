@@ -21,16 +21,16 @@ export const SERVICES: Service[] = [
     slug: "musica-personalizada-basico",
     title: "Plano Básico",
     description: "Uma melodia exclusiva com letra personalizada para eternizar seu momento especial.",
-    price: 49.90,
-    priceInCents: 4990,
+    price: 59.90,
+    priceInCents: 5990,
     image: "/portfolio/fotos/cantor-estudio.png",
-    features: ["1 Melodia exclusiva", "Letra personalizada", "Entrega em até 48 horas", "Aprove a letra antes de pagar"],
+    features: ["1 Melodia exclusiva", "Letra personalizada", "Entrega em até 24 horas", "Aprove a letra antes de pagar"],
     highlight: "MAIS POPULAR",
     audioSample: "https://cdn1.suno.ai/eb315faa-63eb-4fa3-885f-9dd2421027d0.mp3",
     type: "music",
     plan: "basico",
     melodias: 1,
-    deliveryHours: 48
+    deliveryHours: 24
   },
   {
     id: "2",
