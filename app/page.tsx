@@ -458,13 +458,14 @@ export default function Home() {
           onEnded={() => setIsPlaying(false)}
         />
 
-        {/* Container com altura máxima para manter proporções */}
-        <div className="relative w-full max-w-[1920px] mx-auto" style={{ aspectRatio: '1456/816' }}>
-          {/* Imagem de fundo */}
+        {/* Container com altura responsiva - maior no mobile */}
+        <div className="relative w-full max-w-[1920px] mx-auto min-h-[85vh] sm:min-h-0" style={{ aspectRatio: '1456/816' }}>
+          {/* Imagem de fundo - object-position ajustado para mobile */}
           <img
             src="/images/hero-bg.png"
             alt="Cantos de Memórias - Músicas Personalizadas"
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="absolute inset-0 w-full h-full object-cover object-center sm:object-center"
+            style={{ objectPosition: 'center 30%' }}
           />
 
           {/* Overlay para esconder o header da imagem */}
@@ -546,43 +547,43 @@ export default function Home() {
       {/* ================================================================
           COMO FUNCIONA - OTIMIZADO MOBILE
           ================================================================ */}
-      <section id="como-funciona" className="py-16 sm:py-24 lg:py-32 relative overflow-hidden bg-gradient-to-b from-[#0f0a1e] via-[#1a1333] to-[#0f0a1e]">
+      <section id="como-funciona" className="py-10 sm:py-20 lg:py-28 relative overflow-hidden bg-gradient-to-b from-[#0f0a1e] via-[#1a1333] to-[#0f0a1e]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Section Header */}
-          <div className="text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center gap-2 bg-violet-500/20 border border-violet-500/30 px-4 py-2 rounded-full mb-6">
-              <Zap className="text-violet-400" size={16} />
-              <span className="text-violet-300 font-semibold text-sm uppercase tracking-wider">
+          <div className="text-center mb-8 sm:mb-14">
+            <div className="inline-flex items-center gap-2 bg-violet-500/20 border border-violet-500/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-4 sm:mb-6">
+              <Zap className="text-violet-400" size={14} />
+              <span className="text-violet-300 font-semibold text-xs sm:text-sm uppercase tracking-wider">
                 Super Simples
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-black text-white mb-3 sm:mb-4">
               Como <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-400">Funciona</span>
             </h2>
-            <p className="text-gray-400 max-w-xl mx-auto text-lg">
+            <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-lg">
               3 passos simples para emocionar quem você ama
             </p>
           </div>
 
           {/* Steps - Design Premium */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-5xl mx-auto mb-8 sm:mb-12">
             {[
-              { step: 1, icon: <Heart className="fill-current" size={28} />, title: 'Conte sua história', desc: 'Preencha o formulário com os detalhes da pessoa homenageada e o momento especial', color: 'from-pink-500 to-rose-600' },
-              { step: 2, icon: <Sparkles size={28} />, title: 'Aprove a letra', desc: 'Veja e aprove a letra personalizada antes de pagar - você tem total controle!', color: 'from-violet-500 to-purple-600' },
-              { step: 3, icon: <Music size={28} />, title: 'Receba no WhatsApp', desc: 'Sua música exclusiva é entregue diretamente no seu WhatsApp', color: 'from-amber-500 to-orange-600' }
+              { step: 1, icon: <Heart className="fill-current" size={22} />, title: 'Conte sua história', desc: 'Preencha o formulário com os detalhes da pessoa homenageada', color: 'from-pink-500 to-rose-600' },
+              { step: 2, icon: <Sparkles size={22} />, title: 'Aprove a letra', desc: 'Veja e aprove a letra personalizada antes de pagar', color: 'from-violet-500 to-purple-600' },
+              { step: 3, icon: <Music size={22} />, title: 'Receba no WhatsApp', desc: 'Sua música exclusiva é entregue diretamente no seu WhatsApp', color: 'from-amber-500 to-orange-600' }
             ].map((item, index) => (
               <div key={index} className="relative group">
-                <div className="bg-[#1a1333]/80 backdrop-blur border border-purple-500/20 rounded-2xl p-6 sm:p-8 text-center transition-all duration-300 hover:border-purple-500/40 hover:transform hover:scale-[1.02]">
-                  <div className="relative mx-auto mb-6">
-                    <div className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center text-white shadow-lg mx-auto`}>
+                <div className="bg-[#1a1333]/80 backdrop-blur border border-purple-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-center transition-all duration-300 hover:border-purple-500/40">
+                  <div className="relative mx-auto mb-4 sm:mb-6">
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br ${item.color} rounded-xl sm:rounded-2xl flex items-center justify-center text-white shadow-lg mx-auto`}>
                       {item.icon}
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-black text-gray-900 shadow-lg">
+                    <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-full flex items-center justify-center text-xs sm:text-sm font-black text-gray-900 shadow-lg">
                       {item.step}
                     </div>
                   </div>
-                  <h3 className="text-white font-bold text-lg sm:text-xl mb-3">{item.title}</h3>
-                  <p className="text-gray-400 text-sm sm:text-base leading-relaxed">{item.desc}</p>
+                  <h3 className="text-white font-bold text-base sm:text-lg lg:text-xl mb-2 sm:mb-3">{item.title}</h3>
+                  <p className="text-gray-400 text-xs sm:text-sm lg:text-base leading-relaxed">{item.desc}</p>
                 </div>
                 {index < 2 && (
                   <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
@@ -594,25 +595,25 @@ export default function Home() {
           </div>
 
           {/* Info de Entrega */}
-          <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto mb-10">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-center sm:text-left">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                  <Clock className="text-purple-400" size={24} />
+          <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto mb-6 sm:mb-10">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8 text-center sm:text-left">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                  <Clock className="text-purple-400" size={20} />
                 </div>
                 <div>
-                  <p className="text-white font-bold">Plano Básico</p>
-                  <p className="text-purple-300 text-sm">Entrega em até 24 horas</p>
+                  <p className="text-white font-bold text-sm sm:text-base">Plano Básico</p>
+                  <p className="text-purple-300 text-xs sm:text-sm">Entrega em até 24 horas</p>
                 </div>
               </div>
               <div className="hidden sm:block w-px h-12 bg-purple-500/30" />
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
-                  <Zap className="text-orange-400" size={24} />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+                  <Zap className="text-orange-400" size={20} />
                 </div>
                 <div>
-                  <p className="text-white font-bold">Plano Premium</p>
-                  <p className="text-orange-300 text-sm">Entrega em 4 a 5 horas</p>
+                  <p className="text-white font-bold text-sm sm:text-base">Plano Premium</p>
+                  <p className="text-orange-300 text-xs sm:text-sm">Entrega em 4 a 5 horas</p>
                 </div>
               </div>
             </div>
@@ -622,11 +623,11 @@ export default function Home() {
           <div className="text-center">
             <a
               href="#planos"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold px-8 py-4 rounded-full shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-full shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300 text-sm sm:text-base"
             >
-              <Music size={20} />
+              <Music size={18} />
               <span>Começar Agora</span>
-              <ArrowRight size={18} />
+              <ArrowRight size={16} />
             </a>
           </div>
         </div>
