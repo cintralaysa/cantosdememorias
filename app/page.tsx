@@ -473,10 +473,10 @@ export default function Home() {
               href="#planos"
               className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
               style={{
-                left: '4%',
-                bottom: '4%',
-                width: '47%',
-                height: '7%',
+                left: '3%',
+                top: '89%',
+                width: '48%',
+                height: '8%',
               }}
               aria-label="Criar Minha Música"
             />
@@ -487,9 +487,9 @@ export default function Home() {
               className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
               style={{
                 left: '53%',
-                bottom: '4%',
-                width: '42%',
-                height: '7%',
+                top: '89%',
+                width: '44%',
+                height: '8%',
               }}
               aria-label="Ouvir Exemplos"
             />
@@ -499,10 +499,10 @@ export default function Home() {
               onClick={togglePlay}
               className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
               style={{
-                left: '38%',
-                bottom: '18%',
-                width: '24%',
-                height: '8%',
+                left: '36%',
+                top: '63%',
+                width: '28%',
+                height: '9%',
               }}
               aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
             />
