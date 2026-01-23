@@ -459,70 +459,72 @@ export default function Home() {
         />
 
         {/* VERSÃO MOBILE - Imagem completa sem cortes */}
-        <div className="relative w-full sm:hidden bg-[#0d0620] pt-20">
-          <img
-            src="/images/hero-bg-mobile.png"
-            alt="Cantos de Memórias - Músicas Personalizadas"
-            className="w-full h-auto"
-          />
+        <div className="w-full sm:hidden bg-[#0d0620] pt-20">
+          <div className="relative w-full">
+            <img
+              src="/images/hero-bg-mobile.png"
+              alt="Cantos de Memórias - Músicas Personalizadas"
+              className="w-full h-auto"
+            />
 
-          {/* Botões Mobile - posicionados sobre a imagem vertical */}
-          {/* Botão "Criar Minha Música" - Mobile */}
-          <a
-            href="#planos"
-            className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
-            style={{
-              left: '4%',
-              top: '86%',
-              width: '47%',
-              height: '6%',
-            }}
-            aria-label="Criar Minha Música"
-          />
-
-          {/* Botão "Ouvir Exemplos" - Mobile */}
-          <a
-            href="#portfolio"
-            className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
-            style={{
-              left: '53%',
-              top: '86%',
-              width: '40%',
-              height: '6%',
-            }}
-            aria-label="Ouvir Exemplos"
-          />
-
-          {/* Player - Botão play no mixer (centro) - Mobile */}
-          <button
-            onClick={togglePlay}
-            className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
-            style={{
-              left: '40%',
-              top: '66%',
-              width: '20%',
-              height: '7%',
-            }}
-            aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
-          />
-
-          {/* Indicador visual de reprodução - Mobile */}
-          {isPlaying && (
-            <div
-              className="absolute z-30 pointer-events-none flex items-center justify-center"
+            {/* Botões Mobile - posicionados sobre a imagem vertical */}
+            {/* Botão "Criar Minha Música" - Mobile */}
+            <a
+              href="#planos"
+              className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
               style={{
-                left: '50%',
-                top: '50%',
-                transform: 'translateX(-50%)',
+                left: '4%',
+                bottom: '4%',
+                width: '47%',
+                height: '7%',
               }}
-            >
-              <div className="bg-black/70 backdrop-blur-sm rounded-full p-3 animate-pulse">
-                <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                </svg>
+              aria-label="Criar Minha Música"
+            />
+
+            {/* Botão "Ouvir Exemplos" - Mobile */}
+            <a
+              href="#portfolio"
+              className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
+              style={{
+                left: '53%',
+                bottom: '4%',
+                width: '42%',
+                height: '7%',
+              }}
+              aria-label="Ouvir Exemplos"
+            />
+
+            {/* Player - Botão play no mixer (centro) - Mobile */}
+            <button
+              onClick={togglePlay}
+              className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
+              style={{
+                left: '38%',
+                bottom: '18%',
+                width: '24%',
+                height: '8%',
+              }}
+              aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
+            />
+
+            {/* Indicador visual de reprodução - Mobile */}
+            {isPlaying && (
+              <div
+                className="absolute z-30 pointer-events-none flex items-center justify-center"
+                style={{
+                  left: '50%',
+                  top: '40%',
+                  transform: 'translateX(-50%)',
+                }}
+              >
+                <div className="bg-black/70 backdrop-blur-sm rounded-full p-3 animate-pulse">
+                  <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                  </svg>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* VERSÃO DESKTOP - Imagem original */}
