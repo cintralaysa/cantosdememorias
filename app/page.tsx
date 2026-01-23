@@ -458,17 +458,91 @@ export default function Home() {
           onEnded={() => setIsPlaying(false)}
         />
 
-        {/* Container com altura responsiva - maior no mobile */}
-        <div className="relative w-full max-w-[1920px] mx-auto min-h-[85vh] sm:min-h-0" style={{ aspectRatio: '1456/816' }}>
-          {/* Imagem de fundo - object-position ajustado para mobile */}
+        {/* VERSÃO MOBILE - Imagem otimizada para celular */}
+        <div className="relative w-full sm:hidden" style={{ paddingBottom: '120%' }}>
+          <img
+            src="/images/hero-bg-mobile.png"
+            alt="Cantos de Memórias - Músicas Personalizadas"
+            className="absolute inset-0 w-full h-full object-contain"
+          />
+
+          {/* Overlay para esconder o header da imagem - Mobile */}
+          <div
+            className="absolute top-0 left-0 right-0 z-10"
+            style={{
+              height: '10%',
+              background: 'linear-gradient(to bottom, #0d0620 0%, #0d0620 50%, transparent 100%)'
+            }}
+          />
+
+          {/* Botões Mobile - posicionados sobre a imagem mobile */}
+          {/* Botão "Criar Minha Música" - Mobile */}
+          <a
+            href="#planos"
+            className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
+            style={{
+              left: '5%',
+              top: '52%',
+              width: '35%',
+              height: '5%',
+            }}
+            aria-label="Criar Minha Música"
+          />
+
+          {/* Botão "Ouvir Exemplos" - Mobile */}
+          <a
+            href="#portfolio"
+            className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
+            style={{
+              left: '42%',
+              top: '52%',
+              width: '25%',
+              height: '5%',
+            }}
+            aria-label="Ouvir Exemplos"
+          />
+
+          {/* Player - Mobile */}
+          <button
+            onClick={togglePlay}
+            className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
+            style={{
+              left: '43%',
+              top: '70%',
+              width: '14%',
+              height: '7%',
+            }}
+            aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
+          />
+
+          {/* Indicador visual de reprodução - Mobile */}
+          {isPlaying && (
+            <div
+              className="absolute z-30 pointer-events-none flex items-center justify-center"
+              style={{
+                left: '50%',
+                top: '35%',
+                transform: 'translateX(-50%)',
+              }}
+            >
+              <div className="bg-black/70 backdrop-blur-sm rounded-full p-3 animate-pulse">
+                <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
+                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                </svg>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* VERSÃO DESKTOP - Imagem original */}
+        <div className="relative w-full max-w-[1920px] mx-auto hidden sm:block" style={{ aspectRatio: '1456/816' }}>
           <img
             src="/images/hero-bg.png"
             alt="Cantos de Memórias - Músicas Personalizadas"
-            className="absolute inset-0 w-full h-full object-cover object-center sm:object-center"
-            style={{ objectPosition: 'center 30%' }}
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
 
-          {/* Overlay para esconder o header da imagem */}
+          {/* Overlay para esconder o header da imagem - Desktop */}
           <div
             className="absolute top-0 left-0 right-0 z-10"
             style={{
@@ -477,9 +551,8 @@ export default function Home() {
             }}
           />
 
-          {/* Botões transparentes clicáveis posicionados EXATAMENTE sobre os botões da imagem */}
-
-          {/* Botão "Criar Minha Música" */}
+          {/* Botões Desktop - posicionados sobre a imagem desktop */}
+          {/* Botão "Criar Minha Música" - Desktop */}
           <a
             href="#planos"
             className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
@@ -492,7 +565,7 @@ export default function Home() {
             aria-label="Criar Minha Música"
           />
 
-          {/* Botão "Ouvir Exemplos" */}
+          {/* Botão "Ouvir Exemplos" - Desktop */}
           <a
             href="#portfolio"
             className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
@@ -505,7 +578,7 @@ export default function Home() {
             aria-label="Ouvir Exemplos"
           />
 
-          {/* Player - Área clicável para tocar/pausar música (botão de play grande) */}
+          {/* Player - Desktop */}
           <button
             onClick={togglePlay}
             className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
@@ -518,7 +591,7 @@ export default function Home() {
             aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
           />
 
-          {/* Indicador visual de reprodução */}
+          {/* Indicador visual de reprodução - Desktop */}
           {isPlaying && (
             <div
               className="absolute z-30 pointer-events-none flex items-center justify-center"
