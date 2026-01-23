@@ -108,7 +108,7 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z"/>
               </svg>
-              Entrega em 4 a 5 horas (mesmo dia)
+              Entrega no mesmo dia
             </div>
 
             <ul className="space-y-2.5 sm:space-y-4 mb-5 sm:mb-8">
@@ -116,7 +116,7 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
                 { text: '1 letra exclusiva personalizada', bold: false },
                 { text: '2 músicas com ritmos diferentes', bold: true },
                 { text: 'Edite a letra no site', bold: false },
-                { text: 'Entrega em 4 a 5 horas', bold: true },
+                { text: 'Entrega no mesmo dia', bold: true },
                 { text: '2 arquivos MP3 alta qualidade', bold: false },
                 { text: 'Prioridade na produção', bold: true },
                 { text: 'Receba no seu WhatsApp', bold: false },

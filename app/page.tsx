@@ -459,20 +459,11 @@ export default function Home() {
         />
 
         {/* VERSÃO MOBILE - Imagem completa sem cortes */}
-        <div className="relative w-full sm:hidden bg-[#0d0620]">
+        <div className="relative w-full sm:hidden bg-[#0d0620] pt-20">
           <img
             src="/images/hero-bg-mobile.png"
             alt="Cantos de Memórias - Músicas Personalizadas"
             className="w-full h-auto"
-          />
-
-          {/* Overlay para esconder o header da imagem - Mobile */}
-          <div
-            className="absolute top-0 left-0 right-0 z-10"
-            style={{
-              height: '8%',
-              background: 'linear-gradient(to bottom, #0d0620 0%, #0d0620 50%, transparent 100%)'
-            }}
           />
 
           {/* Botões Mobile - posicionados sobre a imagem vertical */}
@@ -481,10 +472,10 @@ export default function Home() {
             href="#planos"
             className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
             style={{
-              left: '5%',
-              top: '76%',
-              width: '45%',
-              height: '5%',
+              left: '4%',
+              top: '86%',
+              width: '47%',
+              height: '6%',
             }}
             aria-label="Criar Minha Música"
           />
@@ -494,10 +485,10 @@ export default function Home() {
             href="#portfolio"
             className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
             style={{
-              left: '52%',
-              top: '76%',
-              width: '38%',
-              height: '5%',
+              left: '53%',
+              top: '86%',
+              width: '40%',
+              height: '6%',
             }}
             aria-label="Ouvir Exemplos"
           />
@@ -507,10 +498,10 @@ export default function Home() {
             onClick={togglePlay}
             className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
             style={{
-              left: '42%',
-              top: '56%',
-              width: '16%',
-              height: '6%',
+              left: '40%',
+              top: '66%',
+              width: '20%',
+              height: '7%',
             }}
             aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
           />
@@ -521,7 +512,7 @@ export default function Home() {
               className="absolute z-30 pointer-events-none flex items-center justify-center"
               style={{
                 left: '50%',
-                top: '40%',
+                top: '50%',
                 transform: 'translateX(-50%)',
               }}
             >
@@ -686,7 +677,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="text-white font-bold text-sm sm:text-base">Plano Premium</p>
-                  <p className="text-orange-300 text-xs sm:text-sm">Entrega em 4 a 5 horas</p>
+                  <p className="text-orange-300 text-xs sm:text-sm">Entrega no mesmo dia</p>
                 </div>
               </div>
             </div>
