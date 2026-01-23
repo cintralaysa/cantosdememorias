@@ -458,33 +458,33 @@ export default function Home() {
           onEnded={() => setIsPlaying(false)}
         />
 
-        {/* VERSÃO MOBILE - Imagem otimizada para celular */}
-        <div className="relative w-full sm:hidden" style={{ paddingBottom: '133%' }}>
+        {/* VERSÃO MOBILE - Imagem completa sem cortes */}
+        <div className="relative w-full sm:hidden bg-[#0d0620]">
           <img
             src="/images/hero-bg-mobile.png"
             alt="Cantos de Memórias - Músicas Personalizadas"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="w-full h-auto"
           />
 
           {/* Overlay para esconder o header da imagem - Mobile */}
           <div
             className="absolute top-0 left-0 right-0 z-10"
             style={{
-              height: '8%',
-              background: 'linear-gradient(to bottom, #0d0620 0%, #0d0620 40%, transparent 100%)'
+              height: '12%',
+              background: 'linear-gradient(to bottom, #0d0620 0%, #0d0620 60%, transparent 100%)'
             }}
           />
 
-          {/* Botões Mobile - posicionados sobre a imagem mobile */}
+          {/* Botões Mobile - posicionados sobre a imagem */}
           {/* Botão "Criar Minha Música" - Mobile */}
           <a
             href="#planos"
             className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
             style={{
-              left: '8%',
-              top: '74%',
-              width: '40%',
-              height: '5%',
+              left: '5%',
+              top: '52%',
+              width: '28%',
+              height: '8%',
             }}
             aria-label="Criar Minha Música"
           />
@@ -494,23 +494,23 @@ export default function Home() {
             href="#portfolio"
             className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
             style={{
-              left: '52%',
-              top: '74%',
-              width: '35%',
-              height: '5%',
+              left: '35%',
+              top: '52%',
+              width: '22%',
+              height: '8%',
             }}
             aria-label="Ouvir Exemplos"
           />
 
-          {/* Player - Botão play no mixer (centro da imagem) - Mobile */}
+          {/* Player - Botão play no mixer - Mobile */}
           <button
             onClick={togglePlay}
             className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
             style={{
-              left: '38%',
-              top: '52%',
-              width: '12%',
-              height: '6%',
+              left: '60%',
+              top: '58%',
+              width: '10%',
+              height: '15%',
             }}
             aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
           />
@@ -521,7 +521,7 @@ export default function Home() {
               className="absolute z-30 pointer-events-none flex items-center justify-center"
               style={{
                 left: '50%',
-                top: '40%',
+                top: '35%',
                 transform: 'translateX(-50%)',
               }}
             >
