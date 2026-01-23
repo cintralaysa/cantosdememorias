@@ -470,21 +470,21 @@ export default function Home() {
           <div
             className="absolute top-0 left-0 right-0 z-10"
             style={{
-              height: '12%',
-              background: 'linear-gradient(to bottom, #0d0620 0%, #0d0620 60%, transparent 100%)'
+              height: '8%',
+              background: 'linear-gradient(to bottom, #0d0620 0%, #0d0620 50%, transparent 100%)'
             }}
           />
 
-          {/* Botões Mobile - posicionados sobre a imagem */}
+          {/* Botões Mobile - posicionados sobre a imagem vertical */}
           {/* Botão "Criar Minha Música" - Mobile */}
           <a
             href="#planos"
             className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
             style={{
               left: '5%',
-              top: '52%',
-              width: '28%',
-              height: '8%',
+              top: '76%',
+              width: '45%',
+              height: '5%',
             }}
             aria-label="Criar Minha Música"
           />
@@ -494,23 +494,23 @@ export default function Home() {
             href="#portfolio"
             className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
             style={{
-              left: '35%',
-              top: '52%',
-              width: '22%',
-              height: '8%',
+              left: '52%',
+              top: '76%',
+              width: '38%',
+              height: '5%',
             }}
             aria-label="Ouvir Exemplos"
           />
 
-          {/* Player - Botão play no mixer - Mobile */}
+          {/* Player - Botão play no mixer (centro) - Mobile */}
           <button
             onClick={togglePlay}
             className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
             style={{
-              left: '60%',
-              top: '58%',
-              width: '10%',
-              height: '15%',
+              left: '42%',
+              top: '56%',
+              width: '16%',
+              height: '6%',
             }}
             aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
           />
@@ -521,7 +521,7 @@ export default function Home() {
               className="absolute z-30 pointer-events-none flex items-center justify-center"
               style={{
                 left: '50%',
-                top: '35%',
+                top: '40%',
                 transform: 'translateX(-50%)',
               }}
             >
