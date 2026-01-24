@@ -462,7 +462,7 @@ export default function Home() {
         <div className="w-full sm:hidden bg-[#0d0620] pt-20">
           <div className="relative w-full">
             <img
-              src="/images/hero-bg-mobile.png"
+              src="/images/hero-bg-mobile.jpg"
               alt="Cantos de Memórias - Músicas Personalizadas"
               className="w-full h-auto"
             />
