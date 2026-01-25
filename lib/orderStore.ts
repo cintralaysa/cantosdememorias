@@ -138,3 +138,45 @@ export async function removeOrder(correlationID: string): Promise<boolean> {
     return false;
   }
 }
+
+// Atualizar status do pedido
+export async function updateOrderStatus(correlationID: string, status: string): Promise<boolean> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    return false;
+  }
+
+  try {
+    // Buscar pedido atual
+    const orderData = await getOrder(correlationID);
+    if (!orderData) {
+      console.error(`[ORDER-STORE] Pedido não encontrado para atualizar: ${correlationID}`);
+      return false;
+    }
+
+    // Atualizar com novo status
+    const updatedData = {
+      ...orderData,
+      status,
+      updatedAt: Date.now(),
+    };
+
+    // Salvar novamente com expiração de 24 horas
+    const response = await fetch(`${UPSTASH_URL}/set/order:${correlationID}?EX=86400`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (response.ok) {
+      console.log(`[ORDER-STORE] ✅ Status atualizado: ${correlationID} -> ${status}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao atualizar status:', error);
+    return false;
+  }
+}
