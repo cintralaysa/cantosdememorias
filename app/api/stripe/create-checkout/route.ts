@@ -3,7 +3,8 @@ import Stripe from 'stripe';
 import { saveOrder } from '@/lib/orderStore';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16',
+  apiVersion: '2024-06-20' as any,
+  maxNetworkRetries: 3,
 });
 
 // Preços em centavos
@@ -59,8 +60,16 @@ export async function POST(request: NextRequest) {
       status: 'pending',
     });
 
-    // URL base do site
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cantosdememorias.com.br';
+    // URL base do site - garantir que começa com https://
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cantosdememorias.com.br';
+
+    // Remover espaços e garantir formato correto
+    baseUrl = baseUrl.trim();
+    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+      baseUrl = 'https://' + baseUrl;
+    }
+    // Remover barra final se existir
+    baseUrl = baseUrl.replace(/\/$/, '');
 
     // Criar sessão de checkout do Stripe
     const session = await stripe.checkout.sessions.create({

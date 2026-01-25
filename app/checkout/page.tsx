@@ -3,9 +3,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
-import { Shield, Clock, Heart, Loader2, CheckCircle, ArrowLeft, Music, CreditCard, Copy, RefreshCw } from 'lucide-react';
+import { Shield, Clock, Heart, Loader2, CheckCircle, ArrowLeft, Music, CreditCard, Copy, RefreshCw, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { MetaPixelEvents } from '@/components/MetaPixel';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+// Inicializar Stripe
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 interface OrderData {
   orderId: string;
@@ -55,6 +60,96 @@ declare global {
   }
 }
 
+// Componente do formulário de pagamento Stripe
+function StripeCardForm({ orderId, amount, onSuccess, onError }: {
+  orderId: string;
+  amount: number;
+  onSuccess: () => void;
+  onError: (error: string) => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        onError(submitError.message || 'Erro ao processar cartão');
+        setLoading(false);
+        return;
+      }
+
+      const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/success?order_id=${orderId}`,
+        },
+        redirect: 'if_required',
+      });
+
+      if (confirmError) {
+        onError(confirmError.message || 'Erro ao confirmar pagamento');
+        setLoading(false);
+        return;
+      }
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        onSuccess();
+      }
+    } catch (err: any) {
+      onError(err.message || 'Erro inesperado');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Stripe Payment Element */}
+      <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+        <PaymentElement
+          options={{
+            layout: 'tabs',
+          }}
+        />
+      </div>
+
+      {/* Botão de pagamento */}
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg transition-all"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Processando...
+          </>
+        ) : (
+          <>
+            <Lock className="w-5 h-5" />
+            Pagar R$ {amount.toFixed(2).replace('.', ',')}
+          </>
+        )}
+      </button>
+
+      {/* Segurança */}
+      <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+        <Lock size={12} className="text-green-500" />
+        <span>Pagamento seguro processado por Stripe</span>
+      </div>
+    </form>
+  );
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
@@ -67,6 +162,11 @@ export default function CheckoutPage() {
   const [pixData, setPixData] = useState<PixData | null>(null);
   const [pixCopied, setPixCopied] = useState(false);
   const [checkingPayment, setCheckingPayment] = useState(false);
+
+  // Stripe states
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const [stripeOrderId, setStripeOrderId] = useState<string>('');
 
   // Card states
   const [cardForm, setCardForm] = useState<CardFormData>({
@@ -114,6 +214,93 @@ export default function CheckoutPage() {
       }
     }
   }, [mp]);
+
+  // Inicializar Stripe Payment Intent
+  const initStripePayment = useCallback(async () => {
+    if (!orderData || stripeClientSecret) return;
+
+    setStripeLoading(true);
+    setCardError(null);
+
+    try {
+      // Gerar ID do pedido para Stripe
+      const newOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+      setStripeOrderId(newOrderId);
+
+      // Criar Payment Intent com dados completos do pedido
+      const response = await fetch('/api/stripe/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: 'basico',
+          customerEmail: orderData.customerEmail,
+          customerName: orderData.customerName,
+          orderId: newOrderId,
+          orderData: {
+            customerName: orderData.customerName,
+            customerEmail: orderData.customerEmail,
+            customerWhatsapp: orderData.customerWhatsapp,
+            honoreeName: orderData.honoreeName,
+            relationship: orderData.relationship,
+            relationshipLabel: orderData.relationshipLabel,
+            occasion: orderData.occasion,
+            occasionLabel: orderData.occasionLabel,
+            musicStyle: orderData.musicStyle,
+            musicStyleLabel: orderData.musicStyleLabel,
+            voicePreference: orderData.voicePreference,
+            qualities: orderData.qualities,
+            memories: orderData.memories,
+            heartMessage: orderData.heartMessage,
+            familyNames: orderData.familyNames,
+            approvedLyrics: orderData.approvedLyrics,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setCardError(data.error);
+        setStripeLoading(false);
+        return;
+      }
+
+      setStripeClientSecret(data.clientSecret);
+    } catch (err: any) {
+      setCardError(err.message || 'Erro ao inicializar pagamento');
+    } finally {
+      setStripeLoading(false);
+    }
+  }, [orderData, stripeClientSecret]);
+
+  // Quando seleciona cartão, inicializa o Stripe
+  useEffect(() => {
+    if (selectedMethod === 'card' && orderData && !stripeClientSecret && !stripeLoading) {
+      initStripePayment();
+    }
+  }, [selectedMethod, orderData, stripeClientSecret, stripeLoading, initStripePayment]);
+
+  // Handler de sucesso do Stripe
+  const handleStripeSuccess = useCallback(() => {
+    if (orderData) {
+      MetaPixelEvents.purchase({
+        value: orderData.amount,
+        content_name: `Música para ${orderData.honoreeName}`,
+        content_ids: [stripeOrderId],
+      });
+    }
+
+    setPaymentSuccess(true);
+    sessionStorage.removeItem('checkoutData');
+    setTimeout(() => {
+      router.push(`/success?order_id=${stripeOrderId}`);
+    }, 2000);
+  }, [orderData, stripeOrderId, router]);
+
+  // Handler de erro do Stripe
+  const handleStripeError = useCallback((error: string) => {
+    setCardError(error);
+  }, []);
 
   // Verificar status do pagamento PIX
   const checkPixPayment = useCallback(async () => {
@@ -403,7 +590,7 @@ export default function CheckoutPage() {
             </Link>
             <h1 className="text-xl font-bold mb-1">Finalizar Pagamento</h1>
             <p className="text-white/80 text-sm">
-              Pagamento 100% seguro processado pelo Mercado Pago
+              Pagamento 100% seguro
             </p>
           </div>
         </div>
@@ -557,8 +744,62 @@ export default function CheckoutPage() {
                   </button>
                 </div>
 
-                {/* Formulário de cartão */}
+                {/* Formulário de cartão com Stripe Elements */}
                 {selectedMethod === 'card' && (
+                  <div className="space-y-4 mb-6 animate-in slide-in-from-top-4">
+                    {stripeLoading ? (
+                      <div className="text-center py-8">
+                        <Loader2 className="w-8 h-8 text-violet-500 animate-spin mx-auto mb-2" />
+                        <p className="text-gray-600 text-sm">Preparando pagamento...</p>
+                      </div>
+                    ) : stripeClientSecret ? (
+                      <Elements
+                        stripe={stripePromise}
+                        options={{
+                          clientSecret: stripeClientSecret,
+                          appearance: {
+                            theme: 'stripe',
+                            variables: {
+                              colorPrimary: '#7c3aed',
+                              borderRadius: '12px',
+                            },
+                          },
+                          locale: 'pt-BR',
+                        }}
+                      >
+                        <StripeCardForm
+                          orderId={stripeOrderId}
+                          amount={orderData.amount}
+                          onSuccess={handleStripeSuccess}
+                          onError={handleStripeError}
+                        />
+                      </Elements>
+                    ) : cardError ? (
+                      <div className="text-center py-6">
+                        <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-2" />
+                        <p className="text-red-600 text-sm mb-4">{cardError}</p>
+                        <button
+                          onClick={() => {
+                            setCardError(null);
+                            setStripeClientSecret(null);
+                            initStripePayment();
+                          }}
+                          className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-700 transition"
+                        >
+                          Tentar novamente
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Loader2 className="w-8 h-8 text-violet-500 animate-spin mx-auto mb-2" />
+                        <p className="text-gray-600 text-sm">Carregando...</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Formulário de cartão antigo (Mercado Pago - comentado)
+                {selectedMethod === 'card-old' && (
                   <div className="space-y-4 mb-6 animate-in slide-in-from-top-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -675,15 +916,16 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 )}
+                */}
 
-                {/* Mensagem de erro */}
-                {cardError && (
+                {/* Mensagem de erro para PIX */}
+                {cardError && selectedMethod === 'pix' && (
                   <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
                     {cardError}
                   </div>
                 )}
 
-                {/* Botão Pagar */}
+                {/* Botão Pagar PIX */}
                 {selectedMethod === 'pix' && (
                   <button
                     onClick={handlePixPayment}
@@ -699,31 +941,6 @@ export default function CheckoutPage() {
                       <>
                         <Shield size={20} />
                         Gerar QR Code PIX
-                      </>
-                    )}
-                  </button>
-                )}
-
-                {selectedMethod === 'card' && (
-                  <button
-                    onClick={handleCardPayment}
-                    disabled={loading || !mpReady}
-                    className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Processando...
-                      </>
-                    ) : !mpReady ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Carregando...
-                      </>
-                    ) : (
-                      <>
-                        <Shield size={20} />
-                        Pagar R$ {orderData.amount.toFixed(2).replace('.', ',')}
                       </>
                     )}
                   </button>
@@ -749,7 +966,7 @@ export default function CheckoutPage() {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-4">
-            Processado pelo <span className="font-semibold text-blue-500">Mercado Pago</span>
+            Cartão: <span className="font-semibold text-violet-500">Stripe</span> | PIX: <span className="font-semibold text-blue-500">Mercado Pago</span>
           </p>
         </div>
       </div>
