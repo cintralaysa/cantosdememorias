@@ -230,6 +230,31 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     if (step > 1) setStep(step - 1);
   };
 
+  // Preparar dados do pedido (reutilizável)
+  const prepareOrderData = () => ({
+    plan: formData.plan,
+    customerName: formData.userName,
+    customerEmail: formData.email,
+    customerWhatsapp: formData.whatsapp,
+    honoreeName: formData.honoreeName,
+    relationship: formData.relationship,
+    relationshipLabel: RELATIONSHIPS.find(r => r.value === formData.relationship)?.label,
+    occasion: formData.occasion,
+    occasionLabel: OCCASIONS.find(o => o.value === formData.occasion)?.label,
+    musicStyle: formData.musicStyle,
+    musicStyleLabel: MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label,
+    musicStyle2: formData.plan === 'premium' ? formData.musicStyle2 : '',
+    musicStyle2Label: formData.plan === 'premium' ? MUSIC_STYLES.find(m => m.value === formData.musicStyle2)?.label : '',
+    voicePreference: formData.voicePreference,
+    storyAndMessage: formData.storyAndMessage,
+    familyNames: formData.familyNames,
+    generatedLyrics: formData.generatedLyrics,
+    knowsBabySex: formData.knowsBabySex,
+    babySex: formData.babySex,
+    babyNameBoy: formData.babyNameBoy,
+    babyNameGirl: formData.babyNameGirl,
+  });
+
   // Redirecionar para checkout PIX interno
   const handlePixCheckout = async () => {
     if (!canProceed()) return;
@@ -237,38 +262,43 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     setPaymentError(null);
 
     try {
-      // Preparar dados do pedido
-      const orderData = {
-        plan: formData.plan,
-        customerName: formData.userName,
-        customerEmail: formData.email,
-        customerWhatsapp: formData.whatsapp,
-        honoreeName: formData.honoreeName,
-        relationship: formData.relationship,
-        relationshipLabel: RELATIONSHIPS.find(r => r.value === formData.relationship)?.label,
-        occasion: formData.occasion,
-        occasionLabel: OCCASIONS.find(o => o.value === formData.occasion)?.label,
-        musicStyle: formData.musicStyle,
-        musicStyleLabel: MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label,
-        musicStyle2: formData.plan === 'premium' ? formData.musicStyle2 : '',
-        musicStyle2Label: formData.plan === 'premium' ? MUSIC_STYLES.find(m => m.value === formData.musicStyle2)?.label : '',
-        voicePreference: formData.voicePreference,
-        storyAndMessage: formData.storyAndMessage,
-        familyNames: formData.familyNames,
-        generatedLyrics: formData.generatedLyrics,
-        knowsBabySex: formData.knowsBabySex,
-        babySex: formData.babySex,
-        babyNameBoy: formData.babyNameBoy,
-        babyNameGirl: formData.babyNameGirl,
-      };
-
-      // Salvar dados no localStorage para a página de checkout
+      const orderData = prepareOrderData();
       localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-
-      // Redirecionar para página de checkout PIX
       router.push('/checkout/pix');
     } catch (error: any) {
       setPaymentError(error.message || 'Erro ao processar. Tente novamente.');
+      setLoading(false);
+    }
+  };
+
+  // Checkout com Cartão de Crédito via Stripe
+  const handleCardCheckout = async () => {
+    if (!canProceed()) return;
+    setLoading(true);
+    setPaymentError(null);
+
+    try {
+      const orderData = prepareOrderData();
+
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Erro ao criar sessão de pagamento');
+      }
+    } catch (error: any) {
+      setPaymentError(error.message || 'Erro ao processar cartão. Tente novamente.');
       setLoading(false);
     }
   };
@@ -573,51 +603,79 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
               </div>
             </div>
 
-            {/* Botão de Finalizar - PIX */}
+            {/* Opções de Pagamento */}
             {canProceed() && (
               <div className="space-y-4">
-                {/* Pagamento via PIX */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
-                  <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <svg viewBox="0 0 512 512" className="w-5 h-5 fill-green-500"><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
-                    Pagamento via PIX
-                  </h4>
-                  <div className="flex items-center gap-3 text-sm text-green-700">
-                    <Check size={16} className="text-green-500" />
-                    <span>Pagamento instantâneo</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-green-700 mt-1">
-                    <Check size={16} className="text-green-500" />
-                    <span>Confirmação automática</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-green-700 mt-1">
-                    <Check size={16} className="text-green-500" />
-                    <span>Sem sair do site</span>
-                  </div>
-                </div>
+                <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                  <Shield size={16} className="text-violet-500" />
+                  Escolha a forma de pagamento
+                </h4>
 
                 {paymentError && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">{paymentError}</div>}
 
-                {/* Botão Finalizar */}
+                {/* Botão PIX */}
                 <button
                   type="button"
                   onClick={handlePixCheckout}
                   disabled={loading}
-                  className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg"
+                  className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg transition-all"
                 >
                   {loading ? (
                     <><Loader2 className="w-5 h-5 animate-spin" />Processando...</>
                   ) : (
                     <>
                       <svg viewBox="0 0 512 512" className="w-6 h-6 fill-current"><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
-                      Pagar com PIX - {selectedPlan.priceFormatted}
+                      <div className="text-left">
+                        <div>Pagar com PIX</div>
+                        <div className="text-xs font-normal opacity-80">Aprovação instantânea</div>
+                      </div>
+                      <span className="ml-auto">{selectedPlan.priceFormatted}</span>
                     </>
                   )}
                 </button>
 
-                <p className="text-center text-xs text-gray-500">
-                  Pagamento seguro - QR Code gerado na próxima tela
-                </p>
+                {/* Divisor */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-gray-200"></div>
+                  <span className="text-xs text-gray-400 font-medium">ou</span>
+                  <div className="flex-1 h-px bg-gray-200"></div>
+                </div>
+
+                {/* Botão Cartão de Crédito */}
+                <button
+                  type="button"
+                  onClick={handleCardCheckout}
+                  disabled={loading}
+                  className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg transition-all"
+                >
+                  {loading ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" />Processando...</>
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" strokeWidth="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10" strokeWidth="2"/>
+                      </svg>
+                      <div className="text-left">
+                        <div>Cartão de Crédito</div>
+                        <div className="text-xs font-normal opacity-80">Parcele em até 12x</div>
+                      </div>
+                      <span className="ml-auto">{selectedPlan.priceFormatted}</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Badges de segurança */}
+                <div className="flex items-center justify-center gap-4 pt-2">
+                  <div className="flex items-center gap-1 text-xs text-gray-400">
+                    <Lock size={12} className="text-green-500" />
+                    <span>Pagamento seguro</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-400">
+                    <Shield size={12} className="text-violet-500" />
+                    <span>Dados protegidos</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
