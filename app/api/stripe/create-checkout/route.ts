@@ -98,10 +98,14 @@ export async function POST(request: NextRequest) {
       orderId: orderId
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro ao criar checkout Stripe:', error);
+    const errorMessage = error?.message || 'Erro ao processar pagamento';
+    const stripeError = error?.type || 'unknown';
+    console.error('Stripe Error Type:', stripeError);
+    console.error('Stripe Error Message:', errorMessage);
     return NextResponse.json(
-      { error: 'Erro ao processar pagamento' },
+      { error: errorMessage, type: stripeError },
       { status: 500 }
     );
   }
