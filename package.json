@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@mercadopago/sdk-react": "^1.0.7",
-    "@stripe/stripe-js": "^2.4.0",
+    "@stripe/react-stripe-js": "^5.4.1",
+    "@stripe/stripe-js": "^8.6.4",
     "@upstash/redis": "^1.36.0",
     "@vercel/kv": "^3.0.0",
     "clsx": "^2.1.0",

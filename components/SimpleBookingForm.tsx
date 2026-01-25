@@ -271,7 +271,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     }
   };
 
-  // Checkout com Cartão de Crédito via Stripe
+  // Checkout com Cartão de Crédito via Stripe (na mesma página)
   const handleCardCheckout = async () => {
     if (!canProceed()) return;
     setLoading(true);
@@ -279,24 +279,8 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
 
     try {
       const orderData = prepareOrderData();
-
-      const response = await fetch('/api/stripe/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('Erro ao criar sessão de pagamento');
-      }
+      localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+      router.push('/checkout/card');
     } catch (error: any) {
       setPaymentError(error.message || 'Erro ao processar cartão. Tente novamente.');
       setLoading(false);
