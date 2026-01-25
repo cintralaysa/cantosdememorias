@@ -51,14 +51,12 @@ export async function POST(request: NextRequest) {
       relationshipLabel: orderData.relationshipLabel || '',
       occasion: orderData.occasion || '',
       occasionLabel: orderData.occasionLabel || '',
-      story: orderData.story || '',
-      keywords: orderData.keywords || '',
-      restrictions: orderData.restrictions || '',
-      style: orderData.style || '',
-      styleLabel: orderData.styleLabel || '',
+      musicStyle: orderData.musicStyle || '',
+      musicStyleLabel: orderData.musicStyleLabel || '',
+      voicePreference: orderData.voicePreference || '',
+      storyAndMessage: orderData.storyAndMessage || '',
       generatedLyrics: orderData.generatedLyrics || '',
       status: 'pending',
-      createdAt: new Date().toISOString()
     });
 
     // URL base do site
