@@ -1,9 +1,115 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
-import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, Zap } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, Zap, AlertCircle, CreditCard } from 'lucide-react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+// Inicializar Stripe
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+
+// Componente do formulário de pagamento Stripe
+function StripeCardForm({ orderId, amount, planName, onSuccess, onError }: {
+  orderId: string;
+  amount: number;
+  planName: string;
+  onSuccess: () => void;
+  onError: (error: string) => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        onError(submitError.message || 'Erro ao processar cartão');
+        setLoading(false);
+        return;
+      }
+
+      const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/pagamento/sucesso?orderId=${orderId}`,
+        },
+        redirect: 'if_required',
+      });
+
+      if (confirmError) {
+        onError(confirmError.message || 'Erro ao confirmar pagamento');
+        setLoading(false);
+        return;
+      }
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        onSuccess();
+      }
+    } catch (err: any) {
+      onError(err.message || 'Erro inesperado');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Resumo do valor */}
+      <div className="bg-violet-50 rounded-xl p-3 border border-violet-200">
+        <div className="flex justify-between items-center">
+          <span className="text-gray-600 text-sm">{planName}</span>
+          <span className="text-xl font-bold text-violet-600">
+            R$ {(amount / 100).toFixed(2).replace('.', ',')}
+          </span>
+        </div>
+      </div>
+
+      {/* Stripe Payment Element */}
+      <div className="bg-white rounded-xl p-3 border border-gray-200">
+        <PaymentElement
+          options={{
+            layout: 'tabs',
+          }}
+        />
+      </div>
+
+      {/* Botão de pagamento */}
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-bold text-base flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg transition-all"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Processando...
+          </>
+        ) : (
+          <>
+            <Lock className="w-5 h-5" />
+            Pagar R$ {(amount / 100).toFixed(2).replace('.', ',')}
+          </>
+        )}
+      </button>
+
+      {/* Segurança */}
+      <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+        <Lock size={12} className="text-green-500" />
+        <span>Pagamento seguro processado por Stripe</span>
+      </div>
+    </form>
+  );
+}
 
 // Opções de relacionamento - Chá Revelação primeiro!
 const RELATIONSHIPS = [
@@ -112,6 +218,12 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
   const [lyricsError, setLyricsError] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  // Stripe states
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const [stripeOrderId, setStripeOrderId] = useState<string>('');
+  const [showStripeForm, setShowStripeForm] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     plan: initialPlan, // Usa o plano passado pela props
@@ -271,43 +383,76 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     }
   };
 
-  // Checkout com Cartão de Crédito via Stripe
-  const handleCardCheckout = async () => {
-    if (!canProceed()) return;
-    setLoading(true);
+  // Inicializar Stripe Payment Intent para pagamento com cartão embutido
+  const initStripePayment = useCallback(async () => {
+    if (!canProceed() || stripeClientSecret) return;
+
+    setStripeLoading(true);
     setPaymentError(null);
 
     try {
       const orderData = prepareOrderData();
 
-      // Criar sessão de checkout do Stripe
-      const response = await fetch('/api/stripe/create-checkout', {
+      // Gerar ID do pedido para Stripe
+      const newOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+      setStripeOrderId(newOrderId);
+
+      // Criar Payment Intent com dados completos do pedido
+      const response = await fetch('/api/stripe/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({
+          plan: formData.plan,
+          customerEmail: formData.email,
+          customerName: formData.userName,
+          orderId: newOrderId,
+          orderData: orderData,
+        }),
       });
 
       const data = await response.json();
 
       if (data.error) {
-        throw new Error(data.error);
+        setPaymentError(data.error);
+        setStripeLoading(false);
+        return;
       }
 
-      if (data.url) {
-        // Salvar dados para quando voltar
-        localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-        localStorage.setItem('stripeOrderId', data.orderId);
-        // Redirecionar para o Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error('Erro ao criar sessão de pagamento');
-      }
-    } catch (error: any) {
-      console.error('Erro no checkout:', error);
-      setPaymentError(error.message || 'Erro ao processar cartão. Tente novamente.');
-      setLoading(false);
+      setStripeClientSecret(data.clientSecret);
+    } catch (err: any) {
+      setPaymentError(err.message || 'Erro ao inicializar pagamento');
+    } finally {
+      setStripeLoading(false);
+    }
+  }, [formData, stripeClientSecret]);
+
+  // Handler para mostrar formulário de cartão
+  const handleCardCheckout = async () => {
+    if (!canProceed()) return;
+    setShowStripeForm(true);
+    setPaymentError(null);
+
+    // Inicializar Stripe se ainda não foi
+    if (!stripeClientSecret && !stripeLoading) {
+      await initStripePayment();
     }
   };
+
+  // Handler de sucesso do Stripe
+  const handleStripeSuccess = useCallback(() => {
+    setPaymentSuccess(true);
+    localStorage.removeItem('pendingOrder');
+    // Redirecionar para página de sucesso
+    const value = formData.plan === 'premium' ? 79.90 : 59.90;
+    setTimeout(() => {
+      router.push(`/pagamento/sucesso?orderId=${stripeOrderId}&value=${value}&plan=${formData.plan}`);
+    }, 2000);
+  }, [formData.plan, stripeOrderId, router]);
+
+  // Handler de erro do Stripe
+  const handleStripeError = useCallback((error: string) => {
+    setPaymentError(error);
+  }, []);
 
   const stepInfo = [
     { title: 'Informações', desc: 'Para quem é a música?' },
@@ -617,71 +762,150 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                   Escolha a forma de pagamento
                 </h4>
 
-                {paymentError && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">{paymentError}</div>}
-
-                {/* Botão PIX */}
-                <button
-                  type="button"
-                  onClick={handlePixCheckout}
-                  disabled={loading}
-                  className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg transition-all"
-                >
-                  {loading ? (
-                    <><Loader2 className="w-5 h-5 animate-spin" />Processando...</>
-                  ) : (
-                    <>
-                      <svg viewBox="0 0 512 512" className="w-6 h-6 fill-current"><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
-                      <div className="text-left">
-                        <div>Pagar com PIX</div>
-                        <div className="text-xs font-normal opacity-80">Aprovação instantânea</div>
-                      </div>
-                      <span className="ml-auto">{selectedPlan.priceFormatted}</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Divisor */}
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-gray-200"></div>
-                  <span className="text-xs text-gray-400 font-medium">ou</span>
-                  <div className="flex-1 h-px bg-gray-200"></div>
-                </div>
-
-                {/* Botão Cartão de Crédito */}
-                <button
-                  type="button"
-                  onClick={handleCardCheckout}
-                  disabled={loading}
-                  className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg transition-all"
-                >
-                  {loading ? (
-                    <><Loader2 className="w-5 h-5 animate-spin" />Processando...</>
-                  ) : (
-                    <>
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" strokeWidth="2"/>
-                        <line x1="1" y1="10" x2="23" y2="10" strokeWidth="2"/>
-                      </svg>
-                      <div className="text-left">
-                        <div>Cartão de Crédito</div>
-                        <div className="text-xs font-normal opacity-80">Parcele em até 12x</div>
-                      </div>
-                      <span className="ml-auto">{selectedPlan.priceFormatted}</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Badges de segurança */}
-                <div className="flex items-center justify-center gap-4 pt-2">
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <Lock size={12} className="text-green-500" />
-                    <span>Pagamento seguro</span>
+                {paymentError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm flex items-start gap-2">
+                    <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                    <span>{paymentError}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <Shield size={12} className="text-violet-500" />
-                    <span>Dados protegidos</span>
+                )}
+
+                {/* Formulário Stripe Embutido */}
+                {showStripeForm ? (
+                  <div className="space-y-4">
+                    {/* Header do formulário */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CreditCard size={20} className="text-violet-500" />
+                        <span className="font-bold text-gray-900">Pagamento com Cartão</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowStripeForm(false);
+                          setStripeClientSecret(null);
+                          setPaymentError(null);
+                        }}
+                        className="text-gray-400 hover:text-gray-600 text-sm"
+                      >
+                        Voltar
+                      </button>
+                    </div>
+
+                    {stripeLoading ? (
+                      <div className="text-center py-8">
+                        <Loader2 className="w-8 h-8 text-violet-500 animate-spin mx-auto mb-2" />
+                        <p className="text-gray-600 text-sm">Preparando pagamento...</p>
+                      </div>
+                    ) : stripeClientSecret ? (
+                      <Elements
+                        stripe={stripePromise}
+                        options={{
+                          clientSecret: stripeClientSecret,
+                          appearance: {
+                            theme: 'stripe',
+                            variables: {
+                              colorPrimary: '#7c3aed',
+                              borderRadius: '12px',
+                            },
+                          },
+                          locale: 'pt-BR',
+                        }}
+                      >
+                        <StripeCardForm
+                          orderId={stripeOrderId}
+                          amount={formData.plan === 'premium' ? 7990 : 5990}
+                          planName={selectedPlan.name}
+                          onSuccess={handleStripeSuccess}
+                          onError={handleStripeError}
+                        />
+                      </Elements>
+                    ) : paymentError ? (
+                      <div className="text-center py-6">
+                        <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-2" />
+                        <p className="text-red-600 text-sm mb-4">{paymentError}</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPaymentError(null);
+                            setStripeClientSecret(null);
+                            initStripePayment();
+                          }}
+                          className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm hover:bg-violet-700 transition"
+                        >
+                          Tentar novamente
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Loader2 className="w-8 h-8 text-violet-500 animate-spin mx-auto mb-2" />
+                        <p className="text-gray-600 text-sm">Carregando...</p>
+                      </div>
+                    )}
                   </div>
-                </div>
+                ) : (
+                  <>
+                    {/* Botão PIX */}
+                    <button
+                      type="button"
+                      onClick={handlePixCheckout}
+                      disabled={loading}
+                      className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg transition-all"
+                    >
+                      {loading ? (
+                        <><Loader2 className="w-5 h-5 animate-spin" />Processando...</>
+                      ) : (
+                        <>
+                          <svg viewBox="0 0 512 512" className="w-6 h-6 fill-current"><path d="M112.57 391.19c20.056 0 38.928-7.808 53.12-22l76.693-76.692c5.385-5.404 14.765-5.384 20.15 0l76.989 76.989c14.191 14.172 33.045 21.98 53.12 21.98h15.098l-97.138 97.139c-30.326 30.344-79.505 30.344-109.85 0l-97.415-97.416h9.232zm280.068-271.294c-20.056 0-38.929 7.809-53.12 22l-76.97 76.99c-5.551 5.53-14.6 5.568-20.15-.02l-76.711-76.693c-14.192-14.191-33.046-21.999-53.12-21.999h-9.234l97.416-97.416c30.344-30.344 79.523-30.344 109.867 0l97.138 97.138h-15.116z"/></svg>
+                          <div className="text-left">
+                            <div>Pagar com PIX</div>
+                            <div className="text-xs font-normal opacity-80">Aprovação instantânea</div>
+                          </div>
+                          <span className="ml-auto">{selectedPlan.priceFormatted}</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Divisor */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-px bg-gray-200"></div>
+                      <span className="text-xs text-gray-400 font-medium">ou</span>
+                      <div className="flex-1 h-px bg-gray-200"></div>
+                    </div>
+
+                    {/* Botão Cartão de Crédito */}
+                    <button
+                      type="button"
+                      onClick={handleCardCheckout}
+                      disabled={loading || stripeLoading}
+                      className="w-full py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg transition-all"
+                    >
+                      {stripeLoading ? (
+                        <><Loader2 className="w-5 h-5 animate-spin" />Carregando...</>
+                      ) : (
+                        <>
+                          <CreditCard className="w-6 h-6" />
+                          <div className="text-left">
+                            <div>Cartão de Crédito</div>
+                            <div className="text-xs font-normal opacity-80">Parcele em até 12x</div>
+                          </div>
+                          <span className="ml-auto">{selectedPlan.priceFormatted}</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Badges de segurança */}
+                    <div className="flex items-center justify-center gap-4 pt-2">
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <Lock size={12} className="text-green-500" />
+                        <span>Pagamento seguro</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <Shield size={12} className="text-violet-500" />
+                        <span>Dados protegidos</span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
