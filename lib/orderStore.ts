@@ -9,6 +9,8 @@ export interface OrderData {
   correlationID: string;
   amount: number;
   plan?: 'basico' | 'premium';
+  paymentMethod?: 'pix' | 'card';
+  status?: string;
   customerName: string;
   customerEmail: string;
   customerWhatsapp: string;
@@ -23,6 +25,11 @@ export interface OrderData {
   musicStyle2Label?: string;
   voicePreference: string;
   storyAndMessage?: string;
+  story?: string;
+  keywords?: string;
+  restrictions?: string;
+  style?: string;
+  styleLabel?: string;
   qualities?: string;
   memories?: string;
   heartMessage?: string;
@@ -33,7 +40,8 @@ export interface OrderData {
   babySex?: string;
   babyNameBoy?: string;
   babyNameGirl?: string;
-  createdAt: number;
+  createdAt: number | string;
+  updatedAt?: number;
 }
 
 // Salvar pedido no Redis
