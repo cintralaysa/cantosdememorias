@@ -357,7 +357,7 @@ async function sendCustomerPaymentConfirmedEmail(orderData: OrderData) {
           ` : ''}
 
           <div class="highlight-box">
-            <strong>⏰ Prazo de entrega:</strong> Sua música personalizada será entregue <strong>${orderData.plan === 'premium' ? 'ainda no mesmo dia!' : 'em até 24 horas'}</strong> pelo WhatsApp.
+            <strong>⏰ Prazo de entrega:</strong> Sua música personalizada será entregue <strong>nas próximas horas</strong> diretamente pelo WhatsApp. Fique atento!
           </div>
 
           <p>Qualquer dúvida, estamos à disposição!</p>
