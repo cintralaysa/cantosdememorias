@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const OPENPIX_APP_ID = process.env.OPENPIX_APP_ID;
 
+// Forçar rota dinâmica para evitar erro de build
+export const dynamic = 'force-dynamic';
+
 // Verificar status do pagamento PIX
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const correlationID = searchParams.get('correlationID');
+    const correlationID = request.nextUrl.searchParams.get('correlationID');
 
     if (!correlationID) {
       return NextResponse.json(
