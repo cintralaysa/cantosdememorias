@@ -37,16 +37,20 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
 
             <div className="flex items-baseline gap-1 mb-2">
               <span className="text-gray-400 text-base sm:text-lg">R$</span>
-              <span className="text-4xl sm:text-5xl font-black text-white">59</span>
+              <span className="text-4xl sm:text-5xl font-black text-white">49</span>
               <span className="text-xl sm:text-2xl text-white">,90</span>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm mb-5 sm:mb-8">
+            <div className="flex items-center gap-2 text-purple-400 text-xs sm:text-sm mb-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10" strokeWidth="2"/>
                 <path strokeLinecap="round" strokeWidth="2" d="M12 6v6l4 2"/>
               </svg>
-              Entrega em 24 horas
+              Entrega em 48 horas
+            </div>
+
+            <div className="inline-flex items-center bg-green-500/20 border border-green-500/30 rounded-full px-2.5 py-0.5 sm:px-3 sm:py-1 mb-5 sm:mb-8">
+              <span className="text-green-400 text-xs sm:text-sm font-medium">EXCLUSIVO SITE</span>
             </div>
 
             <ul className="space-y-2.5 sm:space-y-4 mb-5 sm:mb-8">
@@ -54,7 +58,7 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
                 '1 letra exclusiva personalizada',
                 '1 ritmo a sua escolha',
                 'Edite a letra no site',
-                'Entrega em até 24 horas',
+                'Entrega em até 48 horas',
                 'Arquivo MP3 alta qualidade',
                 'Receba no seu WhatsApp',
               ].map((item, index) => (

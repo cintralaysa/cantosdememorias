@@ -188,7 +188,7 @@ async function sendCompleteOrderEmail(orderData: OrderData) {
 
           <div class="section" style="background: #fef3c7; border-left-color: #f59e0b;">
             <div class="section-title" style="color: #d97706;">⏰ Próximo Passo</div>
-            <p><strong>Prazo de entrega:</strong> ${orderData.plan === 'premium' ? 'No mesmo dia ⚡' : 'Até 24 horas'}</p>
+            <p><strong>Prazo de entrega:</strong> ${orderData.plan === 'premium' ? 'No mesmo dia ⚡' : 'Até 48 horas'}</p>
             <p>Entre em contato com o cliente pelo WhatsApp para confirmar os detalhes e entregar a música personalizada.</p>
           </div>
         </div>

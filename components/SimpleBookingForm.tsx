@@ -186,18 +186,18 @@ const PLANS = {
     price: 49.90,
     priceFormatted: 'R$ 49,90',
     melodias: 1,
-    deliveryHours: 24,
-    features: ['1 Melodia exclusiva', 'Letra personalizada', 'Entrega em até 24h', 'Aprove antes de pagar'],
+    deliveryHours: 48,
+    features: ['1 Melodia exclusiva', 'Letra personalizada', 'Entrega em até 48h', 'Aprove antes de pagar'],
     color: 'violet',
-    highlight: 'MAIS POPULAR'
+    highlight: 'EXCLUSIVO SITE'
   },
   premium: {
     name: 'Plano Premium',
     price: 79.90,
     priceFormatted: 'R$ 79,90',
     melodias: 2,
-    deliveryHours: 24,
-    features: ['2 Melodias diferentes', 'Letra personalizada', 'Entrega em até 24h', 'Aprove antes de pagar'],
+    deliveryHours: 0,
+    features: ['2 Melodias diferentes', 'Letra personalizada', 'Entrega no mesmo dia', 'Aprove antes de pagar'],
     color: 'amber',
     highlight: 'MELHOR VALOR'
   }

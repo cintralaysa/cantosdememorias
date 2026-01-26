@@ -24,29 +24,29 @@ export const SERVICES: Service[] = [
     price: 49.90,
     priceInCents: 4990,
     image: "/portfolio/fotos/cantor-estudio.png",
-    features: ["1 Melodia exclusiva", "Letra personalizada", "Entrega em até 24 horas", "Aprove a letra antes de pagar"],
-    highlight: "MAIS POPULAR",
+    features: ["1 Melodia exclusiva", "Letra personalizada", "Entrega em até 48 horas", "Aprove a letra antes de pagar"],
+    highlight: "EXCLUSIVO SITE",
     audioSample: "https://cdn1.suno.ai/eb315faa-63eb-4fa3-885f-9dd2421027d0.mp3",
     type: "music",
     plan: "basico",
     melodias: 1,
-    deliveryHours: 24
+    deliveryHours: 48
   },
   {
     id: "2",
     slug: "musica-personalizada-premium",
     title: "Plano Premium",
-    description: "Duas melodias diferentes da mesma letra, com entrega prioritária.",
+    description: "Duas melodias diferentes da mesma letra, com entrega no mesmo dia.",
     price: 79.90,
     priceInCents: 7990,
     image: "/portfolio/fotos/cantor-estudio.png",
-    features: ["2 Melodias diferentes", "Letra personalizada", "Entrega em até 24 horas", "Aprove a letra antes de pagar"],
+    features: ["2 Melodias diferentes", "Letra personalizada", "Entrega no mesmo dia", "Aprove a letra antes de pagar"],
     highlight: "MELHOR VALOR",
     audioSample: "https://cdn1.suno.ai/eb315faa-63eb-4fa3-885f-9dd2421027d0.mp3",
     type: "music",
     plan: "premium",
     melodias: 2,
-    deliveryHours: 24
+    deliveryHours: 0
   }
 ];
 

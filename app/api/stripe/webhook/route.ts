@@ -151,7 +151,7 @@ function gerarEmailAdmin(orderData: any, orderId: string, session: Stripe.Checko
             </div>
             <div class="info-item">
               <div class="info-label">Prazo de Entrega</div>
-              <div class="info-value">${orderData.plan === 'premium' ? 'No mesmo dia ⚡' : 'Até 24 horas'}</div>
+              <div class="info-value">${orderData.plan === 'premium' ? 'No mesmo dia ⚡' : 'Até 48 horas'}</div>
             </div>
           </div>
 
@@ -206,7 +206,7 @@ function gerarEmailCliente(orderData: any, orderId: string) {
           <ul>
             <li>Pedido: #${orderId}</li>
             <li>Plano: ${orderData.plan === 'premium' ? 'Premium (2 músicas)' : 'Básico (1 música)'}</li>
-            <li>Prazo de entrega: ${orderData.plan === 'premium' ? 'No mesmo dia' : 'Até 24 horas'}</li>
+            <li>Prazo de entrega: ${orderData.plan === 'premium' ? 'No mesmo dia' : 'Até 48 horas'}</li>
           </ul>
 
           ${orderData.generatedLyrics ? `
@@ -215,7 +215,7 @@ function gerarEmailCliente(orderData: any, orderId: string) {
           ` : ''}
 
           <div class="highlight-box">
-            <strong>⏰ Prazo de entrega:</strong> Sua música personalizada será entregue <strong>${orderData.plan === 'premium' ? 'ainda no mesmo dia!' : 'em até 24 horas'}</strong> pelo WhatsApp.
+            <strong>⏰ Prazo de entrega:</strong> Sua música personalizada será entregue <strong>${orderData.plan === 'premium' ? 'ainda no mesmo dia!' : 'em até 48 horas'}</strong> pelo WhatsApp.
           </div>
 
           <p>Qualquer dúvida, estamos à disposição!</p>
