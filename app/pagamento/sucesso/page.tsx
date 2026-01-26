@@ -26,7 +26,7 @@ export default function SuccessPage() {
       pixelFired.current = true;
 
       // Pegar valor do pedido (da URL ou usar valor padrão baseado no plano)
-      const purchaseValue = value ? parseFloat(value) : (plan === 'premium' ? 79.90 : 59.90);
+      const purchaseValue = value ? parseFloat(value) : (plan === 'premium' ? 79.90 : 49.90);
 
       MetaPixelEvents.purchase({
         value: purchaseValue,

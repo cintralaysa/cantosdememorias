@@ -183,8 +183,8 @@ interface FormData {
 const PLANS = {
   basico: {
     name: 'Plano Básico',
-    price: 59.90,
-    priceFormatted: 'R$ 59,90',
+    price: 49.90,
+    priceFormatted: 'R$ 49,90',
     melodias: 1,
     deliveryHours: 24,
     features: ['1 Melodia exclusiva', 'Letra personalizada', 'Entrega em até 24h', 'Aprove antes de pagar'],
@@ -443,7 +443,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     setPaymentSuccess(true);
     localStorage.removeItem('pendingOrder');
     // Redirecionar para página de sucesso
-    const value = formData.plan === 'premium' ? 79.90 : 59.90;
+    const value = formData.plan === 'premium' ? 79.90 : 49.90;
     setTimeout(() => {
       router.push(`/pagamento/sucesso?orderId=${stripeOrderId}&value=${value}&plan=${formData.plan}`);
     }, 2000);

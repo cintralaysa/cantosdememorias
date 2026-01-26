@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 // Preços em centavos
 const PRECOS = {
-  basico: 5990,  // R$ 59,90
+  basico: 4990,  // R$ 49,90
   premium: 7990  // R$ 79,90
 };
 
