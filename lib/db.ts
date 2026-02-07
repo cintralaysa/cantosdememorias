@@ -5,7 +5,7 @@ export interface Order {
   id: string;
   createdAt: string;
   status: 'pending' | 'pending_pix' | 'paid' | 'completed' | 'cancelled';
-  paymentMethod: 'card' | 'pix' | 'unknown';
+  paymentMethod: 'pix' | 'unknown';
 
   // Dados do cliente
   customerEmail: string;
@@ -36,8 +36,6 @@ export interface Order {
 
   // Pagamento
   amount: number;
-  stripeSessionId?: string;
-  stripePaymentIntentId?: string;
 }
 
 // Usar variável global para persistir entre chamadas na mesma instância
@@ -96,42 +94,29 @@ export async function updateOrder(id: string, updates: Partial<Order>): Promise<
   return updatedOrder;
 }
 
-export async function getOrderByStripeSession(sessionId: string): Promise<Order | null> {
-  const orders = Array.from(ordersMap.values());
-  for (let i = 0; i < orders.length; i++) {
-    if (orders[i].stripeSessionId === sessionId) {
-      return orders[i];
-    }
-  }
-  return null;
-}
-
 export async function getOrderStats() {
   const orders = Array.from(ordersMap.values());
   const paidOrders = orders.filter(o => o.status === 'paid' || o.status === 'completed');
 
   const totalRevenue = paidOrders.reduce((sum, o) => sum + o.amount, 0);
-  const cardPayments = paidOrders.filter(o => o.paymentMethod === 'card');
   const pixPayments = paidOrders.filter(o => o.paymentMethod === 'pix');
 
   // Vendas por dia (últimos 30 dias)
-  const last30Days: { [key: string]: { total: number; card: number; pix: number } } = {};
+  const last30Days: { [key: string]: { total: number; pix: number } } = {};
   const now = new Date();
 
   for (let i = 29; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
     const key = date.toISOString().split('T')[0];
-    last30Days[key] = { total: 0, card: 0, pix: 0 };
+    last30Days[key] = { total: 0, pix: 0 };
   }
 
   paidOrders.forEach(order => {
     const date = order.createdAt.split('T')[0];
     if (last30Days[date]) {
       last30Days[date].total += order.amount;
-      if (order.paymentMethod === 'card') {
-        last30Days[date].card += order.amount;
-      } else if (order.paymentMethod === 'pix') {
+      if (order.paymentMethod === 'pix') {
         last30Days[date].pix += order.amount;
       }
     }
@@ -140,9 +125,7 @@ export async function getOrderStats() {
   return {
     totalOrders: paidOrders.length,
     totalRevenue,
-    cardRevenue: cardPayments.reduce((sum, o) => sum + o.amount, 0),
     pixRevenue: pixPayments.reduce((sum, o) => sum + o.amount, 0),
-    cardCount: cardPayments.length,
     pixCount: pixPayments.length,
     dailyStats: Object.entries(last30Days).map(([date, stats]) => ({
       date,

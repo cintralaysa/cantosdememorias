@@ -346,6 +346,7 @@ export default function BookingForm({ service }: { service: Service }) {
     // Preparar dados para o checkout transparente
     const checkoutData = {
       orderId,
+      plan: service.plan,
       amount: service.price,
       customerName: formData.userName,
       customerEmail: formData.email,

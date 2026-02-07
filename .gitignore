@@ -52,6 +52,9 @@ coverage/
 *.key
 *.crt
 
+# Claude temp files
+tmpclaude-*
+
 # Data files (pedidos salvos localmente)
 data/orders.json
 

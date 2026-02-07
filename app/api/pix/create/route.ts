@@ -85,10 +85,10 @@ export async function POST(request: NextRequest) {
         },
         additionalInfo: [
           { key: 'Plano', value: planLabel },
-          { key: 'Homenageado', value: orderData.honoreeName || '' },
-          { key: 'Ocasião', value: orderData.occasionLabel || orderData.occasion || '' },
-          { key: 'Estilo', value: orderData.musicStyleLabel || orderData.musicStyle || '' },
-        ],
+          { key: 'Homenageado', value: orderData.honoreeName || 'N/A' },
+          { key: 'Ocasião', value: orderData.occasionLabel || orderData.occasion || 'N/A' },
+          { key: 'Estilo', value: orderData.musicStyleLabel || orderData.musicStyle || 'N/A' },
+        ].filter(item => item.key && item.value),
         expiresIn: 3600, // 1 hora para pagar
       }),
     });

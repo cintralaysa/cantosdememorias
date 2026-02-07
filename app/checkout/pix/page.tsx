@@ -207,7 +207,7 @@ export default function CheckoutPixPage() {
           {/* Valor */}
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-center">
             <p className="text-purple-100 text-sm mb-1">Valor a pagar</p>
-            <p className="text-4xl font-bold text-white">{pixData?.valueFormatted || 'R$ 49,90'}</p>
+            <p className="text-4xl font-bold text-white">{pixData?.valueFormatted || 'Carregando...'}</p>
           </div>
 
           {/* QR Code */}

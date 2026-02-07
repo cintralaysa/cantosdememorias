@@ -11,8 +11,7 @@ export async function sendOrderNotification(order: Order): Promise<boolean> {
     return false;
   }
 
-  const paymentMethodLabel = order.paymentMethod === 'card' ? 'Cartão de Crédito' :
-                             order.paymentMethod === 'pix' ? 'PIX' : 'Não identificado';
+  const paymentMethodLabel = order.paymentMethod === 'pix' ? 'PIX' : 'Não identificado';
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -45,7 +44,7 @@ export async function sendOrderNotification(order: Order): Promise<boolean> {
             <div class="section-title">💰 Pagamento</div>
             <p class="amount">R$ ${order.amount.toFixed(2).replace('.', ',')}</p>
             <p>
-              <span class="badge ${order.paymentMethod === 'card' ? 'badge-card' : 'badge-pix'}">
+              <span class="badge badge-pix">
                 ${paymentMethodLabel}
               </span>
             </p>

@@ -1,84 +1,48 @@
 import { NextResponse } from 'next/server';
-import { getMercadoPagoPayment } from '@/lib/mercadopago';
+import { getOrderById } from '@/lib/db';
 
-// Interface para os dados do pedido do metadata
-interface OrderMetadata {
-  order_id?: string;
-  customer_name?: string;
-  customer_email?: string;
-  customer_whatsapp?: string;
-  honoree_name?: string;
-  relationship?: string;
-  occasion?: string;
-  music_style?: string;
-  voice_preference?: string;
-  qualities?: string;
-  memories?: string;
-  heart_message?: string;
-  family_names?: string;
-  approved_lyrics?: string;
-  knows_baby_sex?: string;
-  baby_sex?: string;
-  baby_name_boy?: string;
-  baby_name_girl?: string;
-}
-
-// API para reenviar emails de um pagamento específico
-// Útil quando o webhook falha ou para reenviar manualmente
+// API para reenviar emails de um pedido específico
 export async function POST(req: Request) {
   console.log('[RESEND-EMAIL] Recebendo requisição para reenviar email');
 
   try {
     const body = await req.json();
-    const { paymentId, type } = body; // type: 'admin' | 'customer' | 'both'
+    const { orderId, type } = body; // type: 'admin' | 'customer' | 'both'
 
-    if (!paymentId) {
-      return NextResponse.json({ error: 'paymentId é obrigatório' }, { status: 400 });
+    if (!orderId) {
+      return NextResponse.json({ error: 'orderId é obrigatório' }, { status: 400 });
     }
 
-    console.log('[RESEND-EMAIL] Payment ID:', paymentId, '| Tipo:', type || 'both');
+    console.log('[RESEND-EMAIL] Order ID:', orderId, '| Tipo:', type || 'both');
 
-    // Buscar dados do pagamento no Mercado Pago
-    const payment = await getMercadoPagoPayment(Number(paymentId));
+    // Buscar dados do pedido no banco
+    const order = await getOrderById(orderId);
 
-    if (payment.status !== 'approved') {
-      return NextResponse.json({
-        error: 'Pagamento não está aprovado',
-        status: payment.status
-      }, { status: 400 });
+    if (!order) {
+      return NextResponse.json({ error: 'Pedido não encontrado' }, { status: 404 });
     }
 
-    const metadata = payment.metadata as OrderMetadata || {};
     const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_YZgURojb_2mv7v4jQgGBkev292bfTXS9M';
     const ADMIN_EMAIL = 'cantosdememorias@gmail.com';
 
     const results: { admin?: boolean; customer?: boolean } = {};
 
-    // Determinar método de pagamento
-    const paymentMethodId = payment.payment_method_id;
-    let paymentMethod = 'unknown';
-    if (paymentMethodId === 'pix') {
-      paymentMethod = 'pix';
-    } else if (['credit_card', 'debit_card', 'visa', 'master', 'amex', 'elo', 'hipercard'].includes(paymentMethodId || '')) {
-      paymentMethod = 'card';
-    }
-
     // Enviar email para admin
     if (!type || type === 'admin' || type === 'both') {
-      const voiceLabel = metadata.voice_preference === 'feminina' ? 'Feminina' :
-                         metadata.voice_preference === 'masculina' ? 'Masculina' : 'Sem preferência';
+      const voiceLabel = order.voicePreference === 'feminina' ? 'Feminina' :
+                         order.voicePreference === 'masculina' ? 'Masculina' : 'Sem preferência';
 
       let babySection = '';
-      if (metadata.occasion?.toLowerCase().includes('chá') || metadata.occasion?.toLowerCase().includes('revelação')) {
+      if (order.occasion?.toLowerCase().includes('chá') || order.occasion?.toLowerCase().includes('revelação')) {
         babySection = `
           <div class="section" style="border-left-color: #ec4899;">
             <div class="section-title">👶 Informações do Bebê</div>
-            ${metadata.knows_baby_sex === 'sim' ? `
-              <p><strong>Sexo:</strong> ${metadata.baby_sex === 'menino' ? '💙 Menino' : '💖 Menina'}</p>
-              <p><strong>Nome:</strong> ${metadata.baby_sex === 'menino' ? metadata.baby_name_boy : metadata.baby_name_girl}</p>
+            ${order.knowsBabySex === 'sim' ? `
+              <p><strong>Sexo:</strong> ${order.babySex === 'menino' ? '💙 Menino' : '💖 Menina'}</p>
+              <p><strong>Nome:</strong> ${order.babySex === 'menino' ? order.babyNameBoy : order.babyNameGirl}</p>
             ` : `
-              <p><strong>Se menino:</strong> ${metadata.baby_name_boy || 'N/A'}</p>
-              <p><strong>Se menina:</strong> ${metadata.baby_name_girl || 'N/A'}</p>
+              <p><strong>Se menino:</strong> ${order.babyNameBoy || 'N/A'}</p>
+              <p><strong>Se menina:</strong> ${order.babyNameGirl || 'N/A'}</p>
             `}
           </div>
         `;
@@ -99,9 +63,6 @@ export async function POST(req: Request) {
             .amount { font-size: 36px; font-weight: bold; color: #059669; }
             .badge { display: inline-block; padding: 8px 20px; border-radius: 20px; background: #fef3c7; color: #92400e; font-weight: bold; }
             .lyrics-box { background: #fef3c7; padding: 20px; border-radius: 8px; white-space: pre-wrap; font-style: italic; line-height: 1.8; border: 1px solid #fcd34d; }
-            .info-row { margin: 8px 0; }
-            .info-label { color: #6b7280; font-size: 13px; }
-            .info-value { font-weight: 600; color: #111827; }
             .whatsapp-btn { display: inline-block; background: #25D366; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px; }
           </style>
         </head>
@@ -114,46 +75,29 @@ export async function POST(req: Request) {
             <div class="content">
               <div class="section">
                 <div class="section-title">💰 Pagamento</div>
-                <p class="amount">R$ ${(payment.transaction_amount || 0).toFixed(2).replace('.', ',')}</p>
+                <p class="amount">R$ ${(order.amount || 0).toFixed(2).replace('.', ',')}</p>
                 <p><span class="badge">⚡ REENVIADO</span></p>
-                <div class="info-row">
-                  <span class="info-label">ID:</span>
-                  <span class="info-value">${paymentId}</span>
-                </div>
+                <div><span style="color:#6b7280;font-size:13px">ID:</span> <span style="font-weight:600">${orderId}</span></div>
               </div>
-
               <div class="section">
                 <div class="section-title">👤 Cliente</div>
-                <div class="info-row">
-                  <span class="info-label">Nome:</span>
-                  <span class="info-value">${metadata.customer_name || 'N/A'}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Email:</span>
-                  <span class="info-value">${metadata.customer_email || 'N/A'}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">WhatsApp:</span>
-                  <span class="info-value">${metadata.customer_whatsapp || 'N/A'}</span>
-                </div>
-                ${metadata.customer_whatsapp ? `<a href="https://wa.me/55${metadata.customer_whatsapp.replace(/\D/g, '')}" class="whatsapp-btn">💬 Abrir WhatsApp</a>` : ''}
+                <p><strong>Nome:</strong> ${order.customerName || 'N/A'}</p>
+                <p><strong>Email:</strong> ${order.customerEmail || 'N/A'}</p>
               </div>
-
               <div class="section">
                 <div class="section-title">🎁 Pedido</div>
-                <div class="info-row"><span class="info-label">Música para:</span> <span class="info-value">${metadata.honoree_name || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">Relacionamento:</span> <span class="info-value">${metadata.relationship || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">Ocasião:</span> <span class="info-value">${metadata.occasion || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">Estilo:</span> <span class="info-value">${metadata.music_style || 'N/A'}</span></div>
-                <div class="info-row"><span class="info-label">Voz:</span> <span class="info-value">${voiceLabel}</span></div>
+                <p><strong>Música para:</strong> ${order.honoreeName || 'N/A'}</p>
+                <p><strong>Relacionamento:</strong> ${order.relationshipLabel || order.relationship || 'N/A'}</p>
+                <p><strong>Ocasião:</strong> ${order.occasionLabel || order.occasion || 'N/A'}</p>
+                <p><strong>Estilo:</strong> ${order.musicStyleLabel || order.musicStyle || 'N/A'}</p>
+                <p><strong>Voz:</strong> ${voiceLabel}</p>
               </div>
-
-              ${metadata.family_names ? `<div class="section"><div class="section-title">👨‍👩‍👧‍👦 Familiares</div><p>${metadata.family_names}</p></div>` : ''}
-              ${metadata.qualities ? `<div class="section"><div class="section-title">💝 Qualidades</div><p>${metadata.qualities}</p></div>` : ''}
-              ${metadata.memories ? `<div class="section"><div class="section-title">🎵 Memórias</div><p>${metadata.memories}</p></div>` : ''}
-              ${metadata.heart_message ? `<div class="section"><div class="section-title">💌 Mensagem</div><p>${metadata.heart_message}</p></div>` : ''}
+              ${order.familyNames ? `<div class="section"><div class="section-title">👨‍👩‍👧‍👦 Familiares</div><p>${order.familyNames}</p></div>` : ''}
+              ${order.qualities ? `<div class="section"><div class="section-title">💝 Qualidades</div><p>${order.qualities}</p></div>` : ''}
+              ${order.memories ? `<div class="section"><div class="section-title">🎵 Memórias</div><p>${order.memories}</p></div>` : ''}
+              ${order.heartMessage ? `<div class="section"><div class="section-title">💌 Mensagem</div><p>${order.heartMessage}</p></div>` : ''}
               ${babySection}
-              ${metadata.approved_lyrics ? `<div class="section" style="border-left-color: #8b5cf6;"><div class="section-title">📝 LETRA APROVADA</div><div class="lyrics-box">${metadata.approved_lyrics}</div></div>` : ''}
+              ${order.approvedLyrics ? `<div class="section" style="border-left-color: #8b5cf6;"><div class="section-title">📝 LETRA APROVADA</div><div class="lyrics-box">${order.approvedLyrics}</div></div>` : ''}
             </div>
           </div>
         </body>
@@ -170,7 +114,7 @@ export async function POST(req: Request) {
           body: JSON.stringify({
             from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
             to: [ADMIN_EMAIL],
-            subject: `🔄 REENVIADO: ${metadata.honoree_name || 'Cliente'} - R$ ${(payment.transaction_amount || 0).toFixed(2).replace('.', ',')}`,
+            subject: `🔄 REENVIADO: ${order.honoreeName || 'Cliente'} - R$ ${(order.amount || 0).toFixed(2).replace('.', ',')}`,
             html: adminHtml,
           }),
         });
@@ -183,7 +127,7 @@ export async function POST(req: Request) {
     }
 
     // Enviar email para cliente
-    if ((!type || type === 'customer' || type === 'both') && metadata.customer_email) {
+    if ((!type || type === 'customer' || type === 'both') && order.customerEmail) {
       const customerHtml = `
         <!DOCTYPE html>
         <html>
@@ -211,22 +155,19 @@ export async function POST(req: Request) {
             <div class="content">
               <div style="text-align: center;">
                 <span class="success-badge">✓ PAGAMENTO APROVADO</span>
-                <p class="amount">R$ ${(payment.transaction_amount || 0).toFixed(2).replace('.', ',')}</p>
+                <p class="amount">R$ ${(order.amount || 0).toFixed(2).replace('.', ',')}</p>
               </div>
               <p style="font-size: 18px; text-align: center; margin: 25px 0;">
-                Olá, <strong>${metadata.customer_name || 'Cliente'}</strong>! 🎉
+                Olá, <strong>${order.customerName || 'Cliente'}</strong>! 🎉
               </p>
               <p style="text-align: center; color: #555;">
-                Recebemos seu pedido e já estamos trabalhando na sua música personalizada para <strong>${metadata.honoree_name}</strong>.
+                Recebemos seu pedido e já estamos trabalhando na sua música personalizada para <strong>${order.honoreeName}</strong>.
               </p>
               <div class="info-card">
                 <h3 style="margin: 0 0 15px 0; color: #7c3aed;">📋 Resumo do seu pedido</h3>
-                <p><strong>Música para:</strong> ${metadata.honoree_name}</p>
-                <p><strong>Ocasião:</strong> ${metadata.occasion}</p>
-                <p><strong>Valor pago:</strong> R$ ${(payment.transaction_amount || 0).toFixed(2).replace('.', ',')}</p>
-              </div>
-              <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 25px; border-radius: 15px; text-align: center;">
-                <p style="margin: 0; color: #92400e; font-weight: 600;">🎁 Você receberá: 1 letra exclusiva + 2 melodias diferentes!</p>
+                <p><strong>Música para:</strong> ${order.honoreeName}</p>
+                <p><strong>Ocasião:</strong> ${order.occasionLabel || order.occasion}</p>
+                <p><strong>Valor pago:</strong> R$ ${(order.amount || 0).toFixed(2).replace('.', ',')}</p>
               </div>
             </div>
             <div class="footer">
@@ -248,8 +189,8 @@ export async function POST(req: Request) {
           },
           body: JSON.stringify({
             from: 'Cantos de Memórias <contato@cantosdememorias.com.br>',
-            to: [metadata.customer_email],
-            subject: `🎵 Pedido Confirmado! Sua música para ${metadata.honoree_name} está sendo criada`,
+            to: [order.customerEmail],
+            subject: `🎵 Pedido Confirmado! Sua música para ${order.honoreeName} está sendo criada`,
             html: customerHtml,
           }),
         });
@@ -263,12 +204,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      paymentId,
+      orderId,
       results,
-      metadata: {
-        customer_name: metadata.customer_name,
-        customer_email: metadata.customer_email,
-        honoree_name: metadata.honoree_name,
+      order: {
+        customerName: order.customerName,
+        customerEmail: order.customerEmail,
+        honoreeName: order.honoreeName,
       }
     });
   } catch (error) {
@@ -282,7 +223,7 @@ export async function GET() {
   return NextResponse.json({
     status: 'ok',
     message: 'API de reenvio de emails ativa',
-    usage: 'POST com { paymentId: "123", type: "admin" | "customer" | "both" }',
+    usage: 'POST com { orderId: "ORD-xxx", type: "admin" | "customer" | "both" }',
     timestamp: new Date().toISOString()
   });
 }

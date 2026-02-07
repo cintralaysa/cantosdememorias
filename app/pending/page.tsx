@@ -25,7 +25,7 @@ export default function PendingPage() {
       if (orderId) params.set('order', orderId);
       if (externalReference) params.set('external_reference', externalReference);
 
-      const response = await fetch(`/api/mercadopago/check-payment?${params.toString()}`);
+      const response = await fetch(`/api/pix/status?${params.toString()}`);
       const data = await response.json();
 
       console.log('[PENDING] Status check:', data);
