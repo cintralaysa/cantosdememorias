@@ -20,8 +20,16 @@ export async function POST(request: NextRequest) {
 
     // Determinar o plano e preço
     const plan = orderData.plan || 'basico';
-    const preco = PRECOS[plan as keyof typeof PRECOS] || PRECOS.basico;
-    const precoFormatado = PRECOS_FORMATADOS[plan as keyof typeof PRECOS_FORMATADOS] || PRECOS_FORMATADOS.basico;
+    let preco = PRECOS[plan as keyof typeof PRECOS] || PRECOS.basico;
+    let precoFormatado = PRECOS_FORMATADOS[plan as keyof typeof PRECOS_FORMATADOS] || PRECOS_FORMATADOS.basico;
+
+    // Aplicar cupom de desconto
+    const coupon = orderData.coupon;
+    if (coupon === 'AMOR10') {
+      preco = Math.round(preco * 0.9);
+      const reais = (preco / 100).toFixed(2).replace('.', ',');
+      precoFormatado = `R$ ${reais}`;
+    }
 
     // Gerar ID único do pedido
     const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
@@ -88,6 +96,7 @@ export async function POST(request: NextRequest) {
           { key: 'Homenageado', value: orderData.honoreeName || 'N/A' },
           { key: 'Ocasião', value: orderData.occasionLabel || orderData.occasion || 'N/A' },
           { key: 'Estilo', value: orderData.musicStyleLabel || orderData.musicStyle || 'N/A' },
+          ...(coupon === 'AMOR10' ? [{ key: 'Cupom', value: 'AMOR10 (10% OFF)' }] : []),
         ].filter(item => item.key && item.value),
         expiresIn: 3600, // 1 hora para pagar
       }),
@@ -109,6 +118,7 @@ export async function POST(request: NextRequest) {
     console.log('Correlation ID:', correlationID);
     console.log('Plano:', planLabel);
     console.log('Valor:', precoFormatado);
+    if (coupon) console.log('Cupom:', coupon, '(10% OFF)');
     console.log('Dados salvos no Redis:', saved ? 'SIM' : 'NÃO');
     console.log('QR Code gerado com sucesso');
     console.log('Aguardando pagamento - emails serão enviados após confirmação');

@@ -2,9 +2,13 @@
 
 interface PlanosProps {
   onSelectPlan: (plan: 'basico' | 'premium') => void;
+  couponActive?: boolean;
 }
 
-export default function Planos({ onSelectPlan }: PlanosProps) {
+export default function Planos({ onSelectPlan, couponActive = false }: PlanosProps) {
+  // Preços com desconto de 10%
+  const basicoPrice = couponActive ? { int: '44', dec: ',91' } : { int: '49', dec: ',90' };
+  const premiumPrice = couponActive ? { int: '71', dec: ',91' } : { int: '79', dec: ',90' };
   return (
     <section id="planos" className="py-10 sm:py-16 lg:py-20 px-4 bg-gradient-to-b from-[#0f0a1e] via-[#1a1333] to-[#0f0a1e]">
       <div className="max-w-5xl mx-auto">
@@ -23,10 +27,17 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
             Uma música exclusiva e emocionante, criada especialmente para eternizar seu momento mais especial.
           </p>
 
-          <div className="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full px-3 py-1.5 sm:px-4 sm:py-2">
-            <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
-            <span className="text-yellow-400 text-xs sm:text-sm font-medium">Preços exclusivos apenas pelo site</span>
-          </div>
+          {couponActive ? (
+            <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 rounded-full px-3 py-1.5 sm:px-4 sm:py-2">
+              <span className="text-base">🎁</span>
+              <span className="text-green-400 text-xs sm:text-sm font-bold">CUPOM AMOR10 ATIVADO — 10% OFF</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full px-3 py-1.5 sm:px-4 sm:py-2">
+              <span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>
+              <span className="text-yellow-400 text-xs sm:text-sm font-medium">Preços exclusivos apenas pelo site</span>
+            </div>
+          )}
         </div>
 
         {/* Cards */}
@@ -36,9 +47,12 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
             <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Plano Básico</h3>
 
             <div className="flex items-baseline gap-1 mb-2">
+              {couponActive && (
+                <span className="text-gray-500 text-lg sm:text-xl line-through mr-2">R$ 49,90</span>
+              )}
               <span className="text-gray-400 text-base sm:text-lg">R$</span>
-              <span className="text-4xl sm:text-5xl font-black text-white">49</span>
-              <span className="text-xl sm:text-2xl text-white">,90</span>
+              <span className="text-4xl sm:text-5xl font-black text-white">{basicoPrice.int}</span>
+              <span className="text-xl sm:text-2xl text-white">{basicoPrice.dec}</span>
             </div>
 
             <div className="flex items-center gap-2 text-purple-400 text-xs sm:text-sm mb-2">
@@ -103,9 +117,12 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
             </div>
 
             <div className="flex items-baseline gap-1 mb-2">
+              {couponActive && (
+                <span className="text-gray-500 text-lg sm:text-xl line-through mr-2">R$ 79,90</span>
+              )}
               <span className="text-gray-400 text-base sm:text-lg">R$</span>
-              <span className="text-4xl sm:text-5xl font-black text-white">79</span>
-              <span className="text-xl sm:text-2xl text-white">,90</span>
+              <span className="text-4xl sm:text-5xl font-black text-white">{premiumPrice.int}</span>
+              <span className="text-xl sm:text-2xl text-white">{premiumPrice.dec}</span>
             </div>
 
             <div className="flex items-center gap-2 text-orange-400 text-xs sm:text-sm mb-5 sm:mb-8">

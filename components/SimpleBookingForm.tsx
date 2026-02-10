@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
 import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, Zap, AlertCircle } from 'lucide-react';
@@ -108,6 +108,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
   const router = useRouter();
   const [step, setStep] = useState(1); // Agora começa direto nas informações
   const [loading, setLoading] = useState(false);
+  const [couponActive, setCouponActive] = useState(false);
   const [generatingLyrics, setGeneratingLyrics] = useState(false);
   const [lyricsError, setLyricsError] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -134,7 +135,19 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     lyricsApproved: false,
   });
 
+  // Checar cupom no localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('couponActive') === 'true') {
+      setCouponActive(true);
+    }
+  }, []);
+
   const selectedPlan = PLANS[formData.plan];
+  // Aplicar desconto de 10% se cupom ativo
+  const discountedPrice = couponActive ? Math.round(selectedPlan.price * 0.9 * 100) / 100 : selectedPlan.price;
+  const discountedPriceFormatted = couponActive
+    ? `R$ ${discountedPrice.toFixed(2).replace('.', ',')}`
+    : selectedPlan.priceFormatted;
   const totalSteps = 4; // Agora são só 4 passos (removemos a escolha do plano)
   const progress = (step / totalSteps) * 100;
 
@@ -233,6 +246,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
   // Preparar dados do pedido (reutilizável)
   const prepareOrderData = () => ({
     plan: formData.plan,
+    coupon: couponActive ? 'AMOR10' : undefined,
     customerName: formData.userName,
     customerEmail: formData.email,
     customerWhatsapp: formData.whatsapp,
@@ -315,7 +329,14 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
           <div className="text-right flex items-center gap-3">
             <div className="bg-white/10 rounded-lg px-3 py-2">
               <span className="text-xs text-white/60 block">{selectedPlan.name}</span>
-              <span className="text-xl font-black text-white">{selectedPlan.priceFormatted}</span>
+              {couponActive ? (
+                <div>
+                  <span className="text-xs text-white/40 line-through block">{selectedPlan.priceFormatted}</span>
+                  <span className="text-xl font-black text-green-300">{discountedPriceFormatted}</span>
+                </div>
+              ) : (
+                <span className="text-xl font-black text-white">{selectedPlan.priceFormatted}</span>
+              )}
             </div>
             {isModal && onClose && (
               <button onClick={onClose} className="text-white/60 hover:text-white p-1 hover:bg-white/10 rounded-lg">
@@ -567,7 +588,22 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                 )}
                 <div className="flex justify-between"><span className="text-gray-500">Melodias:</span><span className="font-semibold">{selectedPlan.melodias}</span></div>
                 <div className="flex justify-between"><span className="text-gray-500">Entrega:</span><span className="font-semibold">Até {selectedPlan.deliveryHours}h</span></div>
-                <div className="border-t pt-3 mt-3 flex justify-between items-center"><span className="font-bold">Total:</span><span className="text-2xl font-black text-violet-600">{selectedPlan.priceFormatted}</span></div>
+                {couponActive && (
+                  <div className="flex justify-between items-center text-green-600">
+                    <span className="text-gray-500 flex items-center gap-1"><span>🎁</span> Cupom AMOR10:</span>
+                    <span className="font-semibold">-10%</span>
+                  </div>
+                )}
+                <div className="border-t pt-3 mt-3 flex justify-between items-center"><span className="font-bold">Total:</span>
+                  {couponActive ? (
+                    <div className="text-right">
+                      <span className="text-sm text-gray-400 line-through block">{selectedPlan.priceFormatted}</span>
+                      <span className="text-2xl font-black text-green-600">{discountedPriceFormatted}</span>
+                    </div>
+                  ) : (
+                    <span className="text-2xl font-black text-violet-600">{selectedPlan.priceFormatted}</span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -602,7 +638,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                         <div>Pagar com PIX</div>
                         <div className="text-xs font-normal opacity-80">Aprovação instantânea</div>
                       </div>
-                      <span className="ml-auto">{selectedPlan.priceFormatted}</span>
+                      <span className="ml-auto">{discountedPriceFormatted}</span>
                     </>
                   )}
                 </button>

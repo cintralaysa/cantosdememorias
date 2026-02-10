@@ -42,10 +42,14 @@ export default function CheckoutPixPage() {
         // Guardar o plano para usar no redirecionamento
         setOrderPlan(orderData.plan || 'basico');
 
+        // Incluir cupom se ativo no localStorage
+        const coupon = localStorage.getItem('couponActive') === 'true' ? 'AMOR10' : undefined;
+        const requestData = coupon ? { ...orderData, coupon } : orderData;
+
         const response = await fetch('/api/pix/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData),
+          body: JSON.stringify(requestData),
         });
 
         if (!response.ok) {

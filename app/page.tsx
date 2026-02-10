@@ -7,6 +7,7 @@ import Image from 'next/image';
 import PortfolioSection from '@/components/PortfolioSection';
 import CheckoutModal from '@/components/CheckoutModal';
 import Planos from '@/components/Planos';
+import CouponPopup from '@/components/CouponPopup';
 import { useState, useEffect, useRef } from 'react';
 
 // Componente de Logo Premium
@@ -328,6 +329,7 @@ export default function Home() {
   const [duration, setDuration] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'basico' | 'premium'>('basico');
+  const [couponActive, setCouponActive] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Pegar o serviço de música personalizada
@@ -366,6 +368,19 @@ export default function Home() {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  // Restaurar estado do cupom do localStorage
+  useEffect(() => {
+    if (localStorage.getItem('couponActive') === 'true') {
+      setCouponActive(true);
+    }
+  }, []);
+
+  const handleUseCoupon = () => {
+    setCouponActive(true);
+    localStorage.setItem('couponActive', 'true');
+    document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const faqData = [
     {
@@ -608,7 +623,7 @@ export default function Home() {
       {/* ================================================================
           PLANOS - SEÇÃO ESCURA COM DESIGN ROXO/LARANJA
           ================================================================ */}
-      <Planos onSelectPlan={(plan) => { setSelectedPlan(plan); setIsModalOpen(true); }} />
+      <Planos onSelectPlan={(plan) => { setSelectedPlan(plan); setIsModalOpen(true); }} couponActive={couponActive} />
 
       {/* ================================================================
           COMO FUNCIONA - OTIMIZADO MOBILE
@@ -956,6 +971,9 @@ export default function Home() {
         service={musicService}
         selectedPlan={selectedPlan}
       />
+
+      {/* Popup de Cupom */}
+      <CouponPopup onUseCoupon={handleUseCoupon} />
     </main>
   );
 }
