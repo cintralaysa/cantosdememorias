@@ -461,9 +461,9 @@ export default function Home() {
       </header>
 
       {/* ================================================================
-          HERO SECTION - DESIGN COM IMAGEM PERSONALIZADA
+          HERO SECTION - DESIGN LEVE EM CÓDIGO (SEM IMAGEM PESADA)
           ================================================================ */}
-      <section className="relative w-full overflow-hidden bg-[#0d0620]">
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#0d0620] via-[#1a0f3a] to-[#0f0a1e] min-h-[90vh] sm:min-h-screen flex items-center">
         {/* Audio Element Hidden */}
         <audio
           ref={audioRef}
@@ -473,150 +473,146 @@ export default function Home() {
           onEnded={() => setIsPlaying(false)}
         />
 
-        {/* VERSÃO MOBILE - Imagem completa sem cortes */}
-        <div className="w-full sm:hidden bg-[#0d0620] pt-20">
-          <div className="relative w-full">
-            <img
-              src="/images/hero-bg-mobile.jpg"
-              alt="Cantos de Memórias - Músicas Personalizadas"
-              className="w-full h-auto"
-            />
+        {/* Partículas de notas musicais flutuantes */}
+        <FloatingParticles />
 
-            {/* Botões Mobile - posicionados sobre a imagem vertical */}
-            {/* Botão "Criar Minha Música" - Mobile */}
-            <a
-              href="#planos"
-              className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
-              style={{
-                left: '3%',
-                top: '89%',
-                width: '48%',
-                height: '8%',
-              }}
-              aria-label="Criar Minha Música"
-            />
+        {/* Efeitos de glow decorativos */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-violet-600/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-80 sm:h-80 bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-pink-500/10 rounded-full blur-[150px] pointer-events-none" />
 
-            {/* Botão "Ouvir Exemplos" - Mobile */}
-            <a
-              href="#portfolio"
-              className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
-              style={{
-                left: '53%',
-                top: '89%',
-                width: '44%',
-                height: '8%',
-              }}
-              aria-label="Ouvir Exemplos"
-            />
+        {/* Conteúdo principal */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-20 w-full">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Lado esquerdo - Texto */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-4 py-2 rounded-full mb-6 animate-fadeInUp">
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span className="text-white/80 text-xs sm:text-sm font-medium">+2.000 músicas criadas com amor</span>
+              </div>
 
-            {/* Player - Botão play no mixer (centro) - Mobile */}
-            <button
-              onClick={togglePlay}
-              className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
-              style={{
-                left: '36%',
-                top: '63%',
-                width: '28%',
-                height: '9%',
-              }}
-              aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
-            />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 leading-tight animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+                Transforme Sua{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400">
+                  História
+                </span>
+                <br />
+                em{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
+                  Música
+                </span>
+              </h1>
 
-            {/* Indicador visual de reprodução - Mobile */}
-            {isPlaying && (
-              <div
-                className="absolute z-30 pointer-events-none flex items-center justify-center"
-                style={{
-                  left: '50%',
-                  top: '40%',
-                  transform: 'translateX(-50%)',
-                }}
-              >
-                <div className="bg-black/70 backdrop-blur-sm rounded-full p-3 animate-pulse">
-                  <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                  </svg>
+              <p className="text-gray-300 text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+                Uma música exclusiva e personalizada para eternizar seus momentos mais especiais. O presente mais emocionante que alguém pode receber.
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-8 sm:mb-10 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+                <a
+                  href="#planos"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
+                >
+                  <Sparkles size={18} />
+                  <span>Criar Minha Música</span>
+                  <ArrowRight size={16} />
+                </a>
+                <a
+                  href="#portfolio"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base hover:bg-white/20 transition-all duration-300"
+                >
+                  <Headphones size={18} />
+                  <span>Ouvir Exemplos</span>
+                </a>
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+                {[
+                  { value: '2.000+', label: 'Músicas' },
+                  { value: '4.9★', label: 'Avaliação' },
+                  { value: '48h', label: 'Entrega' },
+                ].map((stat, i) => (
+                  <div key={i} className="text-center">
+                    <p className="text-white font-black text-lg sm:text-xl">{stat.value}</p>
+                    <p className="text-gray-400 text-xs sm:text-sm">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Lado direito - Player e visualização */}
+            <div className="flex justify-center lg:justify-end animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+              <div className="relative w-full max-w-sm">
+                {/* Card do player */}
+                <div className="bg-[#1a1333]/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-500/10">
+                  {/* Ícone de música */}
+                  <div className="flex justify-center mb-6">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl shadow-violet-500/30">
+                      <Music className="text-white" size={36} />
+                    </div>
+                  </div>
+
+                  {/* Título da música */}
+                  <div className="text-center mb-6">
+                    <p className="text-white font-bold text-base sm:text-lg">Melodia do Coração</p>
+                    <p className="text-gray-400 text-sm">Exemplo de música personalizada</p>
+                  </div>
+
+                  {/* Visualizador de música */}
+                  <div className="flex justify-center mb-6">
+                    <MusicVisualizer />
+                  </div>
+
+                  {/* Barra de progresso */}
+                  <div className="mb-4">
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all duration-300"
+                        style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+                      />
+                    </div>
+                    <div className="flex justify-between mt-1.5">
+                      <span className="text-xs text-gray-500">{formatTime(currentTime)}</span>
+                      <span className="text-xs text-gray-500">{formatTime(duration)}</span>
+                    </div>
+                  </div>
+
+                  {/* Botão Play */}
+                  <button
+                    onClick={togglePlay}
+                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-bold hover:from-violet-500 hover:to-purple-500 transition-all duration-300 shadow-lg shadow-violet-500/20"
+                  >
+                    {isPlaying ? (
+                      <>
+                        <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                        </svg>
+                        <span>Pausar</span>
+                      </>
+                    ) : (
+                      <>
+                        <PlayCircle size={20} />
+                        <span>Ouvir Exemplo</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Badge flutuante */}
+                <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg shadow-orange-500/30 animate-bounce">
+                  A partir de R$49,90
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* VERSÃO DESKTOP - Imagem original */}
-        <div className="relative w-full max-w-[1920px] mx-auto hidden sm:block" style={{ aspectRatio: '1456/816' }}>
-          <img
-            src="/images/hero-bg.png"
-            alt="Cantos de Memórias - Músicas Personalizadas"
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
-
-          {/* Overlay para esconder o header da imagem - Desktop */}
-          <div
-            className="absolute top-0 left-0 right-0 z-10"
-            style={{
-              height: '12%',
-              background: 'linear-gradient(to bottom, #0d0a1a 0%, #0d0a1a 60%, transparent 100%)'
-            }}
-          />
-
-          {/* Botões Desktop - posicionados sobre a imagem desktop */}
-          {/* Botão "Criar Minha Música" - Desktop */}
-          <a
-            href="#planos"
-            className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
-            style={{
-              left: '9%',
-              top: '66%',
-              width: '19%',
-              height: '8%',
-            }}
-            aria-label="Criar Minha Música"
-          />
-
-          {/* Botão "Ouvir Exemplos" - Desktop */}
-          <a
-            href="#portfolio"
-            className="absolute z-20 cursor-pointer rounded-full transition-all hover:bg-white/10"
-            style={{
-              left: '29%',
-              top: '66%',
-              width: '14%',
-              height: '8%',
-            }}
-            aria-label="Ouvir Exemplos"
-          />
-
-          {/* Player - Desktop */}
-          <button
-            onClick={togglePlay}
-            className="absolute z-20 cursor-pointer bg-transparent border-0 outline-none rounded-full transition-all hover:bg-purple-500/20"
-            style={{
-              left: '64%',
-              top: '64%',
-              width: '7%',
-              height: '13%',
-            }}
-            aria-label={isPlaying ? 'Pausar música' : 'Ouvir exemplo'}
-          />
-
-          {/* Indicador visual de reprodução - Desktop */}
-          {isPlaying && (
-            <div
-              className="absolute z-30 pointer-events-none flex items-center justify-center"
-              style={{
-                left: '51%',
-                top: '18%',
-                width: '23%',
-                height: '72%',
-              }}
-            >
-              <div className="bg-black/70 backdrop-blur-sm rounded-full p-4 animate-pulse">
-                <svg className="w-10 h-10 text-white fill-current" viewBox="0 0 24 24">
-                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                </svg>
-              </div>
-            </div>
-          )}
+        {/* Onda decorativa na base */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 60" fill="none" className="w-full">
+            <path d="M0 60V30C360 0 720 0 1080 30C1260 45 1380 55 1440 60V60H0Z" fill="#0f0a1e" />
+          </svg>
         </div>
       </section>
 
