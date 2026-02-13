@@ -337,7 +337,7 @@ export default function Home() {
   const musicService = SERVICES.find(s => s.slug === 'musica-personalizada') || SERVICES[0];
 
   // Música de exemplo do Hero
-  const heroAudioSrc = "https://cdn1.suno.ai/eb315faa-63eb-4fa3-885f-9dd2421027d0.mp3";
+  const heroAudioSrc = "/audio/exemplo.mp3";
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -551,8 +551,8 @@ export default function Home() {
                   <div className="flex justify-center mb-6">
                     <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-xl shadow-violet-500/20">
                       <Image
-                        src="/images/headphones.png"
-                        alt="Headphones - Melodia do Coração"
+                        src="/images/hero-player.png"
+                        alt="Melodia do Coração - Música personalizada"
                         width={128}
                         height={128}
                         className="w-full h-full object-cover"
