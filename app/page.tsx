@@ -283,16 +283,16 @@ const MUSIC_NOTES = ['♪', '♫', '♩', '♬', '𝄞', '𝄢'];
 // Componente de Notas Musicais Flutuantes
 const FloatingParticles = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {[...Array(10)].map((_, i) => (
+    {[...Array(15)].map((_, i) => (
       <div
         key={i}
-        className="absolute text-violet-400/25 animate-particle select-none"
+        className="absolute text-violet-400/30 animate-particle select-none"
         style={{
           left: `${Math.random() * 100}%`,
           top: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 8}s`,
-          animationDuration: `${10 + Math.random() * 8}s`,
-          fontSize: `${14 + Math.random() * 12}px`,
+          animationDelay: `${Math.random() * 6}s`,
+          animationDuration: `${8 + Math.random() * 6}s`,
+          fontSize: `${14 + Math.random() * 14}px`,
         }}
       >
         {MUSIC_NOTES[i % MUSIC_NOTES.length]}

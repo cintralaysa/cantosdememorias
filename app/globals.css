@@ -155,7 +155,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes wave {
   0% { transform: scaleY(1); }
-  50% { transform: scaleY(0.5); }
+  50% { transform: scaleY(0.6); }
   100% { transform: scaleY(1); }
 }
 
@@ -445,19 +445,19 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes particle-float {
   0%, 100% {
     transform: translateY(0) translateX(0) rotate(0deg);
-    opacity: 0.4;
-  }
-  25% {
-    transform: translateY(-10px) translateX(5px) rotate(15deg);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-18px) translateX(-5px) rotate(-10deg);
     opacity: 0.5;
   }
-  75% {
-    transform: translateY(-8px) translateX(8px) rotate(10deg);
+  25% {
+    transform: translateY(-15px) translateX(8px) rotate(20deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-25px) translateX(-8px) rotate(-15deg);
     opacity: 0.6;
+  }
+  75% {
+    transform: translateY(-12px) translateX(10px) rotate(15deg);
+    opacity: 0.7;
   }
 }
 
@@ -701,7 +701,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .music-bar {
   @apply w-1 bg-gradient-to-t from-violet-600 to-purple-400 rounded-full;
-  animation: wave 1s ease-in-out infinite;
+  animation: wave 2.5s ease-in-out infinite;
 }
 
 .music-bar:nth-child(1) { animation-delay: 0s; }
