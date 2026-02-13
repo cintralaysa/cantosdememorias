@@ -370,11 +370,10 @@ export default function Home() {
     };
   }, []);
 
-  // Restaurar estado do cupom do localStorage
+  // Ativar cupom automaticamente ao abrir o site
   useEffect(() => {
-    if (localStorage.getItem('couponActive') === 'true') {
-      setCouponActive(true);
-    }
+    setCouponActive(true);
+    localStorage.setItem('couponActive', 'true');
   }, []);
 
   const handleUseCoupon = () => {
