@@ -7,9 +7,8 @@ interface PlanosProps {
 
 export default function Planos({ onSelectPlan, couponActive = false }: PlanosProps) {
   // Preços com desconto de 10%
-  const basicoPrice = couponActive ? { int: '44', dec: ',91' } : { int: '49', dec: ',90' };
+  const basicoPrice = couponActive ? { int: '53', dec: ',91' } : { int: '59', dec: ',90' };
   const premiumPrice = couponActive ? { int: '71', dec: ',91' } : { int: '79', dec: ',90' };
-  const premiumPerMelodia = couponActive ? 'R$ 35,95' : 'R$ 39,95';
   return (
     <section id="planos" className="py-10 sm:py-16 lg:py-20 px-4 bg-gradient-to-b from-[#0f0a1e] via-[#1a1333] to-[#0f0a1e]">
       <div className="max-w-5xl mx-auto">
@@ -49,7 +48,7 @@ export default function Planos({ onSelectPlan, couponActive = false }: PlanosPro
 
             <div className="flex items-baseline gap-1 mb-2">
               {couponActive && (
-                <span className="text-gray-500 text-lg sm:text-xl line-through mr-2">R$ 49,90</span>
+                <span className="text-gray-500 text-lg sm:text-xl line-through mr-2">R$ 59,90</span>
               )}
               <span className="text-gray-400 text-base sm:text-lg">R$</span>
               <span className="text-4xl sm:text-5xl font-black text-white">{basicoPrice.int}</span>
@@ -124,24 +123,11 @@ export default function Planos({ onSelectPlan, couponActive = false }: PlanosPro
               <span className="text-xl sm:text-2xl text-white">{premiumPrice.dec}</span>
             </div>
 
-            {/* Preço por melodia — jogada de valor */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-orange-300/80 text-xs sm:text-sm font-medium">{premiumPerMelodia} por melodia</span>
-              <span className="bg-green-500/20 text-green-400 text-xs font-bold px-2 py-0.5 rounded-full">ECONOMIZE</span>
-            </div>
-
             <div className="flex items-center gap-2 text-orange-400 text-xs sm:text-sm mb-4 sm:mb-6">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z"/>
               </svg>
               Entrega no mesmo dia
-            </div>
-
-            {/* Badge de melhor custo-benefício */}
-            <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-xl p-3 mb-5 sm:mb-6">
-              <p className="text-orange-300 text-xs sm:text-sm font-semibold text-center">
-                💡 2 melodias por apenas R$ 30 a mais — o dobro de opções!
-              </p>
             </div>
 
             <ul className="space-y-2.5 sm:space-y-4 mb-5 sm:mb-8">

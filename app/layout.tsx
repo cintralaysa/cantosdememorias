@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     default: 'Como Criar Música Personalizada para Presente? | Cantos de Memórias',
     template: '%s | Cantos de Memórias'
   },
-  description: 'Descubra como transformar sua história em uma música personalizada exclusiva. Entrega em até 48h, perfeito para aniversário, casamento, Dia das Mães e datas especiais. A partir de R$49,90.',
+  description: 'Descubra como transformar sua história em uma música personalizada exclusiva. Entrega em até 48h, perfeito para aniversário, casamento, Dia das Mães e datas especiais. A partir de R$59,90.',
   keywords: [
     'música personalizada',
     'presente criativo',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     url: 'https://cantosdememoria.com',
     siteName: 'Cantos de Memórias',
     title: 'Músicas Personalizadas - Transforme Sua História em Melodia | Cantos de Memórias',
-    description: 'Crie uma música única e exclusiva para presentear quem você ama. Entrega em até 48h. Perfeito para aniversários, casamentos, Dia das Mães e momentos especiais. A partir de R$49,90.',
+    description: 'Crie uma música única e exclusiva para presentear quem você ama. Entrega em até 48h. Perfeito para aniversários, casamentos, Dia das Mães e momentos especiais. A partir de R$59,90.',
     images: [
       {
         url: '/og-image.jpg',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Músicas Personalizadas - Presente Único e Emocionante',
-    description: 'Transforme histórias em músicas exclusivas. Entrega em até 48h. A partir de R$49,90!',
+    description: 'Transforme histórias em músicas exclusivas. Entrega em até 48h. A partir de R$59,90!',
     images: ['/og-image.jpg'],
   },
 
@@ -155,7 +155,7 @@ const jsonLd = {
       areaServed: 'BR',
       offers: {
         '@type': 'Offer',
-        price: '49.90',
+        price: '59.90',
         priceCurrency: 'BRL',
         availability: 'https://schema.org/InStock',
         deliveryLeadTime: {
@@ -199,7 +199,7 @@ const jsonLd = {
           name: 'Quanto custa uma música personalizada?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Temos dois planos: Básico por R$49,90 (1 melodia, entrega em até 48h) e Premium por R$79,90 (2 melodias, entrega no mesmo dia). Você aprova a letra antes de pagar.'
+            text: 'Temos dois planos: Básico por R$59,90 (1 melodia, entrega em até 48h) e Premium por R$79,90 (2 melodias, entrega no mesmo dia). Você aprova a letra antes de pagar.'
           }
         },
         {
@@ -246,7 +246,7 @@ export default function RootLayout({
         />
         {/* Meta tags adicionais para IA */}
         <meta name="ai-content-type" content="comercial" />
-        <meta name="ai-summary" content="Cantos de Memórias cria músicas personalizadas exclusivas para presentes em ocasiões especiais. Entrega em até 48h, a partir de R$49,90. Plano Premium com 2 melodias e entrega no mesmo dia por R$79,90." />
+        <meta name="ai-summary" content="Cantos de Memórias cria músicas personalizadas exclusivas para presentes em ocasiões especiais. Entrega em até 48h, a partir de R$59,90. Plano Premium com 2 melodias e entrega no mesmo dia por R$79,90." />
       </head>
       <body className={inter.className}>
         <MetaPixel />

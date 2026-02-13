@@ -77,8 +77,8 @@ interface FormData {
 const PLANS = {
   basico: {
     name: 'Plano Básico',
-    price: 49.90,
-    priceFormatted: 'R$ 49,90',
+    price: 59.90,
+    priceFormatted: 'R$ 59,90',
     melodias: 1,
     deliveryHours: 48,
     features: ['1 Melodia exclusiva', 'Letra personalizada', 'Entrega em até 48h', 'Aprove antes de pagar'],

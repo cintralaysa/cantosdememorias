@@ -390,11 +390,11 @@ export default function Home() {
     },
     {
       question: "Quanto custa uma música personalizada?",
-      answer: "Temos dois planos: Plano Básico por R$49,90 (1 melodia, entrega em até 48h) - exclusivo pelo site! E Plano Premium por R$79,90 (2 melodias diferentes, entrega no mesmo dia). Em ambos você aprova a letra antes de pagar!"
+      answer: "Temos dois planos: Plano Básico por R$59,90 (1 melodia, entrega em até 48h) - exclusivo pelo site! E Plano Premium por R$79,90 (2 melodias diferentes, entrega no mesmo dia). Em ambos você aprova a letra antes de pagar!"
     },
     {
       question: "Qual a diferença entre os planos?",
-      answer: "No Plano Básico (R$49,90 - exclusivo site) você recebe 1 melodia exclusiva com entrega em até 48 horas. No Plano Premium (R$79,90) você recebe 2 melodias diferentes e a entrega é no mesmo dia, com prioridade na produção."
+      answer: "No Plano Básico (R$59,90 - exclusivo site) você recebe 1 melodia exclusiva com entrega em até 48 horas. No Plano Premium (R$79,90) você recebe 2 melodias diferentes e a entrega é no mesmo dia, com prioridade na produção."
     },
     {
       question: "Em quanto tempo recebo minha música?",
@@ -609,7 +609,7 @@ export default function Home() {
 
                 {/* Badge flutuante */}
                 <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg shadow-orange-500/30 animate-bounce">
-                  A partir de R$49,90
+                  A partir de R$59,90
                 </div>
               </div>
             </div>
