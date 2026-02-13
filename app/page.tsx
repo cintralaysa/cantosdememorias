@@ -8,6 +8,7 @@ import PortfolioSection from '@/components/PortfolioSection';
 import CheckoutModal from '@/components/CheckoutModal';
 import Planos from '@/components/Planos';
 import CouponPopup from '@/components/CouponPopup';
+import PurchaseNotifications from '@/components/PurchaseNotifications';
 import { useState, useEffect, useRef } from 'react';
 
 // Componente de Logo Premium
@@ -546,10 +547,17 @@ export default function Home() {
               <div className="relative w-full max-w-sm">
                 {/* Card do player */}
                 <div className="bg-[#1a1333]/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-500/10">
-                  {/* Ícone de música */}
+                  {/* Imagem dos headphones */}
                   <div className="flex justify-center mb-6">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl shadow-violet-500/30">
-                      <Music className="text-white" size={36} />
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-xl shadow-violet-500/20">
+                      <Image
+                        src="/images/headphones.png"
+                        alt="Headphones - Melodia do Coração"
+                        width={128}
+                        height={128}
+                        className="w-full h-full object-cover"
+                        priority
+                      />
                     </div>
                   </div>
 
@@ -970,6 +978,9 @@ export default function Home() {
 
       {/* Popup de Cupom */}
       <CouponPopup onUseCoupon={handleUseCoupon} />
+
+      {/* Notificações de compra (social proof) */}
+      <PurchaseNotifications />
     </main>
   );
 }
