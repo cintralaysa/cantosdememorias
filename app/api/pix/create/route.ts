@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     // Aplicar cupom de desconto
     const coupon = orderData.coupon;
-    if (coupon === 'AMOR10') {
+    if (coupon === 'CANTOS10') {
       preco = Math.round(preco * 0.9);
       const reais = (preco / 100).toFixed(2).replace('.', ',');
       precoFormatado = `R$ ${reais}`;
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
           { key: 'Homenageado', value: orderData.honoreeName || 'N/A' },
           { key: 'Ocasião', value: orderData.occasionLabel || orderData.occasion || 'N/A' },
           { key: 'Estilo', value: orderData.musicStyleLabel || orderData.musicStyle || 'N/A' },
-          ...(coupon === 'AMOR10' ? [{ key: 'Cupom', value: 'AMOR10 (10% OFF)' }] : []),
+          ...(coupon === 'CANTOS10' ? [{ key: 'Cupom', value: 'CANTOS10 (10% OFF)' }] : []),
         ].filter(item => item.key && item.value),
         expiresIn: 3600, // 1 hora para pagar
       }),

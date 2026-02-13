@@ -33,7 +33,7 @@ export default function CouponPopup({ onUseCoupon }: CouponPopupProps) {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('AMOR10').catch(() => {});
+    navigator.clipboard.writeText('CANTOS10').catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -96,7 +96,7 @@ export default function CouponPopup({ onUseCoupon }: CouponPopupProps) {
               onClick={handleCopy}
               className="inline-flex items-center gap-2 bg-white/20 border-2 border-dashed border-white/40 rounded-xl px-6 py-2.5 transition hover:bg-white/30"
             >
-              <span className="text-xl font-black text-white tracking-widest">AMOR10</span>
+              <span className="text-xl font-black text-white tracking-widest">CANTOS10</span>
               <span className="text-xs text-white/60">{copied ? '✓ Copiado!' : '📋'}</span>
             </button>
           </div>

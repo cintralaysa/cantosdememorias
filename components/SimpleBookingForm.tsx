@@ -246,7 +246,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
   // Preparar dados do pedido (reutilizável)
   const prepareOrderData = () => ({
     plan: formData.plan,
-    coupon: couponActive ? 'AMOR10' : undefined,
+    coupon: couponActive ? 'CANTOS10' : undefined,
     customerName: formData.userName,
     customerEmail: formData.email,
     customerWhatsapp: formData.whatsapp,
@@ -590,7 +590,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                 <div className="flex justify-between"><span className="text-gray-500">Entrega:</span><span className="font-semibold">Até {selectedPlan.deliveryHours}h</span></div>
                 {couponActive && (
                   <div className="flex justify-between items-center text-green-600">
-                    <span className="text-gray-500 flex items-center gap-1"><span>🎁</span> Cupom AMOR10:</span>
+                    <span className="text-gray-500 flex items-center gap-1"><span>🎁</span> Cupom CANTOS10:</span>
                     <span className="font-semibold">-10%</span>
                   </div>
                 )}

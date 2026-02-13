@@ -30,7 +30,7 @@ export default function Planos({ onSelectPlan, couponActive = false }: PlanosPro
           {couponActive ? (
             <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 rounded-full px-3 py-1.5 sm:px-4 sm:py-2">
               <span className="text-base">🎁</span>
-              <span className="text-green-400 text-xs sm:text-sm font-bold">CUPOM AMOR10 ATIVADO — 10% OFF</span>
+              <span className="text-green-400 text-xs sm:text-sm font-bold">CUPOM CANTOS10 ATIVADO — 10% OFF</span>
             </div>
           ) : (
             <div className="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full px-3 py-1.5 sm:px-4 sm:py-2">
@@ -103,7 +103,7 @@ export default function Planos({ onSelectPlan, couponActive = false }: PlanosPro
           {/* Plano Premium — MAIS VENDIDO */}
           <div className="relative bg-[#1a1333]/80 backdrop-blur border-2 border-orange-500/50 rounded-2xl sm:rounded-3xl p-5 sm:p-8 transition-all hover:border-orange-500/70 overflow-visible ring-1 ring-orange-500/20 shadow-lg shadow-orange-500/10">
             {/* Badge MAIS VENDIDO */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-1.5 sm:px-6 sm:py-2 rounded-full text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 shadow-lg shadow-orange-500/40 z-10 whitespace-nowrap">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-rose-500 to-pink-600 text-white px-4 py-1.5 sm:px-6 sm:py-2 rounded-full text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 shadow-lg shadow-rose-500/40 z-10 whitespace-nowrap">
               <span className="text-sm sm:text-base">🔥</span>
               MAIS VENDIDO
             </div>

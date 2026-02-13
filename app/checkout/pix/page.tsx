@@ -43,7 +43,7 @@ export default function CheckoutPixPage() {
         setOrderPlan(orderData.plan || 'basico');
 
         // Incluir cupom se ativo no localStorage
-        const coupon = localStorage.getItem('couponActive') === 'true' ? 'AMOR10' : undefined;
+        const coupon = localStorage.getItem('couponActive') === 'true' ? 'CANTOS10' : undefined;
         const requestData = coupon ? { ...orderData, coupon } : orderData;
 
         const response = await fetch('/api/pix/create', {
