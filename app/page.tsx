@@ -154,7 +154,7 @@ const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => 
         {/* Carrossel de Cards */}
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
+          className="flex overflow-x-auto gap-2 sm:gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
         >
           {reels.map((reel, idx) => (
             <a
@@ -543,7 +543,7 @@ export default function Home() {
               </div>
 
               {/* Stats */}
-              <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+              <div className="flex items-center justify-center lg:justify-start gap-4 sm:gap-6 lg:gap-8 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
                 {[
                   { value: `${formatNumber(musicCount)}+`, label: 'Músicas' },
                   { value: '4.9★', label: 'Avaliação' },
@@ -623,7 +623,7 @@ export default function Home() {
                 </div>
 
                 {/* Badge flutuante com preço em destaque */}
-                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg shadow-green-500/40 animate-pulse flex items-center gap-1.5">
+                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-full font-bold shadow-lg shadow-green-500/40 animate-pulse flex items-center gap-1 sm:gap-1.5">
                   <span className="text-xs sm:text-sm text-green-100">A partir de</span>
                   <span className="text-base sm:text-lg font-black text-white underline decoration-2 underline-offset-2">R$59,90</span>
                 </div>

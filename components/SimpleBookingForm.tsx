@@ -361,7 +361,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                 <Heart size={16} className="text-violet-500" />
                 Para quem é essa música?
               </label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 sm:gap-2">
                 {RELATIONSHIPS.map((rel) => (
                   <button key={rel.value} type="button"
                     onClick={() => { updateField('relationship', rel.value); if (rel.value === 'cha-revelacao') updateField('occasion', 'cha-revelacao'); else if (formData.occasion === 'cha-revelacao') updateField('occasion', ''); }}
@@ -439,7 +439,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                 <Music size={16} className="text-violet-500" />
                 {formData.plan === 'premium' ? 'Estilo da 1ª melodia' : 'Qual estilo musical?'}
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
                 {MUSIC_STYLES.map((style) => (
                   <button key={style.value} type="button" onClick={() => updateField('musicStyle', style.value)} className={`p-2 rounded-xl border-2 text-center active:scale-95 ${formData.musicStyle === style.value ? 'border-violet-500 bg-violet-50 shadow-md' : 'border-gray-200'}`}>
                     <span className="text-lg block">{style.emoji}</span>
@@ -499,7 +499,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-800"><Heart size={16} className="text-violet-500 fill-violet-500" />Conte a história de {formData.honoreeName}</label>
               <p className="text-xs text-gray-500">Quanto mais detalhes, mais especial ficará a música!</p>
-              <textarea value={formData.storyAndMessage} onChange={(e) => updateField('storyAndMessage', e.target.value)} rows={6} maxLength={1000} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 resize-none text-sm" />
+              <textarea value={formData.storyAndMessage} onChange={(e) => updateField('storyAndMessage', e.target.value)} rows={4} maxLength={1000} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 resize-none text-sm" />
               <div className="flex justify-between items-start">
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 flex-1 mr-2"><p className="text-xs text-amber-700"><strong>Dicas:</strong> Qualidades, memórias, apelidos carinhosos...</p></div>
                 <span className={`text-xs font-medium ${formData.storyAndMessage.length < 20 ? 'text-red-500' : 'text-green-500'}`}>{formData.storyAndMessage.length}/1000</span>
@@ -666,7 +666,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
         {/* Navegação */}
         <div className="flex gap-3 pt-6">
           {step > 1 && (
-            <button type="button" onClick={prevStep} className="flex items-center justify-center gap-1 px-4 py-3 rounded-xl border-2 border-gray-200 font-semibold text-gray-600 text-sm">
+            <button type="button" onClick={prevStep} className="flex items-center justify-center gap-1 px-4 py-3.5 sm:py-3 rounded-xl border-2 border-gray-200 font-semibold text-gray-600 text-sm">
               <ArrowLeft size={16} />Voltar
             </button>
           )}

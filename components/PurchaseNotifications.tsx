@@ -55,7 +55,7 @@ export default function PurchaseNotifications() {
 
   return (
     <div
-      className={`fixed bottom-20 left-4 sm:bottom-6 sm:left-6 z-40 max-w-xs transition-all duration-500 ${
+      className={`fixed bottom-24 left-4 sm:bottom-6 sm:left-6 z-40 max-w-xs transition-all duration-500 ${
         visible
           ? 'translate-x-0 opacity-100'
           : '-translate-x-full opacity-0'

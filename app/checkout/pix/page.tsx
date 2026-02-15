@@ -218,7 +218,7 @@ export default function CheckoutPixPage() {
           <div className="p-6">
             <div className="bg-gray-50 rounded-xl p-6 mb-6">
               {pixData?.qrCodeBase64 ? (
-                <div className="relative w-64 h-64 mx-auto">
+                <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto">
                   <img
                     src={pixData.qrCodeBase64}
                     alt="QR Code PIX"
@@ -226,7 +226,7 @@ export default function CheckoutPixPage() {
                   />
                 </div>
               ) : (
-                <div className="w-64 h-64 mx-auto bg-gray-200 rounded-lg flex items-center justify-center">
+                <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto bg-gray-200 rounded-lg flex items-center justify-center">
                   <p className="text-gray-500">QR Code não disponível</p>
                 </div>
               )}
@@ -244,7 +244,7 @@ export default function CheckoutPixPage() {
                 />
                 <button
                   onClick={copyPixCode}
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-lg font-semibold text-sm transition ${
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm transition ${
                     copied
                       ? 'bg-green-500 text-white'
                       : 'bg-purple-600 text-white hover:bg-purple-700'

@@ -50,7 +50,7 @@ export default function CouponPopup({ onUseCoupon }: CouponPopupProps) {
 
       {/* Modal */}
       <div className="relative w-full max-w-sm animate-fadeInUp">
-        <div className="relative bg-gradient-to-br from-purple-700 via-violet-600 to-pink-600 rounded-3xl p-6 text-center shadow-2xl overflow-hidden">
+        <div className="relative bg-gradient-to-br from-purple-700 via-violet-600 to-pink-600 rounded-3xl p-4 sm:p-6 text-center shadow-2xl overflow-hidden">
           {/* Partículas decorativas */}
           <div className="absolute top-4 left-6 text-2xl opacity-30 animate-pulse">✨</div>
           <div className="absolute top-8 right-8 text-xl opacity-30 animate-pulse" style={{ animationDelay: '0.5s' }}>🎵</div>
@@ -94,7 +94,7 @@ export default function CouponPopup({ onUseCoupon }: CouponPopupProps) {
             <p className="text-white/60 text-xs mb-2">Use o código:</p>
             <button
               onClick={handleCopy}
-              className="inline-flex items-center gap-2 bg-white/20 border-2 border-dashed border-white/40 rounded-xl px-6 py-2.5 transition hover:bg-white/30"
+              className="inline-flex items-center gap-2 bg-white/20 border-2 border-dashed border-white/40 rounded-xl px-5 py-3 sm:px-6 sm:py-2.5 transition hover:bg-white/30"
             >
               <span className="text-xl font-black text-white tracking-widest">CANTOS10</span>
               <span className="text-xs text-white/60">{copied ? '✓ Copiado!' : '📋'}</span>
@@ -104,7 +104,7 @@ export default function CouponPopup({ onUseCoupon }: CouponPopupProps) {
           {/* Botão usar cupom */}
           <button
             onClick={handleUseCoupon}
-            className="w-full py-3.5 bg-white text-purple-700 rounded-xl font-black text-base hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] mb-3"
+            className="w-full py-4 sm:py-3.5 bg-white text-purple-700 rounded-xl font-black text-base hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] mb-3"
           >
             Usar Cupom Agora
           </button>

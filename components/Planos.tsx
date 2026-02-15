@@ -51,7 +51,7 @@ export default function Planos({ onSelectPlan, couponActive = false }: PlanosPro
                 <span className="text-gray-500 text-lg sm:text-xl line-through mr-2">R$ 59,90</span>
               )}
               <span className="text-gray-400 text-base sm:text-lg">R$</span>
-              <span className="text-4xl sm:text-5xl font-black text-white">{basicoPrice.int}</span>
+              <span className="text-3xl sm:text-4xl md:text-5xl font-black text-white">{basicoPrice.int}</span>
               <span className="text-xl sm:text-2xl text-white">{basicoPrice.dec}</span>
             </div>
 
@@ -119,7 +119,7 @@ export default function Planos({ onSelectPlan, couponActive = false }: PlanosPro
                 <span className="text-gray-500 text-lg sm:text-xl line-through mr-2">R$ 79,90</span>
               )}
               <span className="text-gray-400 text-base sm:text-lg">R$</span>
-              <span className="text-4xl sm:text-5xl font-black text-white">{premiumPrice.int}</span>
+              <span className="text-3xl sm:text-4xl md:text-5xl font-black text-white">{premiumPrice.int}</span>
               <span className="text-xl sm:text-2xl text-white">{premiumPrice.dec}</span>
             </div>
 
