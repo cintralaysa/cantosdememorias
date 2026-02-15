@@ -850,7 +850,7 @@ export default function Home() {
           {/* Additional Help */}
           <div className="mt-10 text-center">
             <a
-              href="https://wa.me/5585996811925?text=Olá! Tenho uma dúvida sobre as músicas personalizadas."
+              href="https://wa.me/5588992422920?text=Olá! Tenho uma dúvida sobre as músicas personalizadas."
               target="_blank"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold px-6 py-3 rounded-full hover:scale-105 transition-all duration-300"
             >
@@ -884,7 +884,7 @@ export default function Home() {
               <span>Criar Música</span>
             </a>
             <a
-              href="https://wa.me/5585996811925"
+              href="https://wa.me/5588992422920"
               target="_blank"
               className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-lg"
             >
@@ -912,7 +912,7 @@ export default function Home() {
               <div className="flex items-center justify-center sm:justify-start gap-3 mt-4">
                 {[
                   { icon: <Instagram size={18} />, href: 'https://www.instagram.com/cantosdememorias' },
-                  { icon: <Phone size={18} />, href: 'https://wa.me/5585996811925' },
+                  { icon: <Phone size={18} />, href: 'https://wa.me/5588992422920' },
                   { icon: <Mail size={18} />, href: 'mailto:contato@cantosdememoria.com' },
                 ].map((item, i) => (
                   <a
@@ -932,8 +932,8 @@ export default function Home() {
               <h4 className="font-bold text-sm mb-4 text-violet-400">Contato</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="https://wa.me/5585996811925" target="_blank" className="text-gray-400 hover:text-white">
-                    (85) 99681-1925
+                  <a href="https://wa.me/5588992422920" target="_blank" className="text-gray-400 hover:text-white">
+                    (88) 99242-2920
                   </a>
                 </li>
                 <li>
@@ -972,7 +972,7 @@ export default function Home() {
           BOTÃO WHATSAPP FLUTUANTE - OTIMIZADO MOBILE
           ================================================================ */}
       <a
-        href="https://wa.me/5585996811925?text=Olá! Gostaria de saber mais sobre as músicas personalizadas."
+        href="https://wa.me/5588992422920?text=Olá! Gostaria de saber mais sobre as músicas personalizadas."
         target="_blank"
         className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50"
         aria-label="Falar no WhatsApp"

@@ -185,7 +185,7 @@ export default function SuccessPage() {
         {/* Botões de ação */}
         <div className="space-y-3">
           <a
-            href="https://wa.me/5585996811925"
+            href="https://wa.me/5588992422920"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg"

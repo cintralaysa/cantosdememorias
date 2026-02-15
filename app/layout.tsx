@@ -118,14 +118,14 @@ const jsonLd = {
       },
       contactPoint: {
         '@type': 'ContactPoint',
-        telephone: '+55-85-99681-1925',
+        telephone: '+55-88-99242-2920',
         contactType: 'customer service',
         availableLanguage: 'Portuguese',
         areaServed: 'BR'
       },
       sameAs: [
         'https://www.instagram.com/cantosdememorias',
-        'https://wa.me/5585996811925'
+        'https://wa.me/5588992422920'
       ]
     },
     {
