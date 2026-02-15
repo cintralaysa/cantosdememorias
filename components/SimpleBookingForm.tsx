@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
-import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, Zap, AlertCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, Zap, AlertCircle, Info } from 'lucide-react';
 
 // Opções de relacionamento - Chá Revelação primeiro!
 const RELATIONSHIPS = [
@@ -491,6 +491,10 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
             <div className="bg-violet-50 rounded-xl p-3 flex items-center gap-3">
               <div className="w-10 h-10 bg-violet-500 rounded-lg flex items-center justify-center text-white text-lg">{RELATIONSHIPS.find(r => r.value === formData.relationship)?.emoji}</div>
               <div><p className="font-bold text-gray-900 text-sm">{formData.honoreeName}</p><p className="text-xs text-gray-500">{OCCASIONS.find(o => o.value === formData.occasion)?.label} • {MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label}</p></div>
+            </div>
+            <div className="bg-blue-50/60 border border-blue-100 rounded-lg p-2.5 flex items-start gap-2">
+              <Info size={14} className="text-blue-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-blue-600/80 leading-relaxed">Você cria e edita a letra aqui no site. Após aprovar e pagar, sua música será entregue pronta no seu WhatsApp no prazo do plano escolhido.</p>
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-800"><Heart size={16} className="text-violet-500 fill-violet-500" />Conte a história de {formData.honoreeName}</label>

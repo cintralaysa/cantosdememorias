@@ -252,7 +252,7 @@ const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => 
         {/* Info + CTA */}
         <div className="text-center mt-8 sm:mt-10">
           <p className="text-gray-500 text-sm mb-4">
-            <span className="font-semibold text-violet-600">+7.234 músicas</span> criadas • Dezenas de reações emocionantes
+            <span className="font-semibold text-violet-600">+8.530 músicas</span> criadas • Dezenas de reações emocionantes
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
@@ -277,6 +277,21 @@ const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => 
     </section>
   );
 };
+
+// Contador animado de músicas criadas
+const useAnimatedCounter = (start: number, end: number, intervalMs: number) => {
+  const [count, setCount] = useState(start);
+  useEffect(() => {
+    if (count >= end) return;
+    const timer = setInterval(() => {
+      setCount(prev => prev < end ? prev + 1 : prev);
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [count, end, intervalMs]);
+  return count;
+};
+
+const formatNumber = (n: number) => n.toLocaleString('pt-BR');
 
 // Notas musicais para as partículas flutuantes
 const MUSIC_NOTES = ['♪', '♫', '♩', '♬', '𝄞', '𝄢'];
@@ -332,6 +347,7 @@ export default function Home() {
   const [selectedPlan, setSelectedPlan] = useState<'basico' | 'premium'>('basico');
   const [couponActive, setCouponActive] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const musicCount = useAnimatedCounter(8530, 8535, 45000);
 
   // Pegar o serviço de música personalizada
   const musicService = SERVICES.find(s => s.slug === 'musica-personalizada') || SERVICES[0];
@@ -488,7 +504,7 @@ export default function Home() {
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-4 py-2 rounded-full mb-6 animate-fadeInUp">
                 <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-white/80 text-xs sm:text-sm font-medium">+2.000 músicas criadas com amor</span>
+                <span className="text-white/80 text-xs sm:text-sm font-medium">+{formatNumber(musicCount)} músicas criadas com amor</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 leading-tight animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
@@ -529,7 +545,7 @@ export default function Home() {
               {/* Stats */}
               <div className="flex items-center justify-center lg:justify-start gap-6 sm:gap-8 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
                 {[
-                  { value: '2.000+', label: 'Músicas' },
+                  { value: `${formatNumber(musicCount)}+`, label: 'Músicas' },
                   { value: '4.9★', label: 'Avaliação' },
                   { value: '48h', label: 'Entrega' },
                 ].map((stat, i) => (
