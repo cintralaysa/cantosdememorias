@@ -546,14 +546,14 @@ export default function Home() {
               <div className="relative w-full max-w-sm">
                 {/* Card do player */}
                 <div className="bg-[#1a1333]/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-500/10">
-                  {/* Imagem dos headphones */}
+                  {/* Imagem da música */}
                   <div className="flex justify-center mb-6">
-                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shadow-xl shadow-violet-500/20">
+                    <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-2xl overflow-hidden shadow-xl shadow-violet-500/20">
                       <Image
                         src="/images/hero-player.png"
-                        alt="Melodia do Coração - Música personalizada"
-                        width={128}
-                        height={128}
+                        alt="Parabéns Nicolas - Exemplo de música de aniversário"
+                        width={192}
+                        height={192}
                         className="w-full h-full object-cover"
                         priority
                       />
@@ -562,8 +562,8 @@ export default function Home() {
 
                   {/* Título da música */}
                   <div className="text-center mb-6">
-                    <p className="text-white font-bold text-base sm:text-lg">Melodia do Coração</p>
-                    <p className="text-gray-400 text-sm">Exemplo de música personalizada</p>
+                    <p className="text-white font-bold text-base sm:text-lg">Parabéns Nicolas</p>
+                    <p className="text-gray-400 text-sm">Exemplo de música de aniversário</p>
                   </div>
 
                   {/* Visualizador de música */}
@@ -606,9 +606,10 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Badge flutuante */}
-                <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg shadow-orange-500/30 animate-bounce">
-                  A partir de R$59,90
+                {/* Badge flutuante com preço em destaque */}
+                <div className="absolute -top-4 -right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg shadow-green-500/40 animate-pulse flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm text-green-100">A partir de</span>
+                  <span className="text-base sm:text-lg font-black text-white underline decoration-2 underline-offset-2">R$59,90</span>
                 </div>
               </div>
             </div>
