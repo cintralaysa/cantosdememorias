@@ -22,6 +22,11 @@ function AudioPlayer({ item }: { item: PortfolioItem }) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
+        // Carregar áudio sob demanda
+        if (audioRef.current.preload === 'none') {
+          audioRef.current.preload = 'auto';
+          audioRef.current.load();
+        }
         audioRef.current.play();
       }
       setIsPlaying(!isPlaying);
@@ -65,6 +70,7 @@ function AudioPlayer({ item }: { item: PortfolioItem }) {
             src={item.imageUrl}
             alt={item.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
@@ -144,7 +150,7 @@ function AudioPlayer({ item }: { item: PortfolioItem }) {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleEnded}
-        preload="metadata"
+        preload="none"
       />
     </div>
   );

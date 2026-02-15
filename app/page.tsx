@@ -37,17 +37,18 @@ const Logo = ({ white = false }: { white?: boolean }) => (
   </Link>
 );
 
-// Componente de Visualizador de Música
+// Componente de Visualizador de Música (otimizado: alturas fixas, sem Math.random, 8 barras)
+const BAR_HEIGHTS = [45, 75, 55, 90, 40, 70, 60, 80];
+
 const MusicVisualizer = () => (
   <div className="flex items-end gap-1 h-12">
-    {[...Array(12)].map((_, i) => (
+    {BAR_HEIGHTS.map((h, i) => (
       <div
         key={i}
-        className="music-bar"
+        className="music-bar will-change-transform"
         style={{
-          height: `${Math.random() * 100}%`,
+          height: `${h}%`,
           minHeight: '20%',
-          animationDelay: `${i * 0.1}s`,
         }}
       />
     ))}
@@ -118,11 +119,14 @@ const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => 
     },
   ];
 
-  // Auto scroll a cada 4 segundos
+  // Auto scroll a cada 5 segundos (otimizado: usa ref para evitar recriar interval)
+  const currentIndexRef = useRef(currentIndex);
+  currentIndexRef.current = currentIndex;
+
   useEffect(() => {
     const timer = setInterval(() => {
       if (scrollRef.current) {
-        const nextIndex = (currentIndex + 1) % reels.length;
+        const nextIndex = (currentIndexRef.current + 1) % reels.length;
         const cardWidth = 200;
         scrollRef.current.scrollTo({
           left: nextIndex * cardWidth,
@@ -130,10 +134,10 @@ const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => 
         });
         setCurrentIndex(nextIndex);
       }
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(timer);
-  }, [currentIndex, reels.length]);
+  }, [reels.length]);
 
   return (
     <section className="py-12 sm:py-20 bg-gradient-to-b from-white to-violet-50/30 overflow-hidden">
@@ -173,6 +177,7 @@ const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => 
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 160px, 200px"
+                loading="lazy"
               />
 
               {/* Overlay escuro */}
@@ -296,19 +301,28 @@ const formatNumber = (n: number) => n.toLocaleString('pt-BR');
 // Notas musicais para as partículas flutuantes
 const MUSIC_NOTES = ['♪', '♫', '♩', '♬', '𝄞', '𝄢'];
 
-// Componente de Notas Musicais Flutuantes
+// Componente de Notas Musicais Flutuantes (otimizado: 6 partículas fixas, sem Math.random no render)
+const PARTICLE_POSITIONS = [
+  { left: '10%', top: '15%', delay: '0s', dur: '10s', size: '18px' },
+  { left: '85%', top: '25%', delay: '2s', dur: '12s', size: '22px' },
+  { left: '25%', top: '70%', delay: '1s', dur: '11s', size: '16px' },
+  { left: '70%', top: '60%', delay: '3s', dur: '9s', size: '20px' },
+  { left: '50%', top: '40%', delay: '4s', dur: '13s', size: '24px' },
+  { left: '90%', top: '80%', delay: '5s', dur: '10s', size: '17px' },
+];
+
 const FloatingParticles = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {[...Array(15)].map((_, i) => (
+    {PARTICLE_POSITIONS.map((p, i) => (
       <div
         key={i}
-        className="absolute text-violet-400/30 animate-particle select-none"
+        className="absolute text-violet-400/20 animate-particle select-none will-change-transform"
         style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 6}s`,
-          animationDuration: `${8 + Math.random() * 6}s`,
-          fontSize: `${14 + Math.random() * 14}px`,
+          left: p.left,
+          top: p.top,
+          animationDelay: p.delay,
+          animationDuration: p.dur,
+          fontSize: p.size,
         }}
       >
         {MUSIC_NOTES[i % MUSIC_NOTES.length]}
@@ -339,7 +353,7 @@ const FAQItem = ({ question, answer, isOpen, onClick }: { question: string; answ
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // mousePosition removido — não é usado no JSX e causava re-render a cada pixel
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -360,6 +374,11 @@ export default function Home() {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
+        // Carregar áudio sob demanda na primeira vez
+        if (audioRef.current.preload === 'none') {
+          audioRef.current.preload = 'auto';
+          audioRef.current.load();
+        }
         audioRef.current.play();
       }
       setIsPlaying(!isPlaying);
@@ -374,16 +393,8 @@ export default function Home() {
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Ativar cupom automaticamente ao abrir o site
@@ -484,6 +495,7 @@ export default function Home() {
         <audio
           ref={audioRef}
           src={heroAudioSrc}
+          preload="none"
           onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
           onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
           onEnded={() => setIsPlaying(false)}
@@ -492,10 +504,9 @@ export default function Home() {
         {/* Partículas de notas musicais flutuantes */}
         <FloatingParticles />
 
-        {/* Efeitos de glow decorativos */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-violet-600/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-80 sm:h-80 bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-pink-500/10 rounded-full blur-[150px] pointer-events-none" />
+        {/* Efeitos de glow decorativos (estáticos, sem animação para performance) */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-violet-600/15 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-purple-500/10 rounded-full blur-[60px] pointer-events-none" />
 
         {/* Conteúdo principal */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-20 w-full">

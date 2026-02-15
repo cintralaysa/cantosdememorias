@@ -444,20 +444,12 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes particle-float {
   0%, 100% {
-    transform: translateY(0) translateX(0) rotate(0deg);
-    opacity: 0.5;
-  }
-  25% {
-    transform: translateY(-15px) translateX(8px) rotate(20deg);
-    opacity: 0.7;
+    transform: translateY(0) translateX(0);
+    opacity: 0.4;
   }
   50% {
-    transform: translateY(-25px) translateX(-8px) rotate(-15deg);
+    transform: translateY(-20px) translateX(8px);
     opacity: 0.6;
-  }
-  75% {
-    transform: translateY(-12px) translateX(10px) rotate(15deg);
-    opacity: 0.7;
   }
 }
 
@@ -702,6 +694,7 @@ h1, h2, h3, h4, h5, h6 {
 .music-bar {
   @apply w-1 bg-gradient-to-t from-violet-600 to-purple-400 rounded-full;
   animation: wave 2.5s ease-in-out infinite;
+  will-change: transform;
 }
 
 .music-bar:nth-child(1) { animation-delay: 0s; }
