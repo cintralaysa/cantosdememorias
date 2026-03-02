@@ -12,7 +12,10 @@ export async function GET(request: NextRequest) {
   // Validar que é uma URL do Suno (segurança — checagem estrita de hostname)
   try {
     const parsed = new URL(url);
-    const allowedHosts = ['cdn1.suno.ai', 'cdn2.suno.ai', 'audiopipe.suno.ai', 'cdn.suno.ai'];
+    const allowedHosts = [
+      'cdn1.suno.ai', 'cdn2.suno.ai', 'audiopipe.suno.ai', 'cdn.suno.ai',
+      'tempfile.aiquickdraw.com', // CDN usado pelo sunoapi.org
+    ];
     const isAllowed = allowedHosts.some(h =>
       parsed.hostname === h || parsed.hostname.endsWith(`.${h}`)
     );
