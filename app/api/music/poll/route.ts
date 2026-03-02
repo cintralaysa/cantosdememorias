@@ -15,8 +15,6 @@ function getResend() {
 // POST /api/music/poll — Chamado pelo QStash para verificar status
 export async function POST(request: NextRequest) {
   try {
-    // Verificar assinatura QStash (em produção, usar @upstash/qstash Receiver)
-    // Por simplicidade, aceita requests do QStash + chamadas internas
     const body = await request.json();
     const { orderId } = body;
 

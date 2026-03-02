@@ -1,8 +1,8 @@
 // Orquestrador de geração de música via Suno AI
-// Gerencia o fluxo: disparo → polling → conclusão → notificação
+// Gerencia o fluxo: disparo → polling via QStash → conclusão → notificação
 
 import { getOrder, updateOrder } from './orderStore';
-import { submitGeneration, checkStatus, SunoTaskResult } from './sunoClient';
+import { submitGeneration, checkStatus } from './sunoClient';
 import { getSunoStylePrompt, generateSongTitle } from './musicStyles';
 import { scheduleStatusPoll } from './qstash';
 
@@ -75,7 +75,6 @@ export async function startMusicGeneration(orderId: string): Promise<void> {
       submittedAt: new Date().toISOString(),
     });
 
-    // Se tem mais de 1 taskId, adicionar também
     if (taskIds1.length > 1) {
       sunoTasks.push({
         taskId: taskIds1[1],
@@ -152,7 +151,7 @@ export async function startMusicGeneration(orderId: string): Promise<void> {
   }
 }
 
-// 2. Verificar status (chamado pelo QStash)
+// 2. Verificar status (chamado pelo QStash a cada 10s)
 export async function pollMusicStatus(orderId: string): Promise<'completed' | 'processing' | 'failed'> {
   console.log(`[MUSIC-POLL] Verificando status: ${orderId}`);
 
@@ -219,7 +218,6 @@ export async function pollMusicStatus(orderId: string): Promise<'completed' | 'p
     const completedTasks = sunoTasks.filter(t => t.status === 'completed' && t.audioUrls.length > 0);
 
     if (allCompleted || completedTasks.length >= (order.plan === 'premium' ? 2 : 1)) {
-      // Temos músicas suficientes!
       const musicUrls = completedTasks.map(t => t.audioUrls[0]);
 
       await updateOrder(orderId, {
@@ -250,7 +248,6 @@ export async function pollMusicStatus(orderId: string): Promise<'completed' | 'p
   } catch (error) {
     console.error(`[MUSIC-POLL] Erro ao verificar status:`, error);
 
-    // Incrementar retry e tentar novamente
     await updateOrder(orderId, {
       musicRetryCount: String(retryCount + 1),
     });
