@@ -42,6 +42,15 @@ export interface OrderData {
   babyNameGirl?: string;
   createdAt: number | string;
   updatedAt?: number;
+  // Campos de geração de música (Suno AI)
+  musicStatus?: 'pending' | 'generating' | 'completed' | 'failed';
+  musicStartedAt?: string;
+  musicCompletedAt?: string;
+  sunoTasks?: string; // JSON stringified SunoTask[]
+  musicUrls?: string; // JSON stringified string[] (URLs finais)
+  musicRetryCount?: string;
+  musicError?: string;
+  accessCode?: string; // Código de acesso (CANTOS-XXXX)
 }
 
 // Salvar pedido no Redis
@@ -147,7 +156,49 @@ export async function removeOrder(correlationID: string): Promise<boolean> {
   }
 }
 
-// Atualizar status do pedido
+// Atualizar campos parciais do pedido
+export async function updateOrder(correlationID: string, fields: Partial<OrderData>): Promise<boolean> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) {
+    return false;
+  }
+
+  try {
+    const orderData = await getOrder(correlationID);
+    if (!orderData) {
+      console.error(`[ORDER-STORE] Pedido não encontrado para atualizar: ${correlationID}`);
+      return false;
+    }
+
+    const updatedData = {
+      ...orderData,
+      ...fields,
+      updatedAt: Date.now(),
+    };
+
+    // TTL de 72h para pedidos com música (259200 segundos)
+    const ttl = updatedData.musicStatus ? 259200 : 86400;
+
+    const response = await fetch(`${UPSTASH_URL}/set/order:${correlationID}?EX=${ttl}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (response.ok) {
+      console.log(`[ORDER-STORE] ✅ Pedido atualizado: ${correlationID}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao atualizar pedido:', error);
+    return false;
+  }
+}
+
+// Atualizar status do pedido (mantido para compatibilidade)
 export async function updateOrderStatus(correlationID: string, status: string): Promise<boolean> {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
     return false;

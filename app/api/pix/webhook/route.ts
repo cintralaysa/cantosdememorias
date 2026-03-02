@@ -45,6 +45,29 @@ export async function POST(request: NextRequest) {
         if (orderData.customerEmail) {
           await sendCustomerPaymentConfirmedEmail(orderData);
         }
+
+        // 🎵 Disparar geração automática de música via Suno AI
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://cantosdememorias.com.br';
+          const internalSecret = process.env.INTERNAL_API_SECRET;
+          console.log('🎵 Disparando geração de música para:', correlationID);
+
+          fetch(`${baseUrl}/api/music/generate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(internalSecret ? { 'Authorization': `Bearer ${internalSecret}` } : {}),
+            },
+            body: JSON.stringify({ orderId: correlationID }),
+          }).then(res => {
+            console.log(`🎵 Geração disparada: ${res.status}`);
+          }).catch(err => {
+            console.error('🎵 Erro ao disparar geração (não-bloqueante):', err);
+          });
+        } catch (musicError) {
+          // Não bloquear o webhook por erro na geração
+          console.error('🎵 Erro ao disparar geração:', musicError);
+        }
       } else {
         console.log('⚠️ Dados do pedido NÃO encontrados no Redis - enviando email básico');
         // Fallback: enviar email com dados básicos do webhook
@@ -357,7 +380,7 @@ async function sendCustomerPaymentConfirmedEmail(orderData: OrderData) {
           ` : ''}
 
           <div class="highlight-box">
-            <strong>⏰ Prazo de entrega:</strong> Sua música personalizada será entregue <strong>nas próximas horas</strong> diretamente pelo WhatsApp. Fique atento!
+            <strong>⏰ Sua música está sendo gerada automaticamente!</strong> Em poucos minutos você receberá um email com o link para ouvir e baixar sua música personalizada.
           </div>
 
           <p>Qualquer dúvida, estamos à disposição!</p>

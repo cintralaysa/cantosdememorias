@@ -1,24 +1,49 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { CheckCircle, Music, Clock, MessageCircle, Heart, ArrowLeft, Sparkles } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { CheckCircle, Music, Clock, MessageCircle, Heart, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { MetaPixelEvents } from '@/components/MetaPixel';
 
 export default function SuccessPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const paymentId = searchParams.get('payment_id');
   const value = searchParams.get('value');
   const plan = searchParams.get('plan');
+  const orderId = searchParams.get('orderId') || paymentId;
   const [showConfetti, setShowConfetti] = useState(true);
+  const [musicStatus, setMusicStatus] = useState<string>('pending');
   const pixelFired = useRef(false);
 
   useEffect(() => {
-    // Esconder confetti após 5 segundos
     const timer = setTimeout(() => setShowConfetti(false), 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Polling do status da música
+  useEffect(() => {
+    if (!orderId) return;
+
+    const checkMusic = async () => {
+      try {
+        const res = await fetch(`/api/music/status/${orderId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMusicStatus(data.musicStatus || 'pending');
+          if (data.musicStatus === 'completed') {
+            // Música pronta! Redirecionar
+            router.push(`/musica/${orderId}`);
+          }
+        }
+      } catch {}
+    };
+
+    checkMusic();
+    const interval = setInterval(checkMusic, 8000);
+    return () => clearInterval(interval);
+  }, [orderId, router]);
 
   // Disparar evento de Purchase do Meta Pixel
   useEffect(() => {
@@ -89,7 +114,7 @@ export default function SuccessPage() {
             Pagamento Confirmado!
           </h1>
           <p className="text-gray-600 text-lg">
-            Sua música personalizada está sendo criada com muito carinho
+            Sua música personalizada está sendo criada automaticamente
           </p>
         </div>
 
@@ -108,6 +133,25 @@ export default function SuccessPage() {
             )}
           </div>
 
+          {/* Status da geração */}
+          {musicStatus === 'generating' && (
+            <div className="bg-gradient-to-r from-violet-50 to-purple-50 p-6 border-t">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-violet-100 rounded-full flex items-center justify-center">
+                  <Loader2 className="w-7 h-7 text-violet-600 animate-spin" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-gray-900 text-lg">Criando sua música...</p>
+                  <p className="text-violet-700 font-semibold">Tempo estimado: 2-3 minutos</p>
+                  <p className="text-sm text-gray-600">Você será redirecionado automaticamente</p>
+                </div>
+              </div>
+              <div className="mt-3 w-full h-2 bg-violet-100 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full animate-pulse" style={{ width: '60%' }} />
+              </div>
+            </div>
+          )}
+
           {/* O que acontece agora */}
           <div className="p-6">
             <h2 className="font-bold text-gray-900 text-lg mb-4">
@@ -116,53 +160,57 @@ export default function SuccessPage() {
 
             <div className="space-y-4">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-violet-600 font-bold">1</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Recebemos seu pedido</p>
-                  <p className="text-sm text-gray-600">
-                    Nossa equipe já está ciente e começará a trabalhar na sua música
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-violet-600 font-bold">2</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Criação da música</p>
-                  <p className="text-sm text-gray-600">
-                    Vamos criar 2 melodias diferentes baseadas na letra que você aprovou
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-green-600 font-bold">3</span>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Entrega no WhatsApp</p>
+                  <p className="font-semibold text-gray-900">Pagamento confirmado</p>
                   <p className="text-sm text-gray-600">
-                    Você receberá as músicas diretamente no seu WhatsApp
+                    Recebemos seu pagamento e já estamos gerando sua música
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className={`w-10 h-10 ${musicStatus === 'generating' ? 'bg-violet-100' : 'bg-gray-100'} rounded-full flex items-center justify-center flex-shrink-0`}>
+                  {musicStatus === 'generating' ? (
+                    <Loader2 className="w-5 h-5 text-violet-600 animate-spin" />
+                  ) : (
+                    <Music className="w-5 h-5 text-gray-400" />
+                  )}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">Criação automática da música</p>
+                  <p className="text-sm text-gray-600">
+                    Nossa IA está compondo melodias únicas baseadas na sua letra
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-gray-400 font-bold">3</span>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">Ouça e baixe sua música</p>
+                  <p className="text-sm text-gray-600">
+                    Quando pronta, você será redirecionado para ouvir, baixar e compartilhar
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Prazo */}
-          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 border-t">
+          {/* Tempo estimado */}
+          <div className="bg-gradient-to-r from-violet-50 to-purple-50 p-6 border-t">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
-                <Clock className="w-7 h-7 text-amber-600" />
+              <div className="w-14 h-14 bg-violet-100 rounded-full flex items-center justify-center">
+                <Clock className="w-7 h-7 text-violet-600" />
               </div>
               <div>
-                <p className="font-bold text-gray-900 text-lg">Prazo de entrega</p>
-                <p className="text-amber-700 font-semibold">Até 48 horas</p>
-                <p className="text-sm text-gray-600">Direto no seu WhatsApp</p>
+                <p className="font-bold text-gray-900 text-lg">Tempo estimado</p>
+                <p className="text-violet-700 font-semibold">2 a 5 minutos</p>
+                <p className="text-sm text-gray-600">Fique nesta página ou aguarde o email</p>
               </div>
             </div>
           </div>
@@ -175,7 +223,7 @@ export default function SuccessPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">
-                  Enviamos uma confirmação para o seu e-mail com todos os detalhes do pedido.
+                  Você receberá um e-mail quando a música estiver pronta, com link para ouvir e baixar.
                 </p>
               </div>
             </div>
