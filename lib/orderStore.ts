@@ -1,8 +1,8 @@
 // Armazenamento de pedidos usando Upstash Redis
 // Para funcionar no Vercel com múltiplas instâncias
 
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const UPSTASH_URL = (process.env.UPSTASH_REDIS_REST_URL || '').trim();
+const UPSTASH_TOKEN = (process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
 
 export interface OrderData {
   orderId: string;
@@ -51,6 +51,29 @@ export interface OrderData {
   musicRetryCount?: string;
   musicError?: string;
   accessCode?: string; // Código de acesso (CANTOS-XXXX)
+  // Sistema de créditos (Premium = 3, Básico = 1)
+  creditsTotal?: number;
+  creditsUsed?: number;
+  songs?: string; // JSON stringified SongRecord[]
+  // Upsell
+  upsellPurchased?: boolean; // true se já comprou upsell neste pedido
+}
+
+// Registro individual de cada música criada
+export interface SongRecord {
+  id: number; // 1, 2, 3...
+  lyrics: string;
+  musicStyle: string;
+  musicStyleLabel: string;
+  honoreeName: string;
+  occasion: string;
+  status: 'generating' | 'completed' | 'failed';
+  audioUrl?: string;
+  sunoTaskId?: string;
+  retryCount?: number;
+  createdAt: string;
+  completedAt?: string;
+  error?: string;
 }
 
 // Salvar pedido no Redis
@@ -104,6 +127,7 @@ export async function getOrder(correlationID: string): Promise<OrderData | null>
       headers: {
         'Authorization': `Bearer ${UPSTASH_TOKEN}`,
       },
+      cache: 'no-store', // CRITICO: desabilitar cache do Next.js para sempre ler dados frescos
     });
 
     if (!response.ok) {
@@ -114,7 +138,6 @@ export async function getOrder(correlationID: string): Promise<OrderData | null>
     const result = await response.json();
 
     if (!result.result) {
-      console.log(`[ORDER-STORE] Pedido não encontrado: ${correlationID}`);
       return null;
     }
 
@@ -123,7 +146,6 @@ export async function getOrder(correlationID: string): Promise<OrderData | null>
       ? JSON.parse(result.result)
       : result.result;
 
-    console.log(`[ORDER-STORE] ✅ Pedido encontrado: ${correlationID}`);
     return orderData;
   } catch (error) {
     console.error('[ORDER-STORE] Erro ao buscar pedido:', error);
@@ -234,6 +256,7 @@ export async function getOrderByAccessCode(accessCode: string): Promise<OrderDat
       headers: {
         'Authorization': `Bearer ${UPSTASH_TOKEN}`,
       },
+      cache: 'no-store',
     });
 
     if (!response.ok) return null;
@@ -248,6 +271,59 @@ export async function getOrderByAccessCode(accessCode: string): Promise<OrderDat
     return await getOrder(orderId);
   } catch (error) {
     console.error('[ORDER-STORE] Erro ao buscar por código de acesso:', error);
+    return null;
+  }
+}
+
+// Salvar índice taskId → orderId (para callback do Suno)
+export async function saveTaskIndex(taskId: string, orderId: string): Promise<boolean> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return false;
+
+  try {
+    // TTL de 1 hora (3600 segundos) - só precisa durante a geração
+    const response = await fetch(`${UPSTASH_URL}/set/task:${taskId}?EX=3600`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderId),
+    });
+
+    if (response.ok) {
+      console.log(`[ORDER-STORE] ✅ Índice task salvo: ${taskId} → ${orderId}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao salvar índice de task:', error);
+    return false;
+  }
+}
+
+// Buscar orderId pelo taskId do Suno
+export async function getOrderIdByTaskId(taskId: string): Promise<string | null> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return null;
+
+  try {
+    const response = await fetch(`${UPSTASH_URL}/get/task:${taskId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) return null;
+
+    const result = await response.json();
+    if (!result.result) return null;
+
+    return typeof result.result === 'string'
+      ? result.result.replace(/^"|"$/g, '')
+      : result.result;
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao buscar orderId por taskId:', error);
     return null;
   }
 }

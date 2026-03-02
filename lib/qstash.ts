@@ -17,13 +17,46 @@ function getQStash(): Client {
   return qstashClient;
 }
 
-// Agendar verificação de status da música
-export async function scheduleStatusPoll(orderId: string, delaySeconds: number = 10): Promise<void> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+function getBaseUrl(): string {
+  // IMPORTANTE: Usar www.cantosdememorias.com.br (nao o bare domain que redireciona 307)
+  // VERCEL_URL tem protecao de autenticacao, nao pode ser usado por QStash
+  let baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || '').trim();
   if (!baseUrl) {
-    throw new Error('[QSTASH] NEXT_PUBLIC_BASE_URL não configurado');
+    return 'https://www.cantosdememorias.com.br';
+  }
+  if (!baseUrl.startsWith('http')) {
+    baseUrl = `https://${baseUrl}`;
+  }
+  // Garantir que usa www para evitar redirect 307
+  return baseUrl.replace('://cantosdememorias.com.br', '://www.cantosdememorias.com.br');
+}
+
+// Agendar geração de música via QStash (mais confiável que fire-and-forget fetch)
+export async function scheduleGeneration(orderId: string): Promise<void> {
+  const baseUrl = getBaseUrl();
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const url = `${baseUrl}/api/music/generate`;
+
+  console.log(`[QSTASH] Agendando geração para ${orderId} → ${url}`);
+
+  const headers: Record<string, string> = {};
+  if (internalSecret) {
+    headers['x-internal-secret'] = internalSecret.trim();
   }
 
+  await getQStash().publishJSON({
+    url,
+    body: { orderId },
+    headers,
+    retries: 3,
+  });
+
+  console.log(`[QSTASH] Geração agendada com sucesso para ${orderId}`);
+}
+
+// Agendar verificação de status da música
+export async function scheduleStatusPoll(orderId: string, delaySeconds: number = 10): Promise<void> {
+  const baseUrl = getBaseUrl();
   const url = `${baseUrl}/api/music/poll`;
 
   console.log(`[QSTASH] Agendando poll para ${orderId} em ${delaySeconds}s → ${url}`);

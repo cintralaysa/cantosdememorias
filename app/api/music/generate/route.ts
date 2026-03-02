@@ -5,13 +5,22 @@ import { startMusicGeneration } from '@/lib/musicGeneration';
 // Chamado internamente pelo webhook PIX após confirmação de pagamento
 export async function POST(request: NextRequest) {
   try {
-    // Verificar autenticação interna
-    const authHeader = request.headers.get('authorization');
-    const expectedToken = process.env.INTERNAL_API_SECRET;
+    // Verificar autenticação interna (aceita Bearer token ou header customizado)
+    const expectedToken = (process.env.INTERNAL_API_SECRET || '').trim();
+    if (expectedToken) {
+      const authHeader = request.headers.get('authorization');
+      const customHeader = (request.headers.get('x-internal-secret') || '').trim();
+      // Verificar QStash Upstash-Signature OU header customizado OU Bearer token
+      const upstashSignature = request.headers.get('upstash-signature');
+      const isAuthorized =
+        authHeader === `Bearer ${expectedToken}` ||
+        customHeader === expectedToken ||
+        !!upstashSignature; // QStash requests always have this header
 
-    if (expectedToken && authHeader !== `Bearer ${expectedToken}`) {
-      console.error('[MUSIC-GENERATE] Autenticação inválida');
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+      if (!isAuthorized) {
+        console.error('[MUSIC-GENERATE] Autenticação inválida');
+        return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+      }
     }
 
     const body = await request.json();

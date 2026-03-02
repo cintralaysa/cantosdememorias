@@ -1,46 +1,58 @@
 // Cliente da API Suno via sunoapi.org
 // Docs: https://docs.sunoapi.org/
+// Endpoint correto: POST /api/v1/generate com customMode: true
+// Status: GET /api/v1/generate/record-info?taskId=XXX
 
-const SUNO_API_BASE = process.env.SUNO_API_BASE_URL || 'https://api.sunoapi.org';
-const SUNO_API_KEY = process.env.SUNO_API_KEY || '';
+const SUNO_API_BASE = (process.env.SUNO_API_BASE_URL || 'https://api.sunoapi.org').trim();
+const SUNO_API_KEY = (process.env.SUNO_API_KEY || '').trim();
 
 export interface SunoGenerationRequest {
   title: string;
   lyrics: string;
   style: string;
-  makeInstrumental?: boolean;
+  callbackUrl?: string;
 }
 
-export interface SunoTaskResult {
+export interface SunoAudioResult {
   id: string;
-  status: 'submitted' | 'processing' | 'completed' | 'failed';
-  audioUrl?: string;
+  audioUrl: string;
   imageUrl?: string;
   title?: string;
   duration?: number;
-  error?: string;
 }
 
 // Submeter geração de música com letras customizadas
-export async function submitGeneration(params: SunoGenerationRequest): Promise<string[]> {
+// Retorna 1 taskId (cada task gera 2 variações de áudio)
+export async function submitGeneration(params: SunoGenerationRequest): Promise<string> {
   if (!SUNO_API_KEY) {
     throw new Error('[SUNO] SUNO_API_KEY não configurada');
   }
 
   console.log(`[SUNO] Submetendo geração: "${params.title}" | estilo: ${params.style}`);
 
-  const response = await fetch(`${SUNO_API_BASE}/api/custom_generate`, {
+  // Callback URL obrigatoria pela API do sunoapi.org
+  // Usar www. para evitar redirect 307 que quebra callbacks
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.cantosdememorias.com.br').trim()
+    .replace('://cantosdememorias.com.br', '://www.cantosdememorias.com.br');
+  const callbackUrl = params.callbackUrl || `${baseUrl}/api/music/callback`;
+
+  const body: Record<string, any> = {
+    customMode: true,
+    instrumental: false,
+    title: params.title,
+    prompt: params.lyrics,
+    style: params.style,
+    model: 'V4_5',
+    callBackUrl: callbackUrl,
+  };
+
+  const response = await fetch(`${SUNO_API_BASE}/api/v1/generate`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${SUNO_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      title: params.title,
-      prompt: params.lyrics,
-      style: params.style,
-      make_instrumental: params.makeInstrumental || false,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
@@ -50,107 +62,133 @@ export async function submitGeneration(params: SunoGenerationRequest): Promise<s
   }
 
   const data = await response.json();
-  console.log('[SUNO] Resposta da geração:', JSON.stringify(data));
+  console.log('[SUNO] Resposta:', JSON.stringify(data));
 
-  // A API retorna task_ids (array de IDs das tasks geradas)
-  // Cada geração retorna 2 variações
-  const taskIds: string[] = data.task_ids || data.data?.task_ids || [];
-
-  // Alternativa: pode retornar em formato diferente dependendo do provider
-  if (taskIds.length === 0 && data.data?.clips) {
-    return Object.keys(data.data.clips);
+  if (data.code !== 200) {
+    throw new Error(`[SUNO] Erro: ${data.msg || JSON.stringify(data)}`);
   }
 
-  if (taskIds.length === 0 && data.id) {
-    return [data.id];
+  const taskId = data.data?.taskId;
+  if (!taskId) {
+    throw new Error('[SUNO] Nenhum taskId retornado pela API');
   }
 
-  if (taskIds.length === 0) {
-    throw new Error('[SUNO] Nenhum task_id retornado pela API');
-  }
-
-  console.log(`[SUNO] Tasks criadas: ${taskIds.join(', ')}`);
-  return taskIds;
+  console.log(`[SUNO] Task criada: ${taskId}`);
+  return taskId;
 }
 
-// Verificar status das tasks
-export async function checkStatus(taskIds: string[]): Promise<SunoTaskResult[]> {
+// Verificar status de uma task via record-info
+export async function checkTaskStatus(taskId: string): Promise<{
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  audios: SunoAudioResult[];
+  error?: string;
+}> {
   if (!SUNO_API_KEY) {
     throw new Error('[SUNO] SUNO_API_KEY não configurada');
   }
 
-  const idsParam = taskIds.join(',');
-  console.log(`[SUNO] Verificando status: ${idsParam}`);
+  console.log(`[SUNO] Verificando status: ${taskId}`);
 
-  const response = await fetch(`${SUNO_API_BASE}/api/get?ids=${idsParam}`, {
+  const response = await fetch(`${SUNO_API_BASE}/api/v1/generate/record-info?taskId=${taskId}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${SUNO_API_KEY}`,
     },
+    cache: 'no-store',
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`[SUNO] Erro ao verificar status: ${response.status}`, errorText);
-    throw new Error(`Suno status check error: ${response.status}`);
+    console.error(`[SUNO] Erro status: ${response.status}`, errorText);
+    throw new Error(`Suno status error: ${response.status}`);
   }
 
   const data = await response.json();
-  console.log('[SUNO] Status:', JSON.stringify(data));
+  console.log('[SUNO] Record-info:', JSON.stringify(data).substring(0, 1000));
 
-  // Normalizar resposta — diferentes providers podem retornar formatos diferentes
-  const results: SunoTaskResult[] = [];
+  if (!data.data) {
+    console.log('[SUNO] data.data é null/undefined, retornando pending');
+    return { status: 'pending', audios: [] };
+  }
 
-  // Formato 1: data.data é array
-  if (Array.isArray(data.data)) {
-    for (const item of data.data) {
-      results.push({
-        id: item.id || item.task_id,
-        status: normalizeStatus(item.status),
-        audioUrl: item.audio_url || item.audioUrl,
-        imageUrl: item.image_url || item.imageUrl,
-        title: item.title,
-        duration: item.duration,
-        error: item.error,
-      });
-    }
-  }
-  // Formato 2: data.data.clips é objeto
-  else if (data.data?.clips) {
-    for (const [id, clip] of Object.entries(data.data.clips as Record<string, any>)) {
-      results.push({
-        id,
-        status: normalizeStatus(data.data.status || clip.status),
-        audioUrl: clip.audio_url || clip.audioUrl,
-        imageUrl: clip.image_url || clip.imageUrl,
-        title: clip.title,
-        duration: clip.duration,
-        error: clip.error,
-      });
-    }
-  }
-  // Formato 3: data é array direto
-  else if (Array.isArray(data)) {
-    for (const item of data) {
-      results.push({
-        id: item.id || item.task_id,
-        status: normalizeStatus(item.status),
-        audioUrl: item.audio_url || item.audioUrl,
-        imageUrl: item.image_url || item.imageUrl,
-        title: item.title,
-        duration: item.duration,
-        error: item.error,
-      });
+  const record = data.data;
+  const rawStatus = record.status || '';
+  const status = normalizeRecordStatus(rawStatus);
+  const audios: SunoAudioResult[] = [];
+
+  console.log(`[SUNO] rawStatus="${rawStatus}" → normalized="${status}"`);
+  console.log(`[SUNO] record.response exists: ${!!record.response}, type: ${typeof record.response}`);
+
+  // Se response for string, tentar parsear
+  let responseObj = record.response;
+  if (typeof responseObj === 'string') {
+    try {
+      responseObj = JSON.parse(responseObj);
+      console.log('[SUNO] record.response era string, parseado com sucesso');
+    } catch {
+      console.error('[SUNO] record.response era string mas falhou ao parsear');
+      responseObj = null;
     }
   }
 
-  return results;
+  // Extrair áudios de múltiplos caminhos possíveis
+  const sunoData = responseObj?.sunoData || responseObj?.data || responseObj?.clips || [];
+  console.log(`[SUNO] sunoData encontrado: ${Array.isArray(sunoData) ? sunoData.length : 'não é array'} itens`);
+
+  if (Array.isArray(sunoData)) {
+    for (const item of sunoData) {
+      // Priorizar stream_audio_url (CDN direto, ex: cdn1.suno.ai/xxx.mp3) que funciona com <audio>
+      // audio_url pode ser URL de pipeline (audiopipe.suno.ai) que não reproduz bem no browser
+      const audioUrl = item.stream_audio_url || item.audio_url || item.audioUrl || '';
+      if (audioUrl) {
+        audios.push({
+          id: item.id || taskId,
+          audioUrl,
+          imageUrl: item.image_url || item.imageUrl,
+          title: item.title,
+          duration: item.duration,
+        });
+      }
+    }
+  }
+
+  // Se status é completed mas não encontrou áudios, logar detalhes para debug
+  if (status === 'completed' && audios.length === 0) {
+    console.warn(`[SUNO] ⚠️ Status=completed mas sem áudios! Keys do record: ${Object.keys(record).join(', ')}`);
+    if (responseObj) {
+      console.warn(`[SUNO] Keys do response: ${Object.keys(responseObj).join(', ')}`);
+    }
+  }
+
+  console.log(`[SUNO] Resultado: status=${status}, audios=${audios.length}`);
+
+  return {
+    status,
+    audios,
+    error: record.errorMessage,
+  };
 }
 
-function normalizeStatus(status: string): SunoTaskResult['status'] {
-  const s = (status || '').toLowerCase();
-  if (s === 'completed' || s === 'complete' || s === 'done') return 'completed';
-  if (s === 'failed' || s === 'error') return 'failed';
-  if (s === 'processing' || s === 'running' || s === 'streaming' || s === 'queued') return 'processing';
-  return 'submitted';
+function normalizeRecordStatus(status: string): 'pending' | 'processing' | 'completed' | 'failed' {
+  const s = (status || '').toUpperCase();
+  if (s === 'SUCCESS') return 'completed';
+  if (s === 'FIRST_SUCCESS' || s === 'TEXT_SUCCESS') return 'processing';
+  if (s === 'PENDING') return 'pending';
+  if (s.includes('FAILED') || s.includes('ERROR') || s.includes('EXCEPTION')) return 'failed';
+  return 'processing';
+}
+
+// Verificar créditos restantes
+export async function getCredits(): Promise<number> {
+  if (!SUNO_API_KEY) return 0;
+  try {
+    const response = await fetch(`${SUNO_API_BASE}/api/v1/generate/credit`, {
+      headers: { 'Authorization': `Bearer ${SUNO_API_KEY}` },
+      cache: 'no-store',
+    });
+    const data = await response.json();
+    return data.data || 0;
+  } catch {
+    return 0;
+  }
 }

@@ -1436,7 +1436,7 @@ export default function BookingForm({ service }: { service: Service }) {
                     {formData.knowsBabySex === 'nao' && (
                       <div className="bg-violet-50 p-3 rounded-xl mt-2">
                         <p className="text-xs text-violet-700">
-                          <strong>Chá Revelação:</strong> Você receberá 2 músicas!
+                          <strong>Chá Revelação:</strong> Você receberá 3 músicas!
                         </p>
                         <p className="text-xs text-violet-600 mt-1">
                           💙 {formData.babyNameBoy} (menino) | 💖 {formData.babyNameGirl} (menina)

@@ -7,7 +7,6 @@ import Image from 'next/image';
 import PortfolioSection from '@/components/PortfolioSection';
 import CheckoutModal from '@/components/CheckoutModal';
 import Planos from '@/components/Planos';
-import CouponPopup from '@/components/CouponPopup';
 import PurchaseNotifications from '@/components/PurchaseNotifications';
 import { useState, useEffect, useRef } from 'react';
 
@@ -359,7 +358,6 @@ export default function Home() {
   const [duration, setDuration] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'basico' | 'premium'>('basico');
-  const [couponActive, setCouponActive] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const musicCount = useAnimatedCounter(8530, 8535, 45000);
 
@@ -397,34 +395,22 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Ativar cupom automaticamente ao abrir o site
-  useEffect(() => {
-    setCouponActive(true);
-    localStorage.setItem('couponActive', 'true');
-  }, []);
-
-  const handleUseCoupon = () => {
-    setCouponActive(true);
-    localStorage.setItem('couponActive', 'true');
-    document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const faqData = [
     {
       question: "Como funciona a criação de uma música personalizada?",
-      answer: "O processo é simples e rápido: 1) Você preenche um formulário contando a história e detalhes da pessoa homenageada; 2) Nosso sistema gera uma letra personalizada que você pode aprovar ou editar; 3) Escolha entre o Plano Básico ou Premium; 4) Após o pagamento, entregamos sua música via WhatsApp."
+      answer: "O processo é simples e rápido: 1) Você preenche um formulário contando a história e detalhes da pessoa homenageada; 2) Nosso sistema gera uma letra personalizada que você pode aprovar ou editar; 3) Escolha entre 1 música ou 3 músicas; 4) Após o pagamento, sua música é gerada automaticamente em poucos minutos!"
     },
     {
       question: "Quanto custa uma música personalizada?",
-      answer: "Temos dois planos: Plano Básico por R$59,90 (1 melodia, entrega em até 48h) - exclusivo pelo site! E Plano Premium por R$79,90 (2 melodias diferentes, entrega no mesmo dia). Em ambos você aprova a letra antes de pagar!"
+      answer: "Temos dois planos: 1 Música Personalizada por R$39,90 e 3 Músicas Personalizadas por R$79,90. Em ambos você aprova a letra antes de pagar e a entrega é automática em poucos minutos!"
     },
     {
       question: "Qual a diferença entre os planos?",
-      answer: "No Plano Básico (R$59,90 - exclusivo site) você recebe 1 melodia exclusiva com entrega em até 48 horas. No Plano Premium (R$79,90) você recebe 2 melodias diferentes e a entrega é no mesmo dia, com prioridade na produção."
+      answer: "No plano de 1 música (R$39,90) você recebe 1 música personalizada com 2 melodias exclusivas. No plano de 3 músicas (R$79,90) você recebe 3 músicas com 2 melodias cada, suporte prioritário. Preços exclusivos do site!"
     },
     {
       question: "Em quanto tempo recebo minha música?",
-      answer: "Depende do plano escolhido: Plano Básico tem entrega em até 48 horas, e o Plano Premium tem entrega no mesmo dia após a confirmação do pagamento. Você recebe as músicas diretamente no seu WhatsApp."
+      answer: "A entrega é automática! Após a confirmação do pagamento, sua música é gerada por inteligência artificial em poucos minutos. Você recebe o link por e-mail e pode ouvir e baixar na hora."
     },
     {
       question: "Posso ver a letra antes de pagar?",
@@ -471,18 +457,31 @@ export default function Home() {
               ))}
             </nav>
 
-            {/* CTA Button */}
-            <Link
-              href="#planos"
-              className={`hidden sm:flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg ${
-                isScrolled
-                  ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-500/25'
-                  : 'bg-white text-violet-600 shadow-white/25'
-              }`}
-            >
-              <Sparkles size={16} />
-              <span>Criar Música</span>
-            </Link>
+            {/* CTA Buttons */}
+            <div className="hidden sm:flex items-center gap-3">
+              <Link
+                href="/acesso"
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full font-semibold text-xs transition-all duration-300 hover:scale-105 ${
+                  isScrolled
+                    ? 'text-violet-600 hover:bg-violet-50'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Music size={14} />
+                <span>Minha Música</span>
+              </Link>
+              <Link
+                href="#planos"
+                className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                  isScrolled
+                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-500/25'
+                    : 'bg-white text-violet-600 shadow-white/25'
+                }`}
+              >
+                <Sparkles size={16} />
+                <span>Criar Música</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -519,19 +518,20 @@ export default function Home() {
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 leading-tight animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-                Transforme Sua{' '}
+                Crie Sua{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400">
-                  História
-                </span>
-                <br />
-                em{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
                   Música
+                </span>{' '}
+                Agora
+                <br />
+                e Receba em{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
+                  Minutos
                 </span>
               </h1>
 
               <p className="text-gray-300 text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
-                Uma música exclusiva e personalizada para eternizar seus momentos mais especiais. O presente mais emocionante que alguém pode receber.
+                Crie agora mesmo no nosso site uma música exclusiva e personalizada. Receba automaticamente em poucos minutos — sem espera!
               </p>
 
               {/* CTAs */}
@@ -541,7 +541,7 @@ export default function Home() {
                   className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
                 >
                   <Sparkles size={18} />
-                  <span>Criar Minha Música</span>
+                  <span>Criar Minha Música Agora</span>
                   <ArrowRight size={16} />
                 </a>
                 <a
@@ -558,7 +558,7 @@ export default function Home() {
                 {[
                   { value: `${formatNumber(musicCount)}+`, label: 'Músicas' },
                   { value: '4.9★', label: 'Avaliação' },
-                  { value: '48h', label: 'Entrega' },
+                  { value: '~5min', label: 'Entrega' },
                 ].map((stat, i) => (
                   <div key={i} className="text-center">
                     <p className="text-white font-black text-lg sm:text-xl">{stat.value}</p>
@@ -636,7 +636,7 @@ export default function Home() {
                 {/* Badge flutuante com preço em destaque */}
                 <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-full font-bold shadow-lg shadow-green-500/40 animate-pulse flex items-center gap-1 sm:gap-1.5">
                   <span className="text-xs sm:text-sm text-green-100">A partir de</span>
-                  <span className="text-base sm:text-lg font-black text-white underline decoration-2 underline-offset-2">R$59,90</span>
+                  <span className="text-base sm:text-lg font-black text-white underline decoration-2 underline-offset-2">R$39,90</span>
                 </div>
               </div>
             </div>
@@ -654,7 +654,7 @@ export default function Home() {
       {/* ================================================================
           PLANOS - SEÇÃO ESCURA COM DESIGN ROXO/LARANJA
           ================================================================ */}
-      <Planos onSelectPlan={(plan) => { setSelectedPlan(plan); setIsModalOpen(true); }} couponActive={couponActive} />
+      <Planos onSelectPlan={(plan) => { setSelectedPlan(plan); setIsModalOpen(true); }} />
 
       {/* ================================================================
           COMO FUNCIONA - OTIMIZADO MOBILE
@@ -920,7 +920,11 @@ export default function Home() {
               <div className="flex justify-center sm:justify-start">
                 <Logo white />
               </div>
-              <div className="flex items-center justify-center sm:justify-start gap-3 mt-4">
+              <Link href="/acesso" className="inline-flex items-center gap-2 mt-4 mb-3 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white rounded-full text-sm font-bold transition sm:hidden">
+                <Music size={16} />
+                Acessar minha música
+              </Link>
+              <div className="flex items-center justify-center sm:justify-start gap-3 mt-2 sm:mt-4">
                 {[
                   { icon: <Instagram size={18} />, href: 'https://www.instagram.com/cantosdememorias' },
                   { icon: <Phone size={18} />, href: 'https://wa.me/5588992422920' },
@@ -955,10 +959,16 @@ export default function Home() {
               </ul>
             </div>
 
-            {/* Links - Hidden on very small screens */}
-            <div className="hidden lg:block">
+            {/* Links */}
+            <div className="hidden sm:block lg:block">
               <h4 className="font-bold text-sm mb-4 text-violet-400">Links</h4>
               <ul className="space-y-2 text-sm">
+                <li>
+                  <Link href="/acesso" className="text-gray-400 hover:text-white flex items-center gap-2">
+                    <Music size={14} />
+                    Acessar minha música
+                  </Link>
+                </li>
                 {['Serviços', 'Portfólio', 'Depoimentos'].map((item, i) => (
                   <li key={i}>
                     <a href={`#${item.toLowerCase()}`} className="text-gray-400 hover:text-white">
@@ -1002,9 +1012,6 @@ export default function Home() {
         service={musicService}
         selectedPlan={selectedPlan}
       />
-
-      {/* Popup de Cupom */}
-      <CouponPopup onUseCoupon={handleUseCoupon} />
 
       {/* Notificações de compra (social proof) */}
       <PurchaseNotifications />

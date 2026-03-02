@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { getOrder, OrderData } from '@/lib/orderStore';
+import { getOrder, updateOrder, OrderData } from '@/lib/orderStore';
+import { scheduleGeneration } from '@/lib/qstash';
+
+const UPSTASH_URL = (process.env.UPSTASH_REDIS_REST_URL || '').trim();
+const UPSTASH_TOKEN = (process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
 
 // Inicialização lazy do Resend para evitar erro no build
 let resend: Resend | null = null;
@@ -33,6 +37,77 @@ export async function POST(request: NextRequest) {
       console.log('Correlation ID:', correlationID);
       console.log('Valor:', value);
 
+      // ========== VERIFICAR SE É UPSELL ==========
+      if (correlationID.startsWith('UPSELL-')) {
+        console.log('🎯 Pagamento de UPSELL detectado!');
+        try {
+          // Buscar orderId original do upsell
+          let originalOrderId = '';
+          if (UPSTASH_URL && UPSTASH_TOKEN) {
+            const upsellRes = await fetch(`${UPSTASH_URL}/get/upsell:${correlationID}`, {
+              method: 'GET',
+              headers: { 'Authorization': `Bearer ${UPSTASH_TOKEN}` },
+              cache: 'no-store',
+            });
+            if (upsellRes.ok) {
+              const upsellResult = await upsellRes.json();
+              if (upsellResult.result) {
+                originalOrderId = typeof upsellResult.result === 'string'
+                  ? upsellResult.result.replace(/^"|"$/g, '')
+                  : upsellResult.result;
+              }
+            }
+          }
+
+          if (originalOrderId) {
+            const originalOrder = await getOrder(originalOrderId);
+            if (originalOrder) {
+              // Idempotência: se já foi marcado como upsellPurchased, ignorar duplicata
+              if (originalOrder.upsellPurchased) {
+                console.log(`🎯 Upsell já processado para ${originalOrderId}, ignorando duplicata`);
+                return NextResponse.json({ success: true, message: 'Upsell já processado (duplicata)', correlationID });
+              }
+              // Adicionar 1 crédito ao pedido original
+              const currentCredits = originalOrder.creditsTotal || (originalOrder.plan === 'premium' ? 3 : 1);
+              await updateOrder(originalOrderId, {
+                creditsTotal: currentCredits + 1,
+                upsellPurchased: true,
+              });
+              console.log(`🎯 Upsell: +1 crédito adicionado ao pedido ${originalOrderId} (total: ${currentCredits + 1})`);
+
+              // Notificar admin
+              try {
+                const valueFormatted = (value / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                await getResend()?.emails.send({
+                  from: FROM_EMAIL,
+                  to: ['cantosdememorias@gmail.com'],
+                  subject: `🎯 UPSELL PAGO: ${originalOrder.customerName} comprou +1 música [${originalOrderId}]`,
+                  html: `<div style="font-family:Arial;max-width:600px;margin:auto;padding:20px">
+                    <div style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;padding:30px;border-radius:10px 10px 0 0;text-align:center">
+                      <h1 style="margin:0">🎯 Upsell Pago!</h1>
+                    </div>
+                    <div style="background:#f9fafb;padding:25px;border:1px solid #e5e7eb;border-radius:0 0 10px 10px">
+                      <p><strong>Cliente:</strong> ${originalOrder.customerName}</p>
+                      <p><strong>Valor:</strong> ${valueFormatted}</p>
+                      <p><strong>Pedido original:</strong> ${originalOrderId}</p>
+                      <p><strong>Créditos agora:</strong> ${currentCredits + 1}</p>
+                      <p style="color:#059669;font-weight:bold">O cliente pode criar a música extra diretamente na página do pedido.</p>
+                    </div>
+                  </div>`,
+                });
+              } catch (emailErr) {
+                console.error('Erro email upsell:', emailErr);
+              }
+            }
+          }
+        } catch (upsellError) {
+          console.error('Erro ao processar upsell:', upsellError);
+        }
+
+        return NextResponse.json({ success: true, message: 'Upsell processado', correlationID });
+      }
+
+      // ========== PAGAMENTO NORMAL ==========
       // Buscar dados completos do pedido no Redis
       const orderData = await getOrder(correlationID);
 
@@ -46,27 +121,14 @@ export async function POST(request: NextRequest) {
           await sendCustomerPaymentConfirmedEmail(orderData);
         }
 
-        // 🎵 Disparar geração automática de música via Suno AI
+        // 🎵 Disparar geração automática de música via Suno AI (via QStash - confiável)
         try {
-          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://cantosdememorias.com.br';
-          const internalSecret = process.env.INTERNAL_API_SECRET;
-          console.log('🎵 Disparando geração de música para:', correlationID);
-
-          fetch(`${baseUrl}/api/music/generate`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(internalSecret ? { 'Authorization': `Bearer ${internalSecret}` } : {}),
-            },
-            body: JSON.stringify({ orderId: correlationID }),
-          }).then(res => {
-            console.log(`🎵 Geração disparada: ${res.status}`);
-          }).catch(err => {
-            console.error('🎵 Erro ao disparar geração (não-bloqueante):', err);
-          });
+          console.log('🎵 Agendando geração de música via QStash para:', correlationID);
+          await scheduleGeneration(correlationID);
+          console.log('🎵 Geração agendada com sucesso via QStash');
         } catch (musicError) {
           // Não bloquear o webhook por erro na geração
-          console.error('🎵 Erro ao disparar geração:', musicError);
+          console.error('🎵 Erro ao agendar geração:', musicError);
         }
       } else {
         console.log('⚠️ Dados do pedido NÃO encontrados no Redis - enviando email básico');
@@ -170,7 +232,7 @@ async function sendCompleteOrderEmail(orderData: OrderData) {
             <p class="info-row"><strong>Música para:</strong> ${orderData.honoreeName || 'N/A'}</p>
             <p class="info-row"><strong>Relacionamento:</strong> ${orderData.relationshipLabel || orderData.relationship || 'N/A'}</p>
             <p class="info-row"><strong>Ocasião:</strong> ${orderData.occasionLabel || orderData.occasion || 'N/A'}</p>
-            <p class="info-row"><strong>Plano:</strong> ${orderData.plan === 'premium' ? '⭐ PREMIUM (2 músicas)' : 'Básico (1 música)'}</p>
+            <p class="info-row"><strong>Plano:</strong> ${orderData.plan === 'premium' ? '⭐ PREMIUM (3 músicas)' : 'Básico (1 música)'}</p>
             <p class="info-row"><strong>Estilo Musical 1:</strong> ${orderData.musicStyleLabel || orderData.musicStyle || 'N/A'}</p>
             ${orderData.plan === 'premium' && orderData.musicStyle2Label ? `<p class="info-row"><strong>Estilo Musical 2:</strong> ${orderData.musicStyle2Label || orderData.musicStyle2 || 'N/A'}</p>` : ''}
             <p class="info-row"><strong>Preferência de Voz:</strong> ${orderData.voicePreference === 'feminina' ? 'Feminina' : orderData.voicePreference === 'masculina' ? 'Masculina' : 'Sem preferência'}</p>
@@ -211,8 +273,8 @@ async function sendCompleteOrderEmail(orderData: OrderData) {
 
           <div class="section" style="background: #fef3c7; border-left-color: #f59e0b;">
             <div class="section-title" style="color: #d97706;">⏰ Próximo Passo</div>
-            <p><strong>Prazo de entrega:</strong> ${orderData.plan === 'premium' ? 'No mesmo dia ⚡' : 'Até 48 horas'}</p>
-            <p>Entre em contato com o cliente pelo WhatsApp para confirmar os detalhes e entregar a música personalizada.</p>
+            <p><strong>Entrega:</strong> Automática via Suno AI (poucos minutos)</p>
+            <p>A música será gerada automaticamente. O cliente receberá o link por e-mail quando ficar pronta.</p>
           </div>
         </div>
       </div>
@@ -367,7 +429,7 @@ async function sendCustomerPaymentConfirmedEmail(orderData: OrderData) {
           <h2>📋 Resumo do seu pedido</h2>
           <div class="order-details">
             <p><strong>Número do pedido:</strong> ${orderData.orderId}</p>
-            <p><strong>Plano:</strong> ${orderData.plan === 'premium' ? '⭐ Premium (2 músicas)' : 'Básico (1 música)'}</p>
+            <p><strong>Plano:</strong> ${orderData.plan === 'premium' ? '⭐ Premium (3 músicas)' : 'Básico (1 música)'}</p>
             <p><strong>Música para:</strong> ${orderData.honoreeName}</p>
             <p><strong>Ocasião:</strong> ${orderData.occasionLabel || orderData.occasion}</p>
             <p><strong>Estilo musical:</strong> ${orderData.musicStyleLabel || orderData.musicStyle}</p>

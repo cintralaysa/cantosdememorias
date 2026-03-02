@@ -42,14 +42,10 @@ export default function CheckoutPixPage() {
         // Guardar o plano para usar no redirecionamento
         setOrderPlan(orderData.plan || 'basico');
 
-        // Incluir cupom se ativo no localStorage
-        const coupon = localStorage.getItem('couponActive') === 'true' ? 'CANTOS10' : undefined;
-        const requestData = coupon ? { ...orderData, coupon } : orderData;
-
         const response = await fetch('/api/pix/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestData),
+          body: JSON.stringify(orderData),
         });
 
         if (!response.ok) {
@@ -90,7 +86,7 @@ export default function CheckoutPixPage() {
         localStorage.removeItem('pendingOrder');
         // Redirecionar para página de sucesso após 2 segundos com dados para o Meta Pixel
         setTimeout(() => {
-          const value = pixData?.value || (orderPlan === 'premium' ? 79.90 : 59.90);
+          const value = pixData?.value || (orderPlan === 'premium' ? 79.90 : 39.90);
           router.push(`/pagamento/sucesso?orderId=${orderId}&value=${value}&plan=${orderPlan}`);
         }, 2000);
       } else if (data.isExpired) {
@@ -284,6 +280,36 @@ export default function CheckoutPixPage() {
                 <p>Confirme o pagamento e pronto!</p>
               </div>
             </div>
+          </div>
+
+          {/* Botão de Pagamento Teste (para testes internos) */}
+          <div className="border-t border-dashed border-orange-300 bg-orange-50 p-4">
+            <button
+              onClick={async () => {
+                try {
+                  const savedOrder = localStorage.getItem('pendingOrder');
+                  if (!savedOrder) return;
+                  const od = JSON.parse(savedOrder);
+                  const res = await fetch('/api/test/simulate-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(od),
+                  });
+                  const data = await res.json();
+                  if (data.success) {
+                    localStorage.removeItem('pendingOrder');
+                    const value = od.plan === 'premium' ? 79.90 : 39.90;
+                    window.location.href = `/pagamento/sucesso?orderId=${data.orderId}&value=${value}&plan=${od.plan || 'basico'}`;
+                  }
+                } catch (err) {
+                  console.error('Erro teste:', err);
+                }
+              }}
+              className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-bold text-sm transition flex items-center justify-center gap-2"
+            >
+              🧪 Simular Pagamento (Teste)
+            </button>
+            <p className="text-xs text-orange-600 text-center mt-2">Uso interno - simula pagamento e gera música</p>
           </div>
 
           {/* Rodapé */}

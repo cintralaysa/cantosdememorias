@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
-import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, Zap, AlertCircle, Info } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
 // Opções de relacionamento - Chá Revelação primeiro!
 const RELATIONSHIPS = [
@@ -76,22 +76,22 @@ interface FormData {
 // Informações dos planos
 const PLANS = {
   basico: {
-    name: 'Plano Básico',
-    price: 59.90,
-    priceFormatted: 'R$ 59,90',
+    name: '1 Música',
+    price: 39.90,
+    priceFormatted: 'R$ 39,90',
     melodias: 1,
-    deliveryHours: 48,
-    features: ['1 Melodia exclusiva', 'Letra personalizada', 'Entrega em até 48h', 'Aprove antes de pagar'],
+    deliveryHours: 0,
+    features: ['1 Música personalizada', 'Letra com o nome', 'Download MP3 + letra', 'Aprove antes de pagar'],
     color: 'violet',
     highlight: 'EXCLUSIVO SITE'
   },
   premium: {
-    name: 'Plano Premium',
+    name: '3 Músicas',
     price: 79.90,
     priceFormatted: 'R$ 79,90',
-    melodias: 2,
+    melodias: 3,
     deliveryHours: 0,
-    features: ['2 Melodias diferentes', 'Letra personalizada', 'Entrega no mesmo dia', 'Aprove antes de pagar'],
+    features: ['3 Músicas personalizadas', 'Letras exclusivas', 'Temas diferentes', 'Aprove antes de pagar'],
     color: 'amber',
     highlight: 'MELHOR VALOR'
   }
@@ -108,7 +108,6 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
   const router = useRouter();
   const [step, setStep] = useState(1); // Agora começa direto nas informações
   const [loading, setLoading] = useState(false);
-  const [couponActive, setCouponActive] = useState(false);
   const [generatingLyrics, setGeneratingLyrics] = useState(false);
   const [lyricsError, setLyricsError] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -135,28 +134,11 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     lyricsApproved: false,
   });
 
-  // Checar cupom no localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined' && localStorage.getItem('couponActive') === 'true') {
-      setCouponActive(true);
-    }
-  }, []);
-
   const selectedPlan = PLANS[formData.plan];
-  // Aplicar desconto de 10% se cupom ativo
-  const discountedPrice = couponActive ? Math.round(selectedPlan.price * 0.9 * 100) / 100 : selectedPlan.price;
-  const discountedPriceFormatted = couponActive
-    ? `R$ ${discountedPrice.toFixed(2).replace('.', ',')}`
-    : selectedPlan.priceFormatted;
   const totalSteps = 4; // Agora são só 4 passos (removemos a escolha do plano)
   const progress = (step / totalSteps) * 100;
 
-  // Quando não sabe o sexo do bebê no Chá Revelação, automaticamente vai para Premium
-  // (pois receberá 2 músicas - uma para cada possibilidade)
-  const isChaBabyUnknown = formData.relationship === 'cha-revelacao' && formData.knowsBabySex === 'nao';
-  if (isChaBabyUnknown && formData.plan !== 'premium') {
-    setFormData(prev => ({ ...prev, plan: 'premium' }));
-  }
+  // Chá Revelação: sempre sabe o sexo (campo obrigatório)
 
   const updateField = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -170,11 +152,9 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
         const hasSecondStyle = !needsSecondStyle || formData.musicStyle2;
 
         if (formData.relationship === 'cha-revelacao') {
-          if (!formData.knowsBabySex) return false;
-          if (formData.knowsBabySex === 'sim' && !formData.babySex) return false;
-          if (formData.knowsBabySex === 'sim' && formData.babySex === 'menino' && !formData.babyNameBoy.trim()) return false;
-          if (formData.knowsBabySex === 'sim' && formData.babySex === 'menina' && !formData.babyNameGirl.trim()) return false;
-          if (formData.knowsBabySex === 'nao' && (!formData.babyNameBoy.trim() || !formData.babyNameGirl.trim())) return false;
+          if (!formData.babySex) return false;
+          if (formData.babySex === 'menino' && !formData.babyNameBoy.trim()) return false;
+          if (formData.babySex === 'menina' && !formData.babyNameGirl.trim()) return false;
           return formData.honoreeName.trim().length >= 2 && formData.musicStyle && hasSecondStyle;
         }
         return formData.relationship && formData.honoreeName.trim().length >= 2 && formData.occasion && formData.musicStyle && hasSecondStyle;
@@ -246,7 +226,6 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
   // Preparar dados do pedido (reutilizável)
   const prepareOrderData = () => ({
     plan: formData.plan,
-    coupon: couponActive ? 'CANTOS10' : undefined,
     customerName: formData.userName,
     customerEmail: formData.email,
     customerWhatsapp: formData.whatsapp,
@@ -302,7 +281,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Pagamento Aprovado!</h2>
         <p className="text-gray-600 mb-4">Sua música para <strong>{formData.honoreeName}</strong> está sendo preparada com muito carinho.</p>
         <div className="bg-violet-50 rounded-xl p-4 mb-6">
-          <p className="text-sm text-violet-700">Você receberá sua música em até <strong>{selectedPlan.deliveryHours} horas</strong> no e-mail e WhatsApp cadastrados.</p>
+          <p className="text-sm text-violet-700">Sua música será gerada automaticamente em <strong>poucos minutos</strong>! Você receberá o link por e-mail.</p>
         </div>
         <button
           onClick={() => { if (onClose) onClose(); window.location.href = '/'; }}
@@ -329,14 +308,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
           <div className="text-right flex items-center gap-3">
             <div className="bg-white/10 rounded-lg px-3 py-2">
               <span className="text-xs text-white/60 block">{selectedPlan.name}</span>
-              {couponActive ? (
-                <div>
-                  <span className="text-xs text-white/40 line-through block">{selectedPlan.priceFormatted}</span>
-                  <span className="text-xl font-black text-green-300">{discountedPriceFormatted}</span>
-                </div>
-              ) : (
-                <span className="text-xl font-black text-white">{selectedPlan.priceFormatted}</span>
-              )}
+              <span className="text-xl font-black text-white">{selectedPlan.priceFormatted}</span>
             </div>
             {isModal && onClose && (
               <button onClick={onClose} className="text-white/60 hover:text-white p-1 hover:bg-white/10 rounded-lg">
@@ -376,42 +348,21 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
             {formData.relationship === 'cha-revelacao' && (
               <div className="bg-gradient-to-br from-pink-50 to-blue-50 rounded-xl p-4 border border-pink-200 space-y-4">
                 <div className="text-center"><span className="text-3xl">👶</span><h3 className="text-sm font-bold text-gray-900 mt-1">Detalhes do Chá Revelação</h3></div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2">Você já sabe o sexo do bebê?</label>
+                <div className="space-y-3">
+                  <label className="block text-xs font-bold text-gray-700">Qual o sexo do bebê?</label>
                   <div className="grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => { updateField('knowsBabySex', 'sim'); updateField('babySex', ''); }} className={`p-3 rounded-xl border-2 text-center ${formData.knowsBabySex === 'sim' ? 'border-pink-500 bg-pink-100' : 'border-gray-200'}`}><span className="text-lg block">✅</span><span className="font-bold text-xs">Sim, já sei!</span></button>
-                    <button type="button" onClick={() => { updateField('knowsBabySex', 'nao'); updateField('babySex', ''); }} className={`p-3 rounded-xl border-2 text-center ${formData.knowsBabySex === 'nao' ? 'border-violet-500 bg-violet-100' : 'border-gray-200'}`}><span className="text-lg block">🎁</span><span className="font-bold text-xs">É surpresa!</span></button>
+                    <button type="button" onClick={() => { updateField('babySex', 'menino'); updateField('babyNameGirl', ''); updateField('knowsBabySex', 'sim'); }} className={`p-3 rounded-xl border-2 ${formData.babySex === 'menino' ? 'border-blue-500 bg-blue-100' : 'border-gray-200'}`}><span className="text-xl">💙</span><span className="font-bold text-xs block">Menino</span></button>
+                    <button type="button" onClick={() => { updateField('babySex', 'menina'); updateField('babyNameBoy', ''); updateField('knowsBabySex', 'sim'); }} className={`p-3 rounded-xl border-2 ${formData.babySex === 'menina' ? 'border-pink-500 bg-pink-100' : 'border-gray-200'}`}><span className="text-xl">💖</span><span className="font-bold text-xs block">Menina</span></button>
+                  </div>
+                  {formData.babySex && (
+                    <div><label className="block text-xs font-bold text-gray-700 mb-1">Nome do bebê</label><input type="text" value={formData.babySex === 'menino' ? formData.babyNameBoy : formData.babyNameGirl} onChange={(e) => updateField(formData.babySex === 'menino' ? 'babyNameBoy' : 'babyNameGirl', e.target.value)} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 text-sm" placeholder="Nome do bebê" /></div>
+                  )}
+                  <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
+                    <p className="text-xs text-violet-700">
+                      A música terá o formato: <strong>história dos pais</strong> + <strong>suspense e contagem</strong> + <strong>revelação do sexo</strong>!
+                    </p>
                   </div>
                 </div>
-                {formData.knowsBabySex === 'sim' && (
-                  <div className="space-y-3">
-                    <label className="block text-xs font-bold text-gray-700">Qual o sexo?</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button type="button" onClick={() => { updateField('babySex', 'menino'); updateField('babyNameGirl', ''); }} className={`p-3 rounded-xl border-2 ${formData.babySex === 'menino' ? 'border-blue-500 bg-blue-100' : 'border-gray-200'}`}><span className="text-xl">💙</span><span className="font-bold text-xs block">Menino</span></button>
-                      <button type="button" onClick={() => { updateField('babySex', 'menina'); updateField('babyNameBoy', ''); }} className={`p-3 rounded-xl border-2 ${formData.babySex === 'menina' ? 'border-pink-500 bg-pink-100' : 'border-gray-200'}`}><span className="text-xl">💖</span><span className="font-bold text-xs block">Menina</span></button>
-                    </div>
-                    {formData.babySex && (
-                      <div><label className="block text-xs font-bold text-gray-700 mb-1">Nome do bebê</label><input type="text" value={formData.babySex === 'menino' ? formData.babyNameBoy : formData.babyNameGirl} onChange={(e) => updateField(formData.babySex === 'menino' ? 'babyNameBoy' : 'babyNameGirl', e.target.value)} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 text-sm" /></div>
-                    )}
-                  </div>
-                )}
-                {formData.knowsBabySex === 'nao' && (
-                  <div className="space-y-3">
-                    <div className="bg-gradient-to-r from-orange-100 to-amber-100 border border-orange-300 rounded-lg p-3">
-                      <p className="text-xs text-orange-800 font-semibold flex items-center gap-2">
-                        <Zap size={14} className="text-orange-500" />
-                        Plano Premium ativado automaticamente!
-                      </p>
-                      <p className="text-xs text-orange-700 mt-1">
-                        Você receberá <strong>2 músicas completas</strong> - uma para menino e uma para menina - para revelar no momento especial!
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div><label className="block text-xs font-bold text-blue-600 mb-1">💙 Se for menino</label><input type="text" value={formData.babyNameBoy} onChange={(e) => updateField('babyNameBoy', e.target.value)} className="w-full px-3 py-2 rounded-xl border-2 border-blue-200 text-sm" placeholder="Nome do bebê" /></div>
-                      <div><label className="block text-xs font-bold text-pink-600 mb-1">💖 Se for menina</label><input type="text" value={formData.babyNameGirl} onChange={(e) => updateField('babyNameGirl', e.target.value)} className="w-full px-3 py-2 rounded-xl border-2 border-pink-200 text-sm" placeholder="Nome do bebê" /></div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
@@ -454,7 +405,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
               <div className="bg-purple-50 rounded-xl p-3 border border-purple-200">
                 <p className="text-xs text-purple-700 mb-2 flex items-center gap-1">
                   <Sparkles size={12} />
-                  <strong>2ª melodia:</strong>
+                  <strong>2º e 3º estilo:</strong>
                 </p>
                 <div className="flex gap-2">
                   <button type="button" onClick={() => updateField('musicStyle2', formData.musicStyle)} className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition ${formData.musicStyle2 === formData.musicStyle ? 'bg-purple-500 text-white' : 'bg-white border border-purple-200 text-purple-700'}`}>
@@ -494,7 +445,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
             </div>
             <div className="bg-blue-50/60 border border-blue-100 rounded-lg p-2.5 flex items-start gap-2">
               <Info size={14} className="text-blue-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-blue-600/80 leading-relaxed">Você cria e edita a letra aqui no site. Após aprovar e pagar, sua música será entregue pronta no seu WhatsApp no prazo do plano escolhido.</p>
+              <p className="text-xs text-blue-600/80 leading-relaxed">Você cria e edita a letra aqui no site. Após aprovar e pagar, sua música será gerada automaticamente em poucos minutos!</p>
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-800"><Heart size={16} className="text-violet-500 fill-violet-500" />Conte a história de {formData.honoreeName}</label>
@@ -590,23 +541,10 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                 ) : (
                   <div className="flex justify-between"><span className="text-gray-500">Estilo:</span><span className="font-semibold">{MUSIC_STYLES.find(m => m.value === formData.musicStyle)?.label}</span></div>
                 )}
-                <div className="flex justify-between"><span className="text-gray-500">Melodias:</span><span className="font-semibold">{selectedPlan.melodias}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Entrega:</span><span className="font-semibold">Até {selectedPlan.deliveryHours}h</span></div>
-                {couponActive && (
-                  <div className="flex justify-between items-center text-green-600">
-                    <span className="text-gray-500 flex items-center gap-1"><span>🎁</span> Cupom CANTOS10:</span>
-                    <span className="font-semibold">-10%</span>
-                  </div>
-                )}
+                <div className="flex justify-between"><span className="text-gray-500">Músicas:</span><span className="font-semibold">{selectedPlan.melodias}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Entrega:</span><span className="font-semibold">Automática em minutos</span></div>
                 <div className="border-t pt-3 mt-3 flex justify-between items-center"><span className="font-bold">Total:</span>
-                  {couponActive ? (
-                    <div className="text-right">
-                      <span className="text-sm text-gray-400 line-through block">{selectedPlan.priceFormatted}</span>
-                      <span className="text-2xl font-black text-green-600">{discountedPriceFormatted}</span>
-                    </div>
-                  ) : (
                     <span className="text-2xl font-black text-violet-600">{selectedPlan.priceFormatted}</span>
-                  )}
                 </div>
               </div>
             </div>
@@ -642,7 +580,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                         <div>Pagar com PIX</div>
                         <div className="text-xs font-normal opacity-80">Aprovação instantânea</div>
                       </div>
-                      <span className="ml-auto">{discountedPriceFormatted}</span>
+                      <span className="ml-auto">{selectedPlan.priceFormatted}</span>
                     </>
                   )}
                 </button>
