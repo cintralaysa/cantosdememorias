@@ -1,7 +1,7 @@
 // Orquestrador de geração de música via Suno AI
 // Gerencia o fluxo: disparo → polling via QStash → conclusão → notificação
 
-import { getOrder, updateOrder } from './orderStore';
+import { getOrder, updateOrder, saveAccessCodeIndex } from './orderStore';
 import { submitGeneration, checkStatus } from './sunoClient';
 import { getSunoStylePrompt, generateSongTitle } from './musicStyles';
 import { scheduleStatusPoll } from './qstash';
@@ -133,6 +133,9 @@ export async function startMusicGeneration(orderId: string): Promise<void> {
       musicRetryCount: '0',
       accessCode,
     });
+
+    // Salvar índice reverso código → orderId (para página /acesso)
+    await saveAccessCodeIndex(accessCode, orderId);
 
     // Agendar primeiro polling em 15 segundos (dar tempo do Suno começar)
     await scheduleStatusPoll(orderId, 15);

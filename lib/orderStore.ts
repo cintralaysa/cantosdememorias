@@ -198,6 +198,60 @@ export async function updateOrder(correlationID: string, fields: Partial<OrderDa
   }
 }
 
+// Salvar índice código de acesso → orderId (para busca reversa)
+export async function saveAccessCodeIndex(accessCode: string, orderId: string): Promise<boolean> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return false;
+
+  try {
+    // TTL de 30 dias (2592000 segundos)
+    const response = await fetch(`${UPSTASH_URL}/set/access:${accessCode}?EX=2592000`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderId),
+    });
+
+    if (response.ok) {
+      console.log(`[ORDER-STORE] ✅ Índice de acesso salvo: ${accessCode} → ${orderId}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao salvar índice de acesso:', error);
+    return false;
+  }
+}
+
+// Buscar orderId pelo código de acesso
+export async function getOrderByAccessCode(accessCode: string): Promise<OrderData | null> {
+  if (!UPSTASH_URL || !UPSTASH_TOKEN) return null;
+
+  try {
+    const response = await fetch(`${UPSTASH_URL}/get/access:${accessCode}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${UPSTASH_TOKEN}`,
+      },
+    });
+
+    if (!response.ok) return null;
+
+    const result = await response.json();
+    if (!result.result) return null;
+
+    const orderId = typeof result.result === 'string'
+      ? result.result.replace(/^"|"$/g, '')
+      : result.result;
+
+    return await getOrder(orderId);
+  } catch (error) {
+    console.error('[ORDER-STORE] Erro ao buscar por código de acesso:', error);
+    return null;
+  }
+}
+
 // Atualizar status do pedido (mantido para compatibilidade)
 export async function updateOrderStatus(correlationID: string, status: string): Promise<boolean> {
   if (!UPSTASH_URL || !UPSTASH_TOKEN) {
