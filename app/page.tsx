@@ -451,9 +451,9 @@ export default function Home() {
 
               {/* Headline */}
               <h1 className="text-[1.7rem] leading-[1.15] sm:text-4xl md:text-5xl lg:text-[3.4rem] font-black text-white mb-3 sm:mb-5 lg:mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-                Transforme Sentimentos{' '}
+                Transforme Sentimentos em{' '}
                 <br className="hidden sm:block" />
-                em uma{' '}
+                uma{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400">
                   Música Única
                 </span>
