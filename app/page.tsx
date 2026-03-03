@@ -395,7 +395,7 @@ export default function Home() {
                 }`}
               >
                 <Music size={14} />
-                <span>Minha Música</span>
+                <span>Acessar Minha Música</span>
               </Link>
               <Link
                 href="#planos"
