@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pollMusicStatus } from '@/lib/musicGeneration';
-import { getOrder } from '@/lib/orderStore';
+import { getOrder, updateOrder } from '@/lib/orderStore';
 import { Resend } from 'resend';
 
 // Lazy init do Resend
@@ -27,14 +27,13 @@ export async function POST(request: NextRequest) {
     const result = await pollMusicStatus(orderId);
 
     if (result === 'completed') {
-      // Verificar se notificação já foi enviada (evitar duplicatas de QStash + callback)
+      // Verificar se email já foi enviado (pelo callback ou por chamada anterior)
       const orderCheck = await getOrder(orderId);
-      const alreadyNotified = orderCheck?.musicCompletedAt &&
-        (Date.now() - new Date(orderCheck.musicCompletedAt).getTime()) > 5000;
-      if (!alreadyNotified) {
+      if (!orderCheck?.emailSentAt) {
+        await updateOrder(orderId, { emailSentAt: new Date().toISOString() });
         await sendMusicReadyNotifications(orderId);
       } else {
-        console.log(`[MUSIC-POLL] Notificação já enviada para ${orderId}, pulando`);
+        console.log(`[MUSIC-POLL] Email já enviado para ${orderId} em ${orderCheck.emailSentAt}, pulando`);
       }
     } else if (result === 'failed') {
       // Geração falhou! Notificar admin
