@@ -248,7 +248,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     babyNameGirl: formData.babyNameGirl,
   });
 
-  // Redirecionar para checkout PIX interno
+  // Redirecionar para checkout PIX (via Mercado Pago)
   const handlePixCheckout = async () => {
     if (!canProceed()) return;
     setLoading(true);
@@ -256,8 +256,12 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
 
     try {
       const orderData = prepareOrderData();
-      localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-      router.push('/checkout/pix');
+      sessionStorage.setItem('checkoutData', JSON.stringify({
+        ...orderData,
+        amount: selectedPlan.price,
+      }));
+      sessionStorage.setItem('checkoutMethod', 'pix');
+      router.push('/checkout');
     } catch (error: any) {
       setPaymentError(error.message || 'Erro ao processar. Tente novamente.');
       setLoading(false);

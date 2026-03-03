@@ -87,21 +87,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, message: 'Já processado' });
     }
 
+    // Detectar método de pagamento (pix ou card)
+    const paymentMethodId = paymentData.payment_method_id || '';
+    const isPix = paymentMethodId === 'pix';
+    const methodLabel = isPix ? 'pix' : 'card';
+
     // Marcar como processado imediatamente (prevenir race condition)
     await updateOrder(orderId, {
       status: 'paid',
-      paymentMethod: 'card',
+      paymentMethod: methodLabel,
       emailSentAt: new Date().toISOString(),
     });
 
-    console.log('✅ Pagamento CARTÃO confirmado para:', orderId);
+    console.log(`✅ Pagamento ${methodLabel.toUpperCase()} confirmado para:`, orderId);
 
     // Enviar email completo para admin
-    await sendAdminOrderEmail(orderData, paymentData);
+    await sendAdminOrderEmail(orderData, paymentData, isPix);
 
     // Enviar email de confirmação para o cliente
     if (orderData.customerEmail) {
-      await sendCustomerConfirmationEmail(orderData);
+      await sendCustomerConfirmationEmail(orderData, isPix);
     }
 
     // 🎵 Disparar geração automática de música via QStash
@@ -139,7 +144,7 @@ export async function GET() {
 // ===== FUNÇÕES DE EMAIL =====
 
 // Email completo para admin
-async function sendAdminOrderEmail(orderData: OrderData, paymentData: any) {
+async function sendAdminOrderEmail(orderData: OrderData, paymentData: any, isPix: boolean = false) {
   const valueFormatted = (orderData.amount / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const lyricsHtml = orderData.generatedLyrics ? orderData.generatedLyrics.replace(/\n/g, '<br>') : '';
   const isChaRevelacao = orderData.relationship === 'cha-revelacao' || orderData.occasion === 'cha-revelacao';
@@ -166,8 +171,8 @@ async function sendAdminOrderEmail(orderData: OrderData, paymentData: any) {
     <body>
       <div class="container">
         <div class="header">
-          <h1>💳 CARTÃO CONFIRMADO - PEDIDO COMPLETO!</h1>
-          <div class="badge">✅ PAGAMENTO VIA ${paymentMethodLabel.toUpperCase()}</div>
+          <h1>${isPix ? '🟢 PIX' : '💳 CARTÃO'} CONFIRMADO - PEDIDO COMPLETO!</h1>
+          <div class="badge">✅ PAGAMENTO VIA ${isPix ? 'PIX' : paymentMethodLabel.toUpperCase()}</div>
         </div>
 
         <div class="content">
@@ -245,7 +250,7 @@ async function sendAdminOrderEmail(orderData: OrderData, paymentData: any) {
     await getResend()?.emails.send({
       from: FROM_EMAIL,
       to: [ADMIN_EMAIL],
-      subject: `💳 ✅ CARTÃO PAGO: ${orderData.customerName} → ${orderData.honoreeName} [${orderData.orderId}]`,
+      subject: `${isPix ? '🟢 PIX' : '💳 CARTÃO'} ✅ PAGO: ${orderData.customerName} → ${orderData.honoreeName} [${orderData.orderId}]`,
       html: emailHtml,
     });
     console.log('✅ Email completo enviado para admin (cartão)');
@@ -255,7 +260,7 @@ async function sendAdminOrderEmail(orderData: OrderData, paymentData: any) {
 }
 
 // Email de confirmação para o cliente
-async function sendCustomerConfirmationEmail(orderData: OrderData) {
+async function sendCustomerConfirmationEmail(orderData: OrderData, isPix: boolean = false) {
   const lyricsHtml = orderData.generatedLyrics ? orderData.generatedLyrics.replace(/\n/g, '<br>') : '';
 
   const emailHtml = `
@@ -300,7 +305,7 @@ async function sendCustomerConfirmationEmail(orderData: OrderData) {
             <p><strong>Ocasião:</strong> ${orderData.occasionLabel || orderData.occasion}</p>
             <p><strong>Estilo musical:</strong> ${orderData.musicStyleLabel || orderData.musicStyle}</p>
             ${orderData.plan === 'premium' && orderData.musicStyle2Label ? `<p><strong>2º Estilo musical:</strong> ${orderData.musicStyle2Label || orderData.musicStyle2}</p>` : ''}
-            <p><strong>Pagamento:</strong> Cartão de Crédito/Débito ✅</p>
+            <p><strong>Pagamento:</strong> ${isPix ? 'PIX' : 'Cartão de Crédito/Débito'} ✅</p>
           </div>
 
           ${lyricsHtml ? `

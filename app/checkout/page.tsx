@@ -45,7 +45,8 @@ interface OrderData {
 interface PixData {
   qrCode: string;
   qrCodeBase64: string;
-  paymentId: string;
+  paymentId: number;
+  orderId: string;
 }
 
 export default function CheckoutPage() {
@@ -83,17 +84,57 @@ export default function CheckoutPage() {
           content_name: `Música para ${data.honoreeName}`,
         });
 
-        // Se veio direto pra cartão (do formulário)
+        // Verificar método de pagamento escolhido
         const method = sessionStorage.getItem('checkoutMethod');
         if (method === 'card') {
           setShowCardForm(true);
           sessionStorage.removeItem('checkoutMethod');
+        } else if (method === 'pix') {
+          // Auto-iniciar PIX
+          sessionStorage.removeItem('checkoutMethod');
+          // handlePixPayment será chamado via useEffect separado
         }
       } catch (e) {
         console.error('Erro ao recuperar dados do pedido:', e);
       }
     }
   }, []);
+
+  // Auto-iniciar PIX se método for pix
+  useEffect(() => {
+    const method = sessionStorage.getItem('checkoutMethod');
+    if (orderData && !pixData && !showCardForm && method !== 'card') {
+      // Se veio do form com método pix, gerar automaticamente
+      const wasPixMethod = sessionStorage.getItem('autoPixStarted');
+      if (!wasPixMethod) {
+        const storedMethod = sessionStorage.getItem('checkoutMethod');
+        // O checkoutMethod já foi removido no useEffect anterior, usar flag alternativa
+      }
+    }
+  }, [orderData, pixData, showCardForm]);
+
+  // Flag para auto-iniciar PIX
+  const [autoStartPix, setAutoStartPix] = useState(false);
+
+  // Recuperar método e auto-iniciar PIX
+  useEffect(() => {
+    const storedData = sessionStorage.getItem('checkoutData');
+    const method = sessionStorage.getItem('checkoutMethod');
+
+    if (storedData && method === 'pix') {
+      sessionStorage.removeItem('checkoutMethod');
+      setAutoStartPix(true);
+    }
+  }, []);
+
+  // Executar auto-start PIX quando orderData estiver disponível
+  useEffect(() => {
+    if (autoStartPix && orderData && !pixData && !loading) {
+      setAutoStartPix(false);
+      handlePixPayment();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStartPix, orderData]);
 
   // Inicializar Brick de cartão quando showCardForm fica true
   useEffect(() => {
@@ -108,7 +149,6 @@ export default function CheckoutPage() {
           await new Promise<void>((resolve, reject) => {
             const existing = document.querySelector('script[src*="sdk.mercadopago.com"]');
             if (existing) {
-              // Script já existe, esperar carregar
               if (window.MercadoPago) { resolve(); return; }
               existing.addEventListener('load', () => resolve());
               existing.addEventListener('error', () => reject(new Error('Erro ao carregar SDK')));
@@ -211,7 +251,7 @@ export default function CheckoutPage() {
                     router.push(`/pagamento/sucesso?orderId=${result.orderId}&source=mercadopago`);
                   }, 2000);
 
-                  return; // resolve → Brick mostra sucesso
+                  return;
                 } else if (result.status === 'pending') {
                   setPaymentSuccess(true);
                   sessionStorage.removeItem('checkoutData');
@@ -220,12 +260,11 @@ export default function CheckoutPage() {
                   }, 2000);
                   return;
                 } else {
-                  // Rejeitado
                   throw new Error(result.message || 'Pagamento recusado. Tente outro cartão.');
                 }
               } catch (err: any) {
                 setError(err.message || 'Erro ao processar pagamento');
-                throw err; // reject → Brick mostra erro
+                throw err;
               }
             },
             onError: (err: any) => {
@@ -255,28 +294,28 @@ export default function CheckoutPage() {
     };
   }, [showCardForm, orderData, mpPublicKey, router]);
 
-  // Verificar status do pagamento PIX (via OpenPix/Woovi)
+  // Verificar status do pagamento PIX via Mercado Pago
   const checkPixPayment = useCallback(async () => {
-    if (!pixData?.paymentId) return;
+    if (!pixData?.paymentId || !pixData?.orderId) return;
 
     setCheckingPayment(true);
     try {
-      const response = await fetch(`/api/pix/status?correlationID=${pixData.paymentId}`);
+      const response = await fetch(`/api/mercadopago/pix/status?paymentId=${pixData.paymentId}`);
       const data = await response.json();
 
-      if (data.status === 'COMPLETED' || data.status === 'approved') {
+      if (data.status === 'approved') {
         if (orderData) {
           MetaPixelEvents.purchase({
             value: orderData.amount,
             content_name: `Música para ${orderData.honoreeName}`,
-            content_ids: [orderData.orderId],
+            content_ids: [pixData.orderId],
           });
         }
 
         setPaymentSuccess(true);
         sessionStorage.removeItem('checkoutData');
         setTimeout(() => {
-          router.push(`/pagamento/sucesso?payment_id=${pixData.paymentId}`);
+          router.push(`/pagamento/sucesso?orderId=${pixData.orderId}&source=mercadopago`);
         }, 2000);
       }
     } catch (error) {
@@ -289,28 +328,45 @@ export default function CheckoutPage() {
   // Polling para verificar pagamento PIX
   useEffect(() => {
     if (pixData && !paymentSuccess) {
-      const interval = setInterval(checkPixPayment, 5000);
+      const interval = setInterval(checkPixPayment, 4000);
       return () => clearInterval(interval);
     }
   }, [pixData, paymentSuccess, checkPixPayment]);
 
-  // Processar pagamento PIX (via OpenPix/Woovi)
+  // Processar pagamento PIX via Mercado Pago
   const handlePixPayment = async () => {
     if (!orderData) return;
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/pix/create', {
+      const response = await fetch('/api/mercadopago/pix', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          plan: orderData.plan,
-          amount: orderData.amount,
-          customerName: orderData.customerName,
-          customerEmail: orderData.customerEmail,
-          orderId: orderData.orderId,
-          description: `Música personalizada para ${orderData.honoreeName}`,
+          orderData: {
+            plan: orderData.plan,
+            customerName: orderData.customerName,
+            customerEmail: orderData.customerEmail,
+            customerWhatsapp: orderData.customerWhatsapp,
+            honoreeName: orderData.honoreeName,
+            relationship: orderData.relationship,
+            relationshipLabel: orderData.relationshipLabel,
+            occasion: orderData.occasion,
+            occasionLabel: orderData.occasionLabel,
+            musicStyle: orderData.musicStyle,
+            musicStyleLabel: orderData.musicStyleLabel,
+            musicStyle2: orderData.musicStyle2,
+            musicStyle2Label: orderData.musicStyle2Label,
+            voicePreference: orderData.voicePreference,
+            storyAndMessage: orderData.storyAndMessage,
+            familyNames: orderData.familyNames,
+            generatedLyrics: orderData.approvedLyrics || orderData.generatedLyrics,
+            knowsBabySex: orderData.knowsBabySex,
+            babySex: orderData.babySex,
+            babyNameBoy: orderData.babyNameBoy,
+            babyNameGirl: orderData.babyNameGirl,
+          },
         }),
       });
 
@@ -324,7 +380,8 @@ export default function CheckoutPage() {
         setPixData({
           qrCode: data.qrCode,
           qrCodeBase64: data.qrCodeBase64,
-          paymentId: data.correlationID || data.paymentId,
+          paymentId: data.paymentId,
+          orderId: data.orderId,
         });
       } else {
         throw new Error('Erro ao gerar QR Code PIX');
@@ -350,6 +407,7 @@ export default function CheckoutPage() {
   const handleBackToMethods = () => {
     setShowCardForm(false);
     setCardBrickReady(false);
+    setPixData(null);
     setError(null);
     if (brickControllerRef.current) {
       try { brickControllerRef.current.unmount(); } catch {}
@@ -448,12 +506,20 @@ export default function CheckoutPage() {
             {/* Se já tem dados do PIX, mostrar QR Code */}
             {pixData ? (
               <div className="p-5">
-                <h2 className="text-lg font-bold text-gray-900 mb-4 text-center">Pague com PIX</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold text-gray-900">Pague com PIX</h2>
+                  <button
+                    onClick={handleBackToMethods}
+                    className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                  >
+                    ← Voltar
+                  </button>
+                </div>
 
                 <div className="bg-gray-50 rounded-xl p-4 mb-4">
                   <div className="flex justify-center mb-4">
                     <img
-                      src={`data:image/png;base64,${pixData.qrCodeBase64}`}
+                      src={pixData.qrCodeBase64}
                       alt="QR Code PIX"
                       className="w-48 h-48"
                     />
@@ -465,7 +531,7 @@ export default function CheckoutPage() {
 
                   <div className="bg-white border rounded-lg p-3 mb-3">
                     <p className="text-xs text-gray-500 font-mono break-all">
-                      {pixData.qrCode.substring(0, 50)}...
+                      {pixData.qrCode.substring(0, 60)}...
                     </p>
                   </div>
 
@@ -579,7 +645,7 @@ export default function CheckoutPage() {
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Processando...
+                      Gerando PIX...
                     </>
                   ) : (
                     <>
@@ -629,7 +695,7 @@ export default function CheckoutPage() {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-4">
-            PIX: <span className="font-semibold text-green-500">Woovi</span> | Cartão: <span className="font-semibold text-blue-500">Mercado Pago</span>
+            Pagamento processado com segurança pelo <span className="font-semibold text-blue-500">Mercado Pago</span>
           </p>
         </div>
       </div>
