@@ -76,6 +76,10 @@ async function sendMusicReadyNotifications(orderId: string) {
 
   // Email para o cliente
   if (order.customerEmail) {
+    const IS_RESEND_DEV = !process.env.RESEND_FROM_EMAIL || FROM_EMAIL.includes('onboarding@resend.dev');
+    if (IS_RESEND_DEV) {
+      console.warn(`⚠️ RESEND_FROM_EMAIL não configurado! Email "música pronta" para ${order.customerEmail} NÃO será entregue. Configure RESEND_FROM_EMAIL com domínio verificado.`);
+    }
     const lyrics = order.generatedLyrics || order.approvedLyrics || '';
 
     const emailHtml = `<!DOCTYPE html>
@@ -157,15 +161,15 @@ async function sendMusicReadyNotifications(orderId: string) {
 </html>`;
 
     try {
-      await getResend()?.emails.send({
+      const result = await getResend()?.emails.send({
         from: FROM_EMAIL,
         to: [order.customerEmail],
         subject: `Sua música está pronta! - ${order.honoreeName}`,
         html: emailHtml,
       });
-      console.log(`[MUSIC-POLL] Email "música pronta" enviado para: ${order.customerEmail}`);
-    } catch (e) {
-      console.error('[MUSIC-POLL] Erro ao enviar email ao cliente:', e);
+      console.log(`[MUSIC-POLL] Email "música pronta" enviado para: ${order.customerEmail}`, JSON.stringify(result));
+    } catch (e: any) {
+      console.error('[MUSIC-POLL] ❌ FALHA ao enviar email ao cliente:', order.customerEmail, 'Erro:', e?.message || e, 'Status:', e?.statusCode);
     }
   }
 

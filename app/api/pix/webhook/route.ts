@@ -15,6 +15,7 @@ function getResend() {
   return resend;
 }
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Cantos de Memórias <onboarding@resend.dev>';
+const IS_RESEND_DEV = !process.env.RESEND_FROM_EMAIL || FROM_EMAIL.includes('onboarding@resend.dev');
 
 // Webhook da OpenPix para confirmação de pagamento
 export async function POST(request: NextRequest) {
@@ -118,6 +119,9 @@ export async function POST(request: NextRequest) {
 
         // Enviar email de confirmação para cliente
         if (orderData.customerEmail) {
+          if (IS_RESEND_DEV) {
+            console.warn(`⚠️ RESEND_FROM_EMAIL não configurado! Usando onboarding@resend.dev que SÓ envia para o email da conta Resend. Email do cliente ${orderData.customerEmail} NÃO será entregue. Configure RESEND_FROM_EMAIL com domínio verificado.`);
+          }
           await sendCustomerPaymentConfirmedEmail(orderData);
         }
 
