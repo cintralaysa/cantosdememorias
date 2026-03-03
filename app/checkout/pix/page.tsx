@@ -72,25 +72,48 @@ export default function CheckoutPixPage() {
     createPix();
   }, []);
 
-  // Verificar status do pagamento periodicamente
+  // Verificar status do pagamento (OpenPix + nosso Redis como fallback)
   const checkPaymentStatus = useCallback(async () => {
     if (!correlationID || status !== 'waiting') return;
 
     setCheckingPayment(true);
     try {
+      // Checar na OpenPix API
       const response = await fetch(`/api/pix/status?correlationID=${correlationID}`);
       const data = await response.json();
 
       if (data.isPaid) {
         setStatus('paid');
         localStorage.removeItem('pendingOrder');
-        // Redirecionar para página de sucesso após 2 segundos com dados para o Meta Pixel
         setTimeout(() => {
           const value = pixData?.value || (orderPlan === 'premium' ? 79.90 : 39.90);
           router.push(`/pagamento/sucesso?orderId=${orderId}&value=${value}&plan=${orderPlan}`);
-        }, 2000);
+        }, 1500);
+        return;
       } else if (data.isExpired) {
         setStatus('expired');
+        return;
+      }
+
+      // Fallback: se OpenPix ainda não confirmou, checar se o webhook já processou no nosso backend
+      try {
+        const fallback = await fetch(`/api/music/status/${correlationID}`);
+        if (fallback.ok) {
+          const fbData = await fallback.json();
+          // Se o nosso sistema já tem o pedido com musicStatus, o webhook já processou
+          if (fbData.musicStatus && fbData.musicStatus !== 'pending') {
+            console.log('Pagamento detectado via fallback (webhook já processou)');
+            setStatus('paid');
+            localStorage.removeItem('pendingOrder');
+            setTimeout(() => {
+              const value = pixData?.value || (orderPlan === 'premium' ? 79.90 : 39.90);
+              router.push(`/pagamento/sucesso?orderId=${orderId}&value=${value}&plan=${orderPlan}`);
+            }, 1500);
+            return;
+          }
+        }
+      } catch {
+        // fallback silencioso
       }
     } catch (err) {
       console.error('Erro ao verificar status:', err);
@@ -99,13 +122,18 @@ export default function CheckoutPixPage() {
     }
   }, [correlationID, status, orderId, orderPlan, pixData, router]);
 
-  // Polling do status a cada 5 segundos
+  // Polling: checar imediatamente + a cada 3 segundos
   useEffect(() => {
     if (!correlationID || status !== 'waiting') return;
 
-    const interval = setInterval(checkPaymentStatus, 5000);
+    // Checar imediatamente
+    checkPaymentStatus();
+
+    // Depois a cada 3s
+    const interval = setInterval(checkPaymentStatus, 3000);
     return () => clearInterval(interval);
-  }, [correlationID, status, checkPaymentStatus]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [correlationID, status]);
 
   // Copiar código PIX
   const copyPixCode = async () => {
@@ -251,16 +279,25 @@ export default function CheckoutPixPage() {
               </div>
             </div>
 
-            {/* Status de verificação */}
+            {/* Status de verificação + botão Já Paguei */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${checkingPayment ? 'bg-yellow-500 animate-pulse' : 'bg-yellow-400'}`}></div>
-                <p className="text-yellow-800 text-sm">
-                  {checkingPayment ? 'Verificando pagamento...' : 'Aguardando pagamento...'}
-                </p>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full flex-shrink-0 ${checkingPayment ? 'bg-yellow-500 animate-pulse' : 'bg-yellow-400'}`}></div>
+                  <p className="text-yellow-800 text-sm">
+                    {checkingPayment ? 'Verificando...' : 'Aguardando pagamento...'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => checkPaymentStatus()}
+                  disabled={checkingPayment}
+                  className="flex-shrink-0 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white text-xs font-bold px-4 py-2 rounded-lg transition"
+                >
+                  {checkingPayment ? '...' : 'Já paguei!'}
+                </button>
               </div>
               <p className="text-yellow-600 text-xs mt-2">
-                Esta página será atualizada automaticamente quando o pagamento for confirmado.
+                A confirmação é automática. Se já pagou e nada aconteceu, clique em &quot;Já paguei!&quot;
               </p>
             </div>
 
