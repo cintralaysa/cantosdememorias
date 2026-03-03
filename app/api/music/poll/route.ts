@@ -137,11 +137,11 @@ async function sendMusicReadyNotifications(orderId: string) {
         <p style="margin:0;color:#78350f;font-size:12px;line-height:1.6;">Clique no botão acima para ouvir as melodias e baixar o MP3. O link fica disponível por <strong>30 dias</strong>, então salve o arquivo no celular ou computador!</p>
       </div>
 
-      <!-- WhatsApp -->
+      <!-- Suporte -->
       <div style="text-align:center;margin:0 0 8px;">
         <p style="color:#9ca3af;font-size:12px;margin:0 0 12px;">Ficou com dúvida? Fale com a gente!</p>
-        <a href="https://wa.me/5588992422920" style="display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;font-size:13px;">
-          &#128172; WhatsApp
+        <a href="mailto:cantosdememorias@gmail.com" style="display:inline-block;background:#7c3aed;color:#fff;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;font-size:13px;">
+          &#9993; E-mail
         </a>
       </div>
     </div>

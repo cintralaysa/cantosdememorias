@@ -118,14 +118,13 @@ const jsonLd = {
       },
       contactPoint: {
         '@type': 'ContactPoint',
-        telephone: '+55-88-99242-2920',
+        email: 'cantosdememorias@gmail.com',
         contactType: 'customer service',
         availableLanguage: 'Portuguese',
         areaServed: 'BR'
       },
       sameAs: [
-        'https://www.instagram.com/cantosdememorias',
-        'https://wa.me/5588992422920'
+        'https://www.instagram.com/cantosdememorias'
       ]
     },
     {
@@ -207,7 +206,7 @@ const jsonLd = {
           name: 'Em quanto tempo recebo minha música?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'A entrega é automática! Após a confirmação do pagamento, sua música é gerada por inteligência artificial em poucos minutos. Você recebe o link por e-mail.'
+            text: 'A entrega é 100% automática! Após a confirmação do pagamento, sua música é gerada por inteligência artificial em poucos minutos. Você pode ouvir direto no site e também recebe tudo por e-mail para baixar o MP3.'
           }
         },
         {

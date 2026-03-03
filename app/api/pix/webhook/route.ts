@@ -364,10 +364,10 @@ async function sendBasicPaymentEmail(
             ${whatsappClean ? `<p style="margin-top: 15px;"><a href="${whatsappLink}" class="whatsapp-btn">💬 Abrir WhatsApp do Cliente</a></p>` : ''}
           </div>
 
-          <div class="section" style="background: #fef3c7; border-left-color: #f59e0b;">
-            <div class="section-title" style="color: #d97706;">⏰ Próximo Passo</div>
-            <p><strong>Prazo de entrega:</strong> 48 horas</p>
-            <p>Entre em contato com o cliente para confirmar os detalhes e entregar a música personalizada.</p>
+          <div class="section" style="background: #ecfdf5; border-left-color: #10b981;">
+            <div class="section-title" style="color: #059669;">⚡ Entrega Automática</div>
+            <p><strong>Status:</strong> A música será gerada automaticamente em poucos minutos.</p>
+            <p>O cliente receberá o link por e-mail e poderá ouvir e baixar direto no site.</p>
           </div>
         </div>
       </div>

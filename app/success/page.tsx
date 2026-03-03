@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CheckCircle, Music, Clock, Mail, MessageCircle, Heart, Sparkles, ArrowRight } from 'lucide-react';
+import { CheckCircle, Music, Clock, Mail, Heart, Sparkles, ArrowRight, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -115,22 +115,12 @@ export default function SuccessPage() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <MessageCircle className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">Contato via WhatsApp</p>
-                  <p className="text-sm text-gray-500">Você receberá uma mensagem em breve</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Clock className="w-5 h-5 text-amber-600" />
+                  <Zap className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Entrega em até 48 horas</p>
-                  <p className="text-sm text-gray-500">No seu email e WhatsApp</p>
+                  <p className="font-semibold text-gray-900">Entrega automática</p>
+                  <p className="text-sm text-gray-500">Ouça no site e receba por e-mail em minutos</p>
                 </div>
               </div>
             </div>

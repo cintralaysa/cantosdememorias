@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { CheckCircle, Music, Clock, MessageCircle, ArrowLeft, Sparkles, Loader2, Download, Mail, KeyRound, AlertCircle } from 'lucide-react';
+import { CheckCircle, Music, Clock, ArrowLeft, Sparkles, Loader2, Download, Mail, KeyRound, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { MetaPixelEvents } from '@/components/MetaPixel';
 
@@ -226,7 +226,7 @@ export default function SuccessPage() {
                     {musicError || 'Ocorreu um erro ao gerar sua música.'}
                   </p>
                   <p className="text-sm text-red-600 mt-2">
-                    Não se preocupe! Nossa equipe já foi notificada e entraremos em contato pelo WhatsApp para resolver.
+                    Não se preocupe! Nossa equipe já foi notificada e entraremos em contato por e-mail para resolver.
                   </p>
                 </div>
               </div>
@@ -365,16 +365,6 @@ export default function SuccessPage() {
             <KeyRound size={18} />
             Acessar com codigo
           </Link>
-
-          <a
-            href="https://wa.me/5588992422920"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all shadow-lg"
-          >
-            <MessageCircle size={20} />
-            Falar no WhatsApp
-          </a>
 
           <Link
             href="/"

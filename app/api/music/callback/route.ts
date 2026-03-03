@@ -160,7 +160,7 @@ function buildMusicReadyHtml(order: any, musicPageUrl: string, accessCode: strin
         <p style="margin:0;color:#78350f;font-size:12px;line-height:1.6;">Clique no botão acima para ouvir e baixar o MP3. O link fica disponível por <strong>30 dias</strong>.</p>
       </div>
       <div style="text-align:center;">
-        <a href="https://wa.me/5588992422920" style="display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;font-size:13px;">&#128172; WhatsApp</a>
+        <a href="mailto:cantosdememorias@gmail.com" style="display:inline-block;background:#7c3aed;color:#fff;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;font-size:13px;">&#9993; E-mail</a>
       </div>
     </div>
     <div style="text-align:center;padding:24px 0 8px;">

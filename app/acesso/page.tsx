@@ -153,12 +153,10 @@ export default function AcessoPage() {
           <div className="mt-4 text-center">
             <p className="text-white/40 text-xs mb-2">Não encontrou seu código?</p>
             <a
-              href="https://wa.me/5588992422920?text=Olá! Preciso de ajuda para acessar minha música."
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:cantosdememorias@gmail.com?subject=Ajuda para acessar minha música"
               className="text-violet-400 hover:text-violet-300 text-sm font-medium transition"
             >
-              Fale conosco no WhatsApp
+              Fale conosco por e-mail
             </a>
           </div>
         </div>
