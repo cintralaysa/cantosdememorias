@@ -457,13 +457,18 @@ async function sendCustomerPaymentConfirmedEmail(orderData: OrderData) {
   `;
 
   try {
+    const ADMIN_EMAIL = 'cantosdememorias@gmail.com';
+    const recipients = [orderData.customerEmail];
+    if (orderData.customerEmail !== ADMIN_EMAIL) {
+      recipients.push(ADMIN_EMAIL);
+    }
     await getResend()?.emails.send({
       from: FROM_EMAIL,
-      to: [orderData.customerEmail],
+      to: recipients,
       subject: `✅ Pagamento confirmado! Sua música está sendo criada - Cantos de Memórias`,
       html: emailHtml,
     });
-    console.log(`✅ Email de confirmação enviado para cliente: ${orderData.customerEmail}`);
+    console.log(`✅ Email de confirmação enviado para: ${recipients.join(', ')}`);
   } catch (emailError) {
     console.error('❌ Erro ao enviar email para cliente:', emailError);
   }

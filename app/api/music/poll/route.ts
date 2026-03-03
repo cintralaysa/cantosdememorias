@@ -157,13 +157,18 @@ async function sendMusicReadyNotifications(orderId: string) {
 </html>`;
 
     try {
+      const ADMIN_EMAIL = 'cantosdememorias@gmail.com';
+      const recipients = [order.customerEmail];
+      if (order.customerEmail !== ADMIN_EMAIL) {
+        recipients.push(ADMIN_EMAIL);
+      }
       const result = await getResend()?.emails.send({
         from: FROM_EMAIL,
-        to: [order.customerEmail],
+        to: recipients,
         subject: `Sua música está pronta! - ${order.honoreeName}`,
         html: emailHtml,
       });
-      console.log(`[MUSIC-POLL] Email "música pronta" enviado para: ${order.customerEmail}`, JSON.stringify(result));
+      console.log(`[MUSIC-POLL] Email "música pronta" enviado para: ${recipients.join(', ')}`, JSON.stringify(result));
     } catch (e: any) {
       console.error('[MUSIC-POLL] ❌ FALHA ao enviar email ao cliente:', order.customerEmail, 'Erro:', e?.message || e, 'Status:', e?.statusCode);
     }
