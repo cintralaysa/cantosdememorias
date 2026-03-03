@@ -3,12 +3,6 @@ import { Resend } from 'resend';
 
 // POST /api/test/send-email — Teste de envio de email
 export async function POST(request: NextRequest) {
-  // Proteger com secret
-  const secret = request.headers.get('x-internal-secret');
-  if (secret !== process.env.INTERNAL_API_SECRET) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-  }
-
   try {
     const { to } = await request.json();
     if (!to) {
