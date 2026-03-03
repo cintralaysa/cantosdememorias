@@ -1,10 +1,16 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Clock, Heart, Loader2, CheckCircle, ArrowLeft, Music, Copy, RefreshCw, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { MetaPixelEvents } from '@/components/MetaPixel';
+
+declare global {
+  interface Window {
+    MercadoPago: any;
+  }
+}
 
 interface OrderData {
   orderId: string;
@@ -20,12 +26,16 @@ interface OrderData {
   occasionLabel: string;
   musicStyle: string;
   musicStyleLabel: string;
+  musicStyle2?: string;
+  musicStyle2Label?: string;
   voicePreference: string;
+  storyAndMessage?: string;
   qualities: string;
   memories: string;
   heartMessage: string;
   familyNames?: string;
   approvedLyrics: string;
+  generatedLyrics?: string;
   knowsBabySex?: string;
   babySex?: string;
   babyNameBoy?: string;
@@ -48,9 +58,16 @@ export default function CheckoutPage() {
   const [pixCopied, setPixCopied] = useState(false);
   const [checkingPayment, setCheckingPayment] = useState(false);
 
+  // Card form states
+  const [showCardForm, setShowCardForm] = useState(false);
+  const [cardBrickReady, setCardBrickReady] = useState(false);
+  const brickControllerRef = useRef<any>(null);
+
   // Error state
   const [error, setError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  const mpPublicKey = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY || '';
 
   // Recuperar dados do pedido
   useEffect(() => {
@@ -65,11 +82,178 @@ export default function CheckoutPage() {
           value: data.amount,
           content_name: `Música para ${data.honoreeName}`,
         });
+
+        // Se veio direto pra cartão (do formulário)
+        const method = sessionStorage.getItem('checkoutMethod');
+        if (method === 'card') {
+          setShowCardForm(true);
+          sessionStorage.removeItem('checkoutMethod');
+        }
       } catch (e) {
         console.error('Erro ao recuperar dados do pedido:', e);
       }
     }
   }, []);
+
+  // Inicializar Brick de cartão quando showCardForm fica true
+  useEffect(() => {
+    if (!showCardForm || !orderData || !mpPublicKey) return;
+
+    let mounted = true;
+
+    const initBrick = async () => {
+      try {
+        // Carregar SDK do Mercado Pago se ainda não carregou
+        if (!window.MercadoPago) {
+          await new Promise<void>((resolve, reject) => {
+            const existing = document.querySelector('script[src*="sdk.mercadopago.com"]');
+            if (existing) {
+              // Script já existe, esperar carregar
+              if (window.MercadoPago) { resolve(); return; }
+              existing.addEventListener('load', () => resolve());
+              existing.addEventListener('error', () => reject(new Error('Erro ao carregar SDK')));
+              return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://sdk.mercadopago.com/js/v2';
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Erro ao carregar SDK'));
+            document.head.appendChild(script);
+          });
+        }
+
+        if (!mounted) return;
+
+        const mp = new window.MercadoPago(mpPublicKey, { locale: 'pt-BR' });
+        const bricksBuilder = mp.bricks();
+
+        // Limpar container antes de criar
+        const container = document.getElementById('cardPaymentBrick_container');
+        if (container) container.innerHTML = '';
+
+        const controller = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
+          initialization: {
+            amount: orderData.amount,
+            payer: {
+              email: orderData.customerEmail || '',
+            },
+          },
+          customization: {
+            visual: {
+              style: {
+                theme: 'default',
+                customVariables: {
+                  formBackgroundColor: '#ffffff',
+                  baseColor: '#7c3aed',
+                },
+              },
+              hideFormTitle: true,
+            },
+            paymentMethods: {
+              maxInstallments: 12,
+              minInstallments: 1,
+            },
+          },
+          callbacks: {
+            onReady: () => {
+              if (mounted) setCardBrickReady(true);
+            },
+            onSubmit: async (cardFormData: any) => {
+              if (!mounted) return;
+              setError(null);
+
+              try {
+                const response = await fetch('/api/mercadopago/process', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    cardFormData,
+                    orderData: {
+                      plan: orderData.plan,
+                      customerName: orderData.customerName,
+                      customerEmail: orderData.customerEmail,
+                      customerWhatsapp: orderData.customerWhatsapp,
+                      honoreeName: orderData.honoreeName,
+                      relationship: orderData.relationship,
+                      relationshipLabel: orderData.relationshipLabel,
+                      occasion: orderData.occasion,
+                      occasionLabel: orderData.occasionLabel,
+                      musicStyle: orderData.musicStyle,
+                      musicStyleLabel: orderData.musicStyleLabel,
+                      musicStyle2: orderData.musicStyle2,
+                      musicStyle2Label: orderData.musicStyle2Label,
+                      voicePreference: orderData.voicePreference,
+                      storyAndMessage: orderData.storyAndMessage,
+                      familyNames: orderData.familyNames,
+                      generatedLyrics: orderData.approvedLyrics || orderData.generatedLyrics,
+                      knowsBabySex: orderData.knowsBabySex,
+                      babySex: orderData.babySex,
+                      babyNameBoy: orderData.babyNameBoy,
+                      babyNameGirl: orderData.babyNameGirl,
+                    },
+                  }),
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'approved') {
+                  MetaPixelEvents.purchase({
+                    value: orderData.amount,
+                    content_name: `Música para ${orderData.honoreeName}`,
+                    content_ids: [result.orderId],
+                  });
+
+                  setPaymentSuccess(true);
+                  sessionStorage.removeItem('checkoutData');
+
+                  setTimeout(() => {
+                    router.push(`/pagamento/sucesso?orderId=${result.orderId}&source=mercadopago`);
+                  }, 2000);
+
+                  return; // resolve → Brick mostra sucesso
+                } else if (result.status === 'pending') {
+                  setPaymentSuccess(true);
+                  sessionStorage.removeItem('checkoutData');
+                  setTimeout(() => {
+                    router.push(`/pagamento/sucesso?orderId=${result.orderId}&source=mercadopago&status=pending`);
+                  }, 2000);
+                  return;
+                } else {
+                  // Rejeitado
+                  throw new Error(result.message || 'Pagamento recusado. Tente outro cartão.');
+                }
+              } catch (err: any) {
+                setError(err.message || 'Erro ao processar pagamento');
+                throw err; // reject → Brick mostra erro
+              }
+            },
+            onError: (err: any) => {
+              console.error('Brick error:', err);
+            },
+          },
+        });
+
+        if (mounted) {
+          brickControllerRef.current = controller;
+        }
+      } catch (err) {
+        console.error('Erro ao inicializar formulário de cartão:', err);
+        if (mounted) setError('Erro ao carregar formulário de pagamento. Recarregue a página.');
+      }
+    };
+
+    initBrick();
+
+    return () => {
+      mounted = false;
+      if (brickControllerRef.current) {
+        try { brickControllerRef.current.unmount(); } catch {}
+        brickControllerRef.current = null;
+      }
+      setCardBrickReady(false);
+    };
+  }, [showCardForm, orderData, mpPublicKey, router]);
 
   // Verificar status do pagamento PIX (via OpenPix/Woovi)
   const checkPixPayment = useCallback(async () => {
@@ -155,60 +339,21 @@ export default function CheckoutPage() {
     }
   };
 
-  // Processar pagamento com Cartão (Mercado Pago)
-  const handleCardPayment = async () => {
-    if (!orderData) return;
-    setLoading(true);
+  // Mostrar formulário de cartão
+  const handleShowCardForm = () => {
     setError(null);
+    setShowCardForm(true);
+    MetaPixelEvents.addPaymentInfo({ value: orderData?.amount || 0 });
+  };
 
-    try {
-      const response = await fetch('/api/mercadopago/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          plan: orderData.plan,
-          amount: orderData.amount,
-          customerName: orderData.customerName,
-          customerEmail: orderData.customerEmail,
-          customerWhatsapp: orderData.customerWhatsapp,
-          orderId: orderData.orderId,
-          honoreeName: orderData.honoreeName,
-          relationship: orderData.relationship,
-          relationshipLabel: orderData.relationshipLabel,
-          occasion: orderData.occasion,
-          occasionLabel: orderData.occasionLabel,
-          musicStyle: orderData.musicStyle,
-          musicStyleLabel: orderData.musicStyleLabel,
-          voicePreference: orderData.voicePreference,
-          qualities: orderData.qualities,
-          memories: orderData.memories,
-          heartMessage: orderData.heartMessage,
-          familyNames: orderData.familyNames,
-          approvedLyrics: orderData.approvedLyrics,
-          knowsBabySex: orderData.knowsBabySex,
-          babySex: orderData.babySex,
-          babyNameBoy: orderData.babyNameBoy,
-          babyNameGirl: orderData.babyNameGirl,
-          description: `Música personalizada para ${orderData.honoreeName}`,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      if (data.initPoint) {
-        MetaPixelEvents.addPaymentInfo({ value: orderData.amount });
-        window.location.href = data.initPoint;
-      } else {
-        throw new Error('Erro ao criar link de pagamento');
-      }
-    } catch (error: any) {
-      console.error('Erro:', error);
-      setError(error.message || 'Erro ao processar pagamento com cartão');
-      setLoading(false);
+  // Voltar para seleção de método
+  const handleBackToMethods = () => {
+    setShowCardForm(false);
+    setCardBrickReady(false);
+    setError(null);
+    if (brickControllerRef.current) {
+      try { brickControllerRef.current.unmount(); } catch {}
+      brickControllerRef.current = null;
     }
   };
 
@@ -359,9 +504,55 @@ export default function CheckoutPage() {
                   Verificar pagamento manualmente
                 </button>
               </div>
-            ) : (
-              /* Botão para gerar PIX */
+            ) : showCardForm ? (
+              /* Formulário de cartão (Mercado Pago Brick) */
               <div className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-blue-500" />
+                    Pagar com Cartão
+                  </h2>
+                  <button
+                    onClick={handleBackToMethods}
+                    className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                  >
+                    ← Voltar
+                  </button>
+                </div>
+
+                {/* Mensagem de erro */}
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {/* Loading do Brick */}
+                {!cardBrickReady && (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                    <span className="ml-3 text-gray-500">Carregando formulário...</span>
+                  </div>
+                )}
+
+                {/* Container do CardPayment Brick */}
+                <div id="cardPaymentBrick_container" className={!cardBrickReady ? 'opacity-0 h-0 overflow-hidden' : ''} />
+
+                <p className="text-xs text-gray-400 mt-4 text-center">
+                  Pagamento processado com segurança pelo Mercado Pago
+                </p>
+              </div>
+            ) : (
+              /* Seleção de método de pagamento */
+              <div className="p-5">
+                {/* Mensagem de erro */}
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {/* Info PIX */}
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
@@ -379,13 +570,7 @@ export default function CheckoutPage() {
                   </p>
                 </div>
 
-                {/* Mensagem de erro */}
-                {error && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                    {error}
-                  </div>
-                )}
-
+                {/* Botão PIX */}
                 <button
                   onClick={handlePixPayment}
                   disabled={loading}
@@ -411,26 +596,17 @@ export default function CheckoutPage() {
                   <div className="flex-1 h-px bg-gray-200" />
                 </div>
 
-                {/* Botão Cartão (Mercado Pago) */}
+                {/* Botão Cartão */}
                 <button
-                  onClick={handleCardPayment}
+                  onClick={handleShowCardForm}
                   disabled={loading}
                   className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Processando...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-5 h-5" />
-                      <div className="text-left">
-                        <div>Pagar com Cartão</div>
-                        <div className="text-xs font-normal opacity-80">Crédito ou Débito — até 12x</div>
-                      </div>
-                    </>
-                  )}
+                  <CreditCard className="w-5 h-5" />
+                  <div className="text-left">
+                    <div>Pagar com Cartão</div>
+                    <div className="text-xs font-normal opacity-80">Crédito ou Débito — até 12x</div>
+                  </div>
                 </button>
               </div>
             )}

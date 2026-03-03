@@ -264,7 +264,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     }
   };
 
-  // Redirecionar para checkout Mercado Pago (Cartão)
+  // Navegar para checkout com cartão (formulário embutido)
   const handleCardCheckout = async () => {
     if (!canProceed()) return;
     setLoading(true);
@@ -272,30 +272,14 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
 
     try {
       const orderData = prepareOrderData();
-
-      const response = await fetch('/api/mercadopago/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      if (data.initPoint) {
-        // Salvar orderId para quando o usuário voltar
-        localStorage.setItem('pendingOrder', JSON.stringify({
-          ...orderData,
-          orderId: data.orderId,
-        }));
-        // Redirecionar para Mercado Pago
-        window.location.href = data.initPoint;
-      } else {
-        throw new Error('Erro ao criar link de pagamento');
-      }
+      // Salvar dados no sessionStorage para o checkout page ler
+      sessionStorage.setItem('checkoutData', JSON.stringify({
+        ...orderData,
+        amount: selectedPlan.price,
+      }));
+      // Indicar que é pagamento com cartão (auto-abrir formulário)
+      sessionStorage.setItem('checkoutMethod', 'card');
+      router.push('/checkout');
     } catch (error: any) {
       setPaymentError(error.message || 'Erro ao processar. Tente novamente.');
       setLoading(false);
