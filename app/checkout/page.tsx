@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Clock, Heart, Loader2, CheckCircle, ArrowLeft, Music, Copy, RefreshCw } from 'lucide-react';
+import { Shield, Clock, Heart, Loader2, CheckCircle, ArrowLeft, Music, Copy, RefreshCw, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { MetaPixelEvents } from '@/components/MetaPixel';
 
@@ -155,6 +155,63 @@ export default function CheckoutPage() {
     }
   };
 
+  // Processar pagamento com Cartão (Mercado Pago)
+  const handleCardPayment = async () => {
+    if (!orderData) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/mercadopago/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: orderData.plan,
+          amount: orderData.amount,
+          customerName: orderData.customerName,
+          customerEmail: orderData.customerEmail,
+          customerWhatsapp: orderData.customerWhatsapp,
+          orderId: orderData.orderId,
+          honoreeName: orderData.honoreeName,
+          relationship: orderData.relationship,
+          relationshipLabel: orderData.relationshipLabel,
+          occasion: orderData.occasion,
+          occasionLabel: orderData.occasionLabel,
+          musicStyle: orderData.musicStyle,
+          musicStyleLabel: orderData.musicStyleLabel,
+          voicePreference: orderData.voicePreference,
+          qualities: orderData.qualities,
+          memories: orderData.memories,
+          heartMessage: orderData.heartMessage,
+          familyNames: orderData.familyNames,
+          approvedLyrics: orderData.approvedLyrics,
+          knowsBabySex: orderData.knowsBabySex,
+          babySex: orderData.babySex,
+          babyNameBoy: orderData.babyNameBoy,
+          babyNameGirl: orderData.babyNameGirl,
+          description: `Música personalizada para ${orderData.honoreeName}`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.initPoint) {
+        MetaPixelEvents.addPaymentInfo({ value: orderData.amount });
+        window.location.href = data.initPoint;
+      } else {
+        throw new Error('Erro ao criar link de pagamento');
+      }
+    } catch (error: any) {
+      console.error('Erro:', error);
+      setError(error.message || 'Erro ao processar pagamento com cartão');
+      setLoading(false);
+    }
+  };
+
   // Copiar código PIX
   const copyPixCode = () => {
     if (pixData?.qrCode) {
@@ -217,7 +274,7 @@ export default function CheckoutPage() {
             </Link>
             <h1 className="text-xl font-bold mb-1">Finalizar Pagamento</h1>
             <p className="text-white/80 text-sm">
-              Pagamento 100% seguro via PIX
+              Pagamento 100% seguro via PIX ou Cartão
             </p>
           </div>
         </div>
@@ -337,12 +394,41 @@ export default function CheckoutPage() {
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Gerando PIX...
+                      Processando...
                     </>
                   ) : (
                     <>
                       <Shield size={20} />
                       Pagar R$ {orderData.amount.toFixed(2).replace('.', ',')} com PIX
+                    </>
+                  )}
+                </button>
+
+                {/* Separador */}
+                <div className="flex items-center gap-3 my-4">
+                  <div className="flex-1 h-px bg-gray-200" />
+                  <span className="text-xs text-gray-400 font-medium">ou</span>
+                  <div className="flex-1 h-px bg-gray-200" />
+                </div>
+
+                {/* Botão Cartão (Mercado Pago) */}
+                <button
+                  onClick={handleCardPayment}
+                  disabled={loading}
+                  className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processando...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5" />
+                      <div className="text-left">
+                        <div>Pagar com Cartão</div>
+                        <div className="text-xs font-normal opacity-80">Crédito ou Débito — até 12x</div>
+                      </div>
                     </>
                   )}
                 </button>
@@ -367,7 +453,7 @@ export default function CheckoutPage() {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-4">
-            PIX: <span className="font-semibold text-green-500">Woovi</span>
+            PIX: <span className="font-semibold text-green-500">Woovi</span> | Cartão: <span className="font-semibold text-blue-500">Mercado Pago</span>
           </p>
         </div>
       </div>

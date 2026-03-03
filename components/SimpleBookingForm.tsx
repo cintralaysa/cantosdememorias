@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
-import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, AlertCircle, Info, CreditCard } from 'lucide-react';
 
 // Opções de relacionamento - Chá Revelação primeiro!
 const RELATIONSHIPS = [
@@ -258,6 +258,44 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
       const orderData = prepareOrderData();
       localStorage.setItem('pendingOrder', JSON.stringify(orderData));
       router.push('/checkout/pix');
+    } catch (error: any) {
+      setPaymentError(error.message || 'Erro ao processar. Tente novamente.');
+      setLoading(false);
+    }
+  };
+
+  // Redirecionar para checkout Mercado Pago (Cartão)
+  const handleCardCheckout = async () => {
+    if (!canProceed()) return;
+    setLoading(true);
+    setPaymentError(null);
+
+    try {
+      const orderData = prepareOrderData();
+
+      const response = await fetch('/api/mercadopago/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.initPoint) {
+        // Salvar orderId para quando o usuário voltar
+        localStorage.setItem('pendingOrder', JSON.stringify({
+          ...orderData,
+          orderId: data.orderId,
+        }));
+        // Redirecionar para Mercado Pago
+        window.location.href = data.initPoint;
+      } else {
+        throw new Error('Erro ao criar link de pagamento');
+      }
     } catch (error: any) {
       setPaymentError(error.message || 'Erro ao processar. Tente novamente.');
       setLoading(false);
@@ -579,6 +617,34 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
                       <div className="text-left">
                         <div>Pagar com PIX</div>
                         <div className="text-xs font-normal opacity-80">Aprovação instantânea</div>
+                      </div>
+                      <span className="ml-auto">{selectedPlan.priceFormatted}</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Separador */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-gray-200" />
+                  <span className="text-xs text-gray-400 font-medium">ou</span>
+                  <div className="flex-1 h-px bg-gray-200" />
+                </div>
+
+                {/* Botão Cartão (Mercado Pago) */}
+                <button
+                  type="button"
+                  onClick={handleCardCheckout}
+                  disabled={loading}
+                  className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-bold text-base flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg transition-all"
+                >
+                  {loading ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" />Processando...</>
+                  ) : (
+                    <>
+                      <CreditCard className="w-6 h-6" />
+                      <div className="text-left">
+                        <div>Pagar com Cartão</div>
+                        <div className="text-xs font-normal opacity-80">Crédito ou Débito — até 12x</div>
                       </div>
                       <span className="ml-auto">{selectedPlan.priceFormatted}</span>
                     </>

@@ -60,7 +60,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: blob: https: http:",
               "font-src 'self' https://fonts.gstatic.com",
-              "connect-src 'self' https://api.openai.com https://cdn1.suno.ai https://vitals.vercel-insights.com",
+              "connect-src 'self' https://api.openai.com https://cdn1.suno.ai https://vitals.vercel-insights.com https://api.mercadopago.com",
               "frame-src 'self'",
               "media-src 'self' https://cdn1.suno.ai blob:",
               "object-src 'none'",
