@@ -575,16 +575,6 @@ export default function Home() {
                   <span className="text-sm sm:text-base font-black text-white">R$39,90</span>
                 </div>
 
-                {/* Banner "Entrega em 5 minutos" — abaixo do player */}
-                <div className="mt-3 sm:mt-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 backdrop-blur border border-amber-500/40 rounded-2xl px-4 py-3 sm:py-3.5 flex items-center justify-center gap-2.5 shadow-lg">
-                  <div className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-md shadow-orange-500/30 flex-shrink-0">
-                    <Zap className="text-white" size={16} />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-white font-extrabold text-sm sm:text-base leading-tight">Entrega em 5 minutos</p>
-                    <p className="text-amber-200/80 text-[10px] sm:text-xs leading-tight">100% automático, direto no seu e-mail</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
