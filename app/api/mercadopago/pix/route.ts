@@ -114,8 +114,18 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Erro ao criar PIX via MP:', error);
+
+    // Erro específico: conta MP sem chave PIX
+    const errorMsg = error.message || '';
+    if (errorMsg.includes('key enabled for QR') || errorMsg.includes('Collector user')) {
+      return NextResponse.json(
+        { error: 'Chave PIX não cadastrada na conta Mercado Pago. Configure uma chave PIX no app do Mercado Pago.' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
-      { error: error.message || 'Erro ao gerar PIX' },
+      { error: errorMsg || 'Erro ao gerar PIX. Tente novamente.' },
       { status: 500 }
     );
   }
