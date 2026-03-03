@@ -40,7 +40,7 @@ export default function Footer() {
             <p className="text-gray-500 font-bold uppercase text-[10px] leading-loose">
               Estúdio Cantos de Memórias<br />
               Conexão Brasil-Mundo<br />
-              Atendimento 24h via WhatsApp
+              Atendimento via E-mail
             </p>
           </div>
         </div>

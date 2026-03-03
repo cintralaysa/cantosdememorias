@@ -62,7 +62,7 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
                 '2 melodias exclusivas da mesma letra',
                 'Download MP3 + letra em texto',
                 'Link exclusivo por 30 dias',
-                'Suporte via WhatsApp',
+                'Suporte via E-mail',
                 'Entrega automática em minutos',
               ].map((item, index) => (
                 <li key={index} className="flex items-center gap-2 sm:gap-3">
@@ -109,11 +109,15 @@ export default function Planos({ onSelectPlan }: PlanosProps) {
               <span className="text-xl sm:text-2xl text-white">,90</span>
             </div>
 
-            <div className="flex items-center gap-2 text-orange-400 text-xs sm:text-sm mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 text-orange-400 text-xs sm:text-sm mb-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z"/>
               </svg>
               Entrega automática em minutos
+            </div>
+
+            <div className="inline-flex items-center bg-green-500/20 border border-green-500/30 rounded-full px-2.5 py-0.5 sm:px-3 sm:py-1 mb-5 sm:mb-6">
+              <span className="text-green-400 text-xs sm:text-sm font-medium">EXCLUSIVO SITE</span>
             </div>
 
             <ul className="space-y-2.5 sm:space-y-4 mb-5 sm:mb-8">
