@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
         },
         external_reference: orderId,
         statement_descriptor: 'CANTOSMEMORIAS',
+        notification_url: 'https://www.cantosdememorias.com.br/api/mercadopago/webhook',
       },
       requestOptions: {
         idempotencyKey: `pix-${orderId}`,

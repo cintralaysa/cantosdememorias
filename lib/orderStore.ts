@@ -56,7 +56,8 @@ export interface OrderData {
   creditsUsed?: number;
   songs?: string; // JSON stringified SongRecord[]
   // Notificações
-  emailSentAt?: string; // ISO timestamp de quando o email "música pronta" foi enviado
+  emailSentAt?: string; // ISO timestamp de quando o email de PAGAMENTO foi enviado
+  musicEmailSentAt?: string; // ISO timestamp de quando o email "música pronta" foi enviado
   // Upsell
   upsellPurchased?: boolean; // true se já comprou upsell neste pedido
 }

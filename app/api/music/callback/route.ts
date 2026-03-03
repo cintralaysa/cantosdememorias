@@ -47,11 +47,11 @@ export async function POST(request: NextRequest) {
       // Se completou, enviar emails (mesmo check de dedup que o poll/route.ts)
       if (result === 'completed') {
         const order = await getOrder(orderId);
-        if (order && !order.emailSentAt) {
-          await updateOrder(orderId, { emailSentAt: new Date().toISOString() });
+        if (order && !order.musicEmailSentAt) {
+          await updateOrder(orderId, { musicEmailSentAt: new Date().toISOString() });
           await sendMusicReadyFromCallback(orderId, order);
         } else {
-          console.log(`[SUNO-CALLBACK] Email já enviado para ${orderId}, pulando`);
+          console.log(`[SUNO-CALLBACK] Email de música já enviado para ${orderId}, pulando`);
         }
       }
 

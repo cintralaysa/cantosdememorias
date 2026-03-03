@@ -27,13 +27,13 @@ export async function POST(request: NextRequest) {
     const result = await pollMusicStatus(orderId);
 
     if (result === 'completed') {
-      // Verificar se email já foi enviado (pelo callback ou por chamada anterior)
+      // Verificar se email de MÚSICA já foi enviado (campo separado do email de pagamento)
       const orderCheck = await getOrder(orderId);
-      if (!orderCheck?.emailSentAt) {
-        await updateOrder(orderId, { emailSentAt: new Date().toISOString() });
+      if (!orderCheck?.musicEmailSentAt) {
+        await updateOrder(orderId, { musicEmailSentAt: new Date().toISOString() });
         await sendMusicReadyNotifications(orderId);
       } else {
-        console.log(`[MUSIC-POLL] Email já enviado para ${orderId} em ${orderCheck.emailSentAt}, pulando`);
+        console.log(`[MUSIC-POLL] Email de música já enviado para ${orderId} em ${orderCheck.musicEmailSentAt}, pulando`);
       }
     } else if (result === 'failed') {
       // Geração falhou! Notificar admin
