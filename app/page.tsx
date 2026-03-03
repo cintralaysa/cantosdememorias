@@ -54,89 +54,58 @@ const MusicVisualizer = () => (
   </div>
 );
 
-// Seção de Reações - Cards com thumbnails reais dos vídeos do Instagram
-const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
+// Seção de Vídeos Reais de Clientes
+const ClientVideosSection = ({ onOpenModal }: { onOpenModal: () => void }) => {
+  const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  // Dados dos vídeos de reação com URLs específicas e thumbnails
-  // IMPORTANTE: Substitua as thumbnails pelas capas reais dos vídeos salvando em /public/reels/
-  const reels = [
+  const videos = [
     {
       id: 1,
-      url: 'https://www.instagram.com/reel/DDopleHp0YS/',
-      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_czgkh4czgkh4czgk.png',
-      title: 'Mãe emocionada',
-      desc: 'Presente de aniversário',
-      likes: '2.4k',
-      gradient: 'from-pink-500 to-rose-600'
+      src: '/videos/cliente-reacao-3.mp4',
+      title: 'Emoção pura',
+      desc: 'O coração batendo no ritmo da música',
     },
     {
       id: 2,
-      url: 'https://www.instagram.com/reel/DDgU47IJu5P/',
-      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_bzavwlbzavwlbzav.png',
-      title: 'Surpresa incrível',
-      desc: 'Ela não esperava',
-      likes: '3.1k',
-      gradient: 'from-violet-500 to-purple-600'
+      src: '/videos/cliente-reacao-4.mp4',
+      title: 'Momento inesquecível',
+      desc: 'Trilha sonora para um momento especial',
     },
     {
       id: 3,
-      url: 'https://www.instagram.com/reel/DDYqsW8pXEw/',
-      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_siy9uysiy9uysiy9.png',
-      title: 'Dia especial',
-      desc: 'Momento único',
-      likes: '1.8k',
-      gradient: 'from-blue-500 to-indigo-600'
+      src: '/videos/cliente-reacao-1.mp4',
+      title: 'Surpresa incrível',
+      desc: 'A reação que não tem preço',
     },
     {
       id: 4,
-      url: 'https://www.instagram.com/reel/DDTGR2lJCiH/',
-      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_qm5isrqm5isrqm5i.png',
-      title: 'Reação linda',
-      desc: 'Emoção pura',
-      likes: '4.2k',
-      gradient: 'from-red-500 to-pink-600'
-    },
-    {
-      id: 5,
-      url: 'https://www.instagram.com/reel/DC5Y44wpsHv/',
-      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_dkfj25dkfj25dkfj.png',
-      title: 'Homenagem',
-      desc: 'Família emocionada',
-      likes: '2.9k',
-      gradient: 'from-amber-500 to-orange-600'
-    },
-    {
-      id: 6,
-      url: 'https://www.instagram.com/reel/DCx3P3MJp9t/',
-      thumbnail: '/portfolio/fotos/Gemini_Generated_Image_yx5imgyx5imgyx5i.png',
-      title: 'Presente especial',
-      desc: 'Chorou de alegria',
-      likes: '1.5k',
-      gradient: 'from-emerald-500 to-teal-600'
+      src: '/videos/cliente-reacao-2.mp4',
+      title: 'Memórias que tocam',
+      desc: 'Criamos memórias que tocam o coração',
     },
   ];
 
-  // Auto scroll a cada 5 segundos (otimizado: usa ref para evitar recriar interval)
-  const currentIndexRef = useRef(currentIndex);
-  currentIndexRef.current = currentIndex;
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (scrollRef.current) {
-        const nextIndex = (currentIndexRef.current + 1) % reels.length;
-        const cardWidth = 200;
-        scrollRef.current.scrollTo({
-          left: nextIndex * cardWidth,
-          behavior: 'smooth'
-        });
-        setCurrentIndex(nextIndex);
+  const handlePlay = (id: number, idx: number) => {
+    // Pausar vídeo anterior se existir
+    if (playingVideo !== null && playingVideo !== id) {
+      const prevIdx = videos.findIndex(v => v.id === playingVideo);
+      if (prevIdx >= 0 && videoRefs.current[prevIdx]) {
+        videoRefs.current[prevIdx]!.pause();
       }
-    }, 5000);
+    }
 
-    return () => clearInterval(timer);
-  }, [reels.length]);
+    const video = videoRefs.current[idx];
+    if (!video) return;
+
+    if (playingVideo === id && !video.paused) {
+      video.pause();
+      setPlayingVideo(null);
+    } else {
+      video.play().catch(() => {});
+      setPlayingVideo(id);
+    }
+  };
 
   return (
     <section className="py-12 sm:py-20 bg-gradient-to-b from-white to-violet-50/30 overflow-hidden">
@@ -144,112 +113,70 @@ const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => 
         <div className="text-center mb-8 sm:mb-10">
           <div className="inline-flex items-center gap-2 bg-pink-100 border border-pink-200 px-4 py-2 rounded-full mb-4">
             <Heart className="text-pink-600 fill-pink-600" size={16} />
-            <span className="text-pink-700 font-semibold text-sm">Reações Reais</span>
+            <span className="text-pink-700 font-semibold text-sm">Clientes Reais</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 mb-3">
             Veja a <span className="text-gradient-royal">emoção</span> de quem recebeu
           </h2>
           <p className="text-gray-600 text-sm sm:text-base max-w-xl mx-auto">
-            Clique em cada vídeo para assistir no Instagram
+            Vídeos reais dos nossos clientes recebendo suas músicas personalizadas
           </p>
         </div>
 
-        {/* Carrossel de Cards */}
-        <div
-          ref={scrollRef}
-          className="flex overflow-x-auto gap-2 sm:gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
-        >
-          {reels.map((reel, idx) => (
-            <a
-              key={reel.id}
-              href={reel.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex-shrink-0 snap-center group relative w-[160px] sm:w-[200px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
-                idx === currentIndex ? 'ring-4 ring-violet-400 ring-offset-2' : ''
-              }`}
+        {/* Grid de vídeos */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {videos.map((video, idx) => (
+            <div
+              key={video.id}
+              className="relative aspect-[9/16] rounded-2xl overflow-hidden shadow-xl group cursor-pointer bg-black"
+              onClick={() => handlePlay(video.id, idx)}
             >
-              {/* Thumbnail do vídeo */}
-              <Image
-                src={reel.thumbnail}
-                alt={reel.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 160px, 200px"
-                loading="lazy"
+              <video
+                ref={(el) => { videoRefs.current[idx] = el; }}
+                src={video.src}
+                className="w-full h-full object-cover"
+                playsInline
+                preload="metadata"
+                loop
+                onEnded={() => setPlayingVideo(null)}
               />
 
-              {/* Overlay escuro */}
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+              {/* Overlay - esconde quando tocando */}
+              <div className={`absolute inset-0 transition-opacity duration-300 ${
+                playingVideo === video.id ? 'opacity-0' : 'opacity-100'
+              }`}>
+                {/* Gradiente inferior */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
 
-              {/* Play button */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white/50 group-hover:scale-110 transition-all">
-                  <Play className="text-white w-6 h-6 sm:w-8 sm:h-8 ml-1" fill="white" />
+                {/* Play button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white/50 group-hover:scale-110 transition-all">
+                    <Play className="text-white w-6 h-6 sm:w-8 sm:h-8 ml-1" fill="white" />
+                  </div>
+                </div>
+
+                {/* Badge */}
+                <div className="absolute top-3 left-3 bg-red-500/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <span className="text-white text-xs font-bold">REAL</span>
+                </div>
+
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                  <p className="text-white font-bold text-sm sm:text-base leading-tight">{video.title}</p>
+                  <p className="text-white/70 text-xs mt-0.5">{video.desc}</p>
                 </div>
               </div>
 
-              {/* Instagram badge */}
-              <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-sm rounded-full p-1.5">
-                <Instagram className="text-white w-4 h-4" />
-              </div>
-
-              {/* Reel indicator */}
-              <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
-                <Play className="text-white w-3 h-3" fill="white" />
-                <span className="text-white text-xs font-medium">Reel</span>
-              </div>
-
-              {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
-                <p className="text-white font-bold text-sm sm:text-base leading-tight">{reel.title}</p>
-                <p className="text-white/70 text-xs mt-0.5">{reel.desc}</p>
-                <div className="flex items-center gap-1 mt-2">
-                  <Heart className="text-red-400 w-3 h-3" fill="#f87171" />
-                  <span className="text-white/80 text-xs">{reel.likes}</span>
+              {/* Botão pausar (aparece quando tocando) */}
+              {playingVideo === video.id && (
+                <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-4 h-4 text-white fill-current" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                  </svg>
                 </div>
-              </div>
-            </a>
-          ))}
-
-          {/* Card final - Ver mais */}
-          <a
-            href="https://www.instagram.com/cantosdememorias"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-shrink-0 snap-center group relative w-[160px] sm:w-[200px] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-          >
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Instagram className="text-white w-8 h-8" />
-              </div>
-              <p className="text-white font-bold text-lg">Ver todos</p>
-              <p className="text-white/80 text-sm mt-1">@cantosdememorias</p>
-              <div className="mt-4 bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-bold group-hover:bg-gray-100 transition-colors">
-                Abrir Instagram
-              </div>
+              )}
             </div>
-          </a>
-        </div>
-
-        {/* Indicadores */}
-        <div className="flex items-center justify-center gap-2 mt-6">
-          {reels.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                setCurrentIndex(idx);
-                if (scrollRef.current) {
-                  scrollRef.current.scrollTo({
-                    left: idx * 200,
-                    behavior: 'smooth'
-                  });
-                }
-              }}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                idx === currentIndex ? 'w-8 bg-violet-500' : 'w-2 bg-gray-300 hover:bg-gray-400'
-              }`}
-            />
           ))}
         </div>
 
@@ -273,7 +200,7 @@ const InstagramReelsSection = ({ onOpenModal }: { onOpenModal: () => void }) => 
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-sm sm:text-base hover:scale-105 transition-transform"
             >
               <Instagram size={18} />
-              <span>Ver vídeos no Instagram</span>
+              <span>Mais no Instagram</span>
             </a>
           </div>
         </div>
@@ -650,6 +577,11 @@ export default function Home() {
           </svg>
         </div>
       </section>
+
+      {/* ================================================================
+          VÍDEOS REAIS DE CLIENTES
+          ================================================================ */}
+      <ClientVideosSection onOpenModal={() => setIsModalOpen(true)} />
 
       {/* ================================================================
           PLANOS - SEÇÃO ESCURA COM DESIGN ROXO/LARANJA
