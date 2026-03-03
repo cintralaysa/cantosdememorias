@@ -70,16 +70,12 @@ async function sendMusicReadyNotifications(orderId: string) {
   const baseUrl = getEmailBaseUrl();
   const musicPageUrl = `${baseUrl}/musica/${orderId}`;
   const accessCode = order.accessCode || '';
-  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Cantos de Memórias <onboarding@resend.dev>';
+  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Cantos de Memórias <contato@cantosdememorias.com.br>';
   const musicUrls = order.musicUrls ? JSON.parse(String(order.musicUrls)) : [];
   const melodiasCount = musicUrls.length || 2;
 
   // Email para o cliente
   if (order.customerEmail) {
-    const IS_RESEND_DEV = !process.env.RESEND_FROM_EMAIL || FROM_EMAIL.includes('onboarding@resend.dev');
-    if (IS_RESEND_DEV) {
-      console.warn(`⚠️ RESEND_FROM_EMAIL não configurado! Email "música pronta" para ${order.customerEmail} NÃO será entregue. Configure RESEND_FROM_EMAIL com domínio verificado.`);
-    }
     const lyrics = order.generatedLyrics || order.approvedLyrics || '';
 
     const emailHtml = `<!DOCTYPE html>
@@ -201,7 +197,7 @@ async function sendMusicFailedNotification(orderId: string) {
   const order = await getOrder(orderId);
   if (!order) return;
 
-  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Cantos de Memórias <onboarding@resend.dev>';
+  const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Cantos de Memórias <contato@cantosdememorias.com.br>';
   const whatsappClean = (order.customerWhatsapp || '').replace(/\D/g, '');
 
   try {
