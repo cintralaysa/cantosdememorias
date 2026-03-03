@@ -75,7 +75,7 @@ export default function SuccessPage() {
     };
 
     checkMusic();
-    const interval = setInterval(checkMusic, 5000);
+    const interval = setInterval(checkMusic, 3000);
     return () => clearInterval(interval);
   }, [orderId, router]);
 
