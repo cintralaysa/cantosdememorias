@@ -416,7 +416,7 @@ export default function Home() {
       {/* ================================================================
           HERO SECTION - DESIGN LEVE EM CÓDIGO (SEM IMAGEM PESADA)
           ================================================================ */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#0d0620] via-[#1a0f3a] to-[#0f0a1e] min-h-[90vh] sm:min-h-screen flex items-center">
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#0d0620] via-[#1a0f3a] to-[#0f0a1e] min-h-[100svh] flex items-center">
         {/* Audio Element Hidden */}
         <audio
           ref={audioRef}
@@ -430,79 +430,88 @@ export default function Home() {
         {/* Partículas de notas musicais flutuantes */}
         <FloatingParticles />
 
-        {/* Efeitos de glow decorativos (estáticos, sem animação para performance) */}
+        {/* Efeitos de glow decorativos */}
         <div className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-violet-600/15 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-purple-500/10 rounded-full blur-[60px] pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-purple-500/10 rounded-full blur-[60px] pointer-events-none" />
 
         {/* Conteúdo principal */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-20 w-full">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Lado esquerdo - Texto */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-4 py-2 rounded-full mb-6 animate-fadeInUp">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-16 sm:pb-20 w-full">
+
+          {/* ── MOBILE: layout empilhado otimizado ── */}
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
+
+            {/* ═══ Lado esquerdo — Texto ═══ */}
+            <div className="text-center lg:text-left order-2 lg:order-1">
+
+              {/* Pill social proof */}
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-4 sm:mb-6 animate-fadeInUp">
                 <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <span className="text-white/80 text-xs sm:text-sm font-medium">+{formatNumber(musicCount)} músicas criadas com amor</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6 leading-tight animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-                Crie Sua{' '}
+              {/* Headline */}
+              <h1 className="text-[1.7rem] leading-[1.15] sm:text-4xl md:text-5xl lg:text-[3.4rem] font-black text-white mb-3 sm:mb-5 lg:mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+                Transforme Sentimentos{' '}
+                <br className="hidden sm:block" />
+                em uma{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400">
-                  Música
-                </span>{' '}
-                Agora
+                  Música Única
+                </span>
                 <br />
-                e Receba em{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">
-                  Minutos
+                  Pronta em 5 Minutos
                 </span>
               </h1>
 
-              <p className="text-gray-300 text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
-                Crie agora mesmo no nosso site uma música exclusiva e personalizada. Receba automaticamente em poucos minutos — sem espera!
+              {/* Subtitle */}
+              <p className="text-gray-300/90 text-sm sm:text-base lg:text-lg mb-5 sm:mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+                Uma música personalizada com a história de quem você ama. Letra feita por IA, melodia profissional — entregue automaticamente no seu e-mail.
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-8 sm:mb-10 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 mb-6 sm:mb-8 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
                 <a
                   href="#planos"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-xl shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all duration-300"
                 >
                   <Sparkles size={18} />
-                  <span>Criar Minha Música Agora</span>
+                  <span>Criar Minha Música</span>
                   <ArrowRight size={16} />
                 </a>
                 <a
                   href="#portfolio"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base hover:bg-white/20 transition-all duration-300"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-base hover:bg-white/20 transition-all duration-300"
                 >
                   <Headphones size={18} />
                   <span>Ouvir Exemplos</span>
                 </a>
               </div>
 
-              {/* Stats */}
-              <div className="flex items-center justify-center lg:justify-start gap-4 sm:gap-6 lg:gap-8 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+              {/* Stats — desktop only (mobile stats moved near player) */}
+              <div className="hidden lg:flex items-center gap-8 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
                 {[
-                  { value: `${formatNumber(musicCount)}+`, label: 'Músicas' },
+                  { value: `${formatNumber(musicCount)}+`, label: 'Músicas Criadas' },
                   { value: '4.9★', label: 'Avaliação' },
                   { value: '~5min', label: 'Entrega' },
                 ].map((stat, i) => (
-                  <div key={i} className="text-center">
-                    <p className="text-white font-black text-lg sm:text-xl">{stat.value}</p>
-                    <p className="text-gray-400 text-xs sm:text-sm">{stat.label}</p>
+                  <div key={i} className="text-center lg:text-left">
+                    <p className="text-white font-black text-xl">{stat.value}</p>
+                    <p className="text-gray-400 text-sm">{stat.label}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Lado direito - Player e visualização */}
-            <div className="flex justify-center lg:justify-end animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
-              <div className="relative w-full max-w-sm">
+            {/* ═══ Lado direito — Player card ═══ */}
+            <div className="flex justify-center lg:justify-end animate-fadeInUp order-1 lg:order-2" style={{ animationDelay: '0.2s' }}>
+              <div className="relative w-full max-w-[320px] sm:max-w-sm">
+
                 {/* Card do player */}
-                <div className="bg-[#1a1333]/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-500/10">
+                <div className="bg-[#1a1333]/80 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-5 sm:p-8 shadow-2xl shadow-purple-500/10">
+
                   {/* Imagem da música */}
-                  <div className="flex justify-center mb-6">
-                    <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-2xl overflow-hidden shadow-xl shadow-violet-500/20">
+                  <div className="flex justify-center mb-4 sm:mb-6">
+                    <div className="w-36 h-36 sm:w-48 sm:h-48 rounded-2xl overflow-hidden shadow-xl shadow-violet-500/20">
                       <Image
                         src="/images/hero-player.png"
                         alt="Parabéns Nicolas - Exemplo de música de aniversário"
@@ -515,18 +524,18 @@ export default function Home() {
                   </div>
 
                   {/* Título da música */}
-                  <div className="text-center mb-6">
+                  <div className="text-center mb-4 sm:mb-6">
                     <p className="text-white font-bold text-base sm:text-lg">Parabéns Nicolas</p>
-                    <p className="text-gray-400 text-sm">Exemplo de música de aniversário</p>
+                    <p className="text-gray-400 text-xs sm:text-sm">Exemplo de música de aniversário</p>
                   </div>
 
                   {/* Visualizador de música */}
-                  <div className="flex justify-center mb-6">
+                  <div className="flex justify-center mb-4 sm:mb-6">
                     <MusicVisualizer />
                   </div>
 
                   {/* Barra de progresso */}
-                  <div className="mb-4">
+                  <div className="mb-3 sm:mb-4">
                     <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all duration-300"
@@ -542,7 +551,7 @@ export default function Home() {
                   {/* Botão Play */}
                   <button
                     onClick={togglePlay}
-                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-bold hover:from-violet-500 hover:to-purple-500 transition-all duration-300 shadow-lg shadow-violet-500/20"
+                    className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-bold hover:from-violet-500 hover:to-purple-500 transition-all duration-300 shadow-lg shadow-violet-500/20 text-sm sm:text-base"
                   >
                     {isPlaying ? (
                       <>
@@ -560,13 +569,38 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Badge flutuante com preço em destaque */}
-                <div className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-2 sm:px-5 sm:py-2.5 rounded-full font-bold shadow-lg shadow-green-500/40 animate-pulse flex items-center gap-1 sm:gap-1.5">
-                  <span className="text-xs sm:text-sm text-green-100">A partir de</span>
-                  <span className="text-base sm:text-lg font-black text-white underline decoration-2 underline-offset-2">R$39,90</span>
+                {/* Badge flutuante — preço */}
+                <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-bold shadow-lg shadow-green-500/40 animate-pulse flex items-center gap-1 sm:gap-1.5 z-10">
+                  <span className="text-[10px] sm:text-xs text-green-100">A partir de</span>
+                  <span className="text-sm sm:text-base font-black text-white">R$39,90</span>
+                </div>
+
+                {/* Banner "Entrega em 5 minutos" — abaixo do player */}
+                <div className="mt-3 sm:mt-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 backdrop-blur border border-amber-500/40 rounded-2xl px-4 py-3 sm:py-3.5 flex items-center justify-center gap-2.5 shadow-lg">
+                  <div className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-md shadow-orange-500/30 flex-shrink-0">
+                    <Zap className="text-white" size={16} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-white font-extrabold text-sm sm:text-base leading-tight">Entrega em 5 minutos</p>
+                    <p className="text-amber-200/80 text-[10px] sm:text-xs leading-tight">100% automático, direto no seu e-mail</p>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Stats — mobile only (abaixo de tudo) */}
+          <div className="flex lg:hidden items-center justify-center gap-6 mt-6 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+            {[
+              { value: `${formatNumber(musicCount)}+`, label: 'Músicas' },
+              { value: '4.9★', label: 'Avaliação' },
+              { value: '~5min', label: 'Entrega' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <p className="text-white font-black text-lg">{stat.value}</p>
+                <p className="text-gray-400 text-xs">{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
