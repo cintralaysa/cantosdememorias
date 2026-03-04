@@ -230,7 +230,7 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
       // Meta Pixel: rastrear progresso no funil
       if (nextStepNum === 2) {
         // Usuário preencheu informações → AddToCart
-        MetaPixelEvents.custom('AddToCart', {
+        MetaPixelEvents.addToCart({
           content_name: `Música para ${formData.honoreeName}`,
           content_category: OCCASIONS.find(o => o.value === formData.occasion)?.label,
           value: selectedPlan.price,

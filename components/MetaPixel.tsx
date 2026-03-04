@@ -32,6 +32,14 @@ export const MetaPixelEvents = {
     });
   },
 
+  // Quando alguém adiciona ao carrinho
+  addToCart: (params: { content_name: string; content_category?: string; value?: number; currency?: string }) => {
+    trackEvent('AddToCart', {
+      ...params,
+      currency: params.currency || 'BRL',
+    });
+  },
+
   // Quando alguém inicia o processo de checkout
   initiateCheckout: (params: { value: number; currency?: string; content_name?: string }) => {
     trackEvent('InitiateCheckout', {
