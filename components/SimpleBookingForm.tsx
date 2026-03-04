@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/lib/data';
+import { MetaPixelEvents } from './MetaPixel';
 import { ArrowRight, ArrowLeft, Loader2, Lock, Heart, Music, Sparkles, Check, Shield, Clock, FileText, RefreshCw, Edit3, X, User, Phone, Mail, Users, Mic2, CheckCircle, AlertCircle, Info, CreditCard } from 'lucide-react';
 
 // Opções de relacionamento - Chá Revelação primeiro!
@@ -138,7 +139,15 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
   const totalSteps = 4; // Agora são só 4 passos (removemos a escolha do plano)
   const progress = (step / totalSteps) * 100;
 
-  // Chá Revelação: sempre sabe o sexo (campo obrigatório)
+  // Meta Pixel: disparar ViewContent quando o formulário abre
+  useEffect(() => {
+    MetaPixelEvents.viewContent({
+      content_name: `Formulário - Plano ${formData.plan}`,
+      content_category: 'Música Personalizada',
+      value: selectedPlan.price,
+      currency: 'BRL',
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateField = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -215,7 +224,32 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
       if (step === 2 && !formData.generatedLyrics) { // Agora é passo 2 que vai para letra
         await generateLyrics();
       }
-      setStep(step + 1);
+      const nextStepNum = step + 1;
+      setStep(nextStepNum);
+
+      // Meta Pixel: rastrear progresso no funil
+      if (nextStepNum === 2) {
+        // Usuário preencheu informações → AddToCart
+        MetaPixelEvents.custom('AddToCart', {
+          content_name: `Música para ${formData.honoreeName}`,
+          content_category: OCCASIONS.find(o => o.value === formData.occasion)?.label,
+          value: selectedPlan.price,
+          currency: 'BRL',
+        });
+      } else if (nextStepNum === 3) {
+        // Usuário escreveu a história → Lead
+        MetaPixelEvents.lead({
+          content_name: `Letra gerada - ${formData.honoreeName}`,
+          value: selectedPlan.price,
+        });
+      } else if (nextStepNum === 4) {
+        // Usuário aprovou a letra → InitiateCheckout
+        MetaPixelEvents.initiateCheckout({
+          value: selectedPlan.price,
+          currency: 'BRL',
+          content_name: `Plano ${formData.plan} - ${formData.honoreeName}`,
+        });
+      }
     }
   };
 
@@ -254,6 +288,9 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     setLoading(true);
     setPaymentError(null);
 
+    // Meta Pixel: usuário escolheu forma de pagamento
+    MetaPixelEvents.addPaymentInfo({ value: selectedPlan.price, currency: 'BRL' });
+
     try {
       const orderData = prepareOrderData();
       sessionStorage.setItem('checkoutData', JSON.stringify({
@@ -273,6 +310,9 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
     if (!canProceed()) return;
     setLoading(true);
     setPaymentError(null);
+
+    // Meta Pixel: usuário escolheu forma de pagamento
+    MetaPixelEvents.addPaymentInfo({ value: selectedPlan.price, currency: 'BRL' });
 
     try {
       const orderData = prepareOrderData();
@@ -476,9 +516,9 @@ export default function SimpleBookingForm({ service, onClose, isModal = false, i
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-800"><Heart size={16} className="text-violet-500 fill-violet-500" />Conte a história de {formData.honoreeName}</label>
               <p className="text-xs text-gray-500">Quanto mais detalhes, mais especial ficará a música!</p>
-              <textarea value={formData.storyAndMessage} onChange={(e) => updateField('storyAndMessage', e.target.value)} rows={4} maxLength={1000} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 resize-none text-sm" />
+              <textarea value={formData.storyAndMessage} onChange={(e) => updateField('storyAndMessage', e.target.value)} rows={4} maxLength={1000} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 resize-none text-sm" placeholder={formData.relationship === 'cha-revelacao' ? 'Ex: Nós nos conhecemos na faculdade, estamos juntos há 5 anos e esse bebê é a realização de um sonho...' : formData.relationship === 'mae' ? 'Ex: Minha mãe sempre foi minha fortaleza. Ela adora cozinhar, é carinhosa e nos criou com muito amor...' : formData.relationship === 'esposo' ? 'Ex: Nos conhecemos no trabalho, ele é atencioso, engraçado e o melhor pai do mundo...' : formData.relationship === 'namorado' ? 'Ex: A gente se conheceu numa festa, foi amor à primeira vista. Ele/ela é carinhoso(a) e me faz rir todos os dias...' : 'Ex: Conte como vocês se conheceram, qualidades da pessoa, momentos especiais, apelidos carinhosos...'} />
               <div className="flex justify-between items-start">
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 flex-1 mr-2"><p className="text-xs text-amber-700"><strong>Dicas:</strong> Qualidades, memórias, apelidos carinhosos...</p></div>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 flex-1 mr-2"><p className="text-xs text-amber-700"><strong>Dicas:</strong> Como se conheceram, qualidades, memórias marcantes, apelidos carinhosos, o que ela/ele significa pra você</p></div>
                 <span className={`text-xs font-medium ${formData.storyAndMessage.length < 20 ? 'text-red-500' : 'text-green-500'}`}>{formData.storyAndMessage.length}/1000</span>
               </div>
             </div>
